@@ -4,14 +4,14 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name="STmulator",
-    version="0.1.6",
+    name="FEAST-sim",
+    version="0.1.7",
     author="Yiru CHEN",
     author_email="yiru.22@intl.zju.edu.cn",
     description="Spatial Transcriptomics Simulator",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/maiziezhoulab/SimulaTor",
+    url="https://github.com/maiziezhoulab/FEAST-sim",
     package_dir={"": "src"},
     packages=find_packages(where="src"),
     license="MIT",
