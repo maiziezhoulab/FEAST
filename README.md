@@ -148,7 +148,7 @@ FEAST-sim/
     └── marginal_alteration.py
 ```
 
-## 📊 Reproduction Scripts
+## Reproduction Scripts
 
 The `reproduction/` folder contains scripts to reproduce all benchmarking results from the paper. Each subdirectory corresponds to a specific analysis:
 
@@ -183,93 +183,8 @@ data/
 | **MERFISH** | MERFISH | [Allen Brain Atlas](https://alleninstitute.github.io/abc_atlas_access/descriptions/Zhuang-ABCA-1.html) | Simulation, Deconvolution, Interpolation | `MERFISH_006.h5ad`<br>`MERFISH_007.h5ad`<br>`MERFISH_005-009.h5ad` (5 files) |
 | **OpenST** | OpenST | [GEO: GSE251926](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE251926) | Simulation | `OpenST_005.h5ad`<br>`OpenST_006.h5ad` |
 | **Stereo-seq** | Stereo-seq | [MOSTA](https://www.sciencedirect.com/science/article/pii/S0092867422003993) | Simulation | `Stereoseq_E14_5_E2S2.h5ad` |
-| **Slide-seq** | Slide-seqV2 | [STOmics](https://gene.ai.tencent.com/SpatialOmics/dataset?datasetID=120) | Simulation | `Slideseq_001.h5ad` |
+| **Slide-seq** | Slide-seqV2 | [SODB](https://gene.ai.tencent.com/SpatialOmics/dataset?datasetID=119) | Simulation | `Slideseq_001.h5ad` |
 | **Xenium** | Xenium | [10X Genomics](https://www.10xgenomics.com/datasets/human-lymph-node-preview-data-xenium-human-multi-tissue-and-cancer-panel-1-standard) | Simulation | `Xenium_LymphNode.h5ad` |
-
-### Quick Setup
-
-1. **Download datasets** from the sources above
-2. **Rename files** following the naming convention (e.g., `151670.h5ad` → `DLPFC_151670.h5ad`)
-3. **Place in `data/` directory** at repository root
-4. **Install benchmark tools**:
-   ```bash
-   # For clustering benchmarks
-   pip install GraphST STAGATE mclust
-   
-   # For alignment benchmarks
-   pip install spateo-release SpaCEL
-   
-   # For deconvolution benchmarks
-   pip install cell2location
-   ```
-
-### Running Benchmarks
-
-Each directory contains ready-to-run scripts:
-
-```bash
-# Simulator benchmark (Figure 2)
-cd reproduction/1_Simulator_benchmark
-python ParameterCloud_sim.py
-
-# Clustering benchmark (Figure 3)
-cd reproduction/2_Clustering_simulation
-bash run_clust_pipeline.bash
-
-# Alignment benchmark (Figure 4)
-cd reproduction/3_Alignment_simulation
-bash run_alignment.bash
-
-# Deconvolution simulation
-cd reproduction/4_Deconvolution_simulation
-python run_deconvolution.py
-
-# Interpolation benchmark (Figure 5)
-cd reproduction/5_Interpolation_simulation
-python alignment_with_gap.py
-python interpolation_sim_pipeline.py
-```
-
-### Output Structure
-
-Results are saved in each subdirectory:
-- `results/`: Main benchmark outputs (CSVs, plots)
-- `simulated_data/`: Generated synthetic datasets
-- `reconstructions/`: Interpolated slices (for 3D interpolation)
-
-### Notes
-
-- Scripts automatically create output directories
-- Most benchmarks can run in parallel (adjust `n_jobs` parameter)
-- GPU recommended for alignment and interpolation (uses Spateo)
-- Expected runtime: 1-8 hours per benchmark depending on dataset size
-
-## 📄 Citation
-
-If you use FEAST-sim in your research, please cite:
-
-```bibtex
-@article{chen2025feast,
-  title={From features to slice: parameter-cloud simulation and 3D interpolation of spatial transcriptomics},
-  author={Chen, Yiru and Xie, Manfei and Hu, Yunfei and Yuan, Weiman and Li, Bingshan and Zhang, Lu and Zhou, Xin Maizie},
-  journal={bioRxiv},
-  year={2025}
-}
-```
-
-## 🤝 Contributing
-
-We welcome contributions! Please feel free to submit issues, feature requests, or pull requests.
-
-## 📧 Contact
-
-- **Yiru Chen**: yiru.22@intl.zju.edu.cn
-- **Xin Maizie Zhou**: maizie.zhou@vanderbilt.edu
-- **Lu Zhang**: ericluzhang@hkbu.edu.hk
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
 
 
 **Note**: FEAST-sim is actively maintained. If you have any question, please let me know!
