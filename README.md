@@ -1,9 +1,9 @@
-# FEAST: From features to slice: parameter-cloud modeling and 3D interpolation of spatial transcriptomics
+# FEAST | From features to slice: parameter-cloud modeling and 3D interpolation of spatial transcriptomics
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 
-**FEAST** (Feature-space-based modeling of Spatial Transcriptomics) is a comprehensive computational framework for simulating and interpolating spatial transcriptomics (ST) data. By modeling gene expression through a "parameter cloud" - a latent manifold capturing mean, variance, and sparsity - FEAST-sim generates high-fidelity synthetic ST slices with controllable biological and technical variations.
+**FEAST** (Feature-space-based modeling of Spatial Transcriptomics) is a comprehensive computational framework for simulating and interpolating spatial transcriptomics (ST) data. By modeling gene expression through a "parameter cloud" - a latent manifold capturing mean, variance, and sparsity - FEAST generates high-fidelity synthetic ST slices with controllable biological and technical variations.
 
 ## Key Features
 
@@ -19,13 +19,13 @@
 
 ### From PyPI (Recommended)
 ```bash
-pip install FEAST-sim
+pip install FEAST-py
 ```
 
 ### Directly From Source
 ```bash
-git clone https://github.com/maiziezhoulab/FEAST-sim.git
-cd FEAST-sim
+git clone https://github.com/maiziezhoulab/FEAST
+cd FEAST
 pip install -e .
 ```
 
@@ -114,7 +114,7 @@ interpolated_slices = interpolate_slices(
 
 ##  Tutorials
 
-Try FEAST-sim with notebook! Comprehensive Jupyter notebooks are provided in the repository:
+Try FEAST with notebook! Comprehensive Jupyter notebooks are provided in the repository:
 
 - **[example_single_sim.ipynb](example_single_sim.ipynb)**: Basic single-slice simulation for both sequencing-based and imaging-based ST data
   - Visualization of parameter clouds
@@ -127,7 +127,7 @@ To get the datasets for tutorial, you can download via https://drive.google.com/
 ## Architecture
 
 ```
-FEAST-sim/
+FEAST/
 ├── FEAST_core/          # Core simulation engine
 │   ├── simulator.py     # Main simulation logic (G-SRBA algorithm)
 │   ├── parameter_cloud.py  # Parameter cloud modeling
@@ -187,4 +187,4 @@ data/
 | **Xenium** | Xenium | [10X Genomics](https://www.10xgenomics.com/datasets/human-lymph-node-preview-data-xenium-human-multi-tissue-and-cancer-panel-1-standard) | Simulation | `Xenium_LymphNode.h5ad` |
 
 
-**Note**: FEAST-sim is actively maintained. If you have any question, please let me know!
+**Note**: FEAST is actively maintained. If you have any question, please let me know!

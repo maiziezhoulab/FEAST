@@ -96,7 +96,7 @@ def interpolate_parameter_clouds_ot(
     points_A_scaled = scaler.fit_transform(points_A)
     points_B_scaled = scaler.transform(points_B)
     
-    # Apply feature weights
+    # Apply feature weights (default 3,1,1 to emphasize mean differences)
     weight_vector = np.array([
         feature_weights.get('mean', 3.0),
         feature_weights.get('variance', 1.0),
@@ -352,18 +352,19 @@ def interpolate_and_assign_parameters(
         regularization=ot_regularization,
         verbose=verbose
     )
-    
-    # Step 3: Assign gene names
+
+    # Step 3: Assign gene names using optimal matching (Hungarian)
     if verbose:
-        print("\nStep 3: Assigning gene names to interpolated cloud...")
-    
+        print("\nStep 3: Assigning gene names to interpolated cloud (Hungarian matching)...")
+
     final_cloud = assign_gene_names_to_anonymous_cloud(
         anonymous_cloud, cloud_A, cloud_B, t=t, verbose=verbose
     )
-    
+
     if verbose:
         print(f"\n{'='*60}")
         print(f"✓ Parameter interpolation complete: {final_cloud.shape}")
+        print(f"  (gene labels assigned via optimal matching)")
         print(f"{'='*60}")
-    
+
     return final_cloud
