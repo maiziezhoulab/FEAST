@@ -4,7 +4,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name="FEAST-sim",
+    name="FEAST-py",
     version="0.1.7",
     author="Yiru CHEN",
     author_email="yiru.22@intl.zju.edu.cn",

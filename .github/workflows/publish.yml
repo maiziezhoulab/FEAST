@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/FEAST-sim
+      url: https://pypi.org/p/FEAST-py
     permissions:
       id-token: write
     steps:
