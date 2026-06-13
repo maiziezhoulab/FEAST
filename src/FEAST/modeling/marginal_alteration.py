@@ -67,6 +67,9 @@ class MarginalModelAlterator:
                 raise ValueError(f"Unknown model parameter structure: {target_modeler.model_params.keys()}")
         else:
             raise ValueError("Modeler does not have recognizable model_params structure")
+
+        if hasattr(target_modeler, '_ppf_cache'):
+            target_modeler._ppf_cache.clear()
         
         # Verify results
         if verbose:
@@ -89,6 +92,7 @@ class MarginalModelAlterator:
             'model_type': type(target_modeler).__name__,
             'mean_fold_change': mean_fold_change,
             'variance_fold_change': variance_fold_change,
+            'sparsity_fold_change': sparsity_fold_change,
             'dispersion_strength': dispersion_strength,
             'original_mean': original_mean,
             'original_var': original_var,
@@ -229,6 +233,8 @@ class MarginalModelAlterator:
         for i in range(len(alphas)):
             # Shift the mean of this component
             old_mean = component_means[i]
+            old_alpha = alphas[i]
+            old_beta = betas[i]
             new_mean = old_mean + shift
             
             # Clip to ensure the new mean is valid
@@ -249,7 +255,7 @@ class MarginalModelAlterator:
             params['betas'][i] = new_beta
             
             if verbose:
-                print(f"    Component {i+1}: α={alphas[i]:.2f}→{new_alpha:.2f}, β={betas[i]:.2f}→{new_beta:.2f}")
+                print(f"    Component {i+1}: α={old_alpha:.2f}→{new_alpha:.2f}, β={old_beta:.2f}→{new_beta:.2f}")
         
         # Verify final result
         final_component_means = params['alphas'] / (params['alphas'] + params['betas'])
@@ -347,9 +353,10 @@ def alter_marginal_model(modeler,
 class AlterationConfig:
     """Configuration class for easy integration with FEAST pipeline.
     
-    Well-structured hyperparameters for clear, independent control of:
-    - Mean alterations (fold-change based)
-    - Variance alterations (fold-change based) 
+    Well-structured hyperparameters for clear, independent control of
+    simulated gene-level summary statistics:
+    - Mean level alterations (fold-change based)
+    - Variance level alterations (fold-change based)
     - Zero proportion alterations (fold-change based)
     
     Default: No changes to any parameter (all neutral values)
@@ -367,8 +374,8 @@ class AlterationConfig:
         Configure alteration parameters for FEAST integration.
         
         Args:
-            mean_fold_change: Multiply gene expression means by this factor (1.0 = no change)
-            variance_fold_change: Multiply gene expression variance by this factor (1.0 = no change)
+            mean_fold_change: Multiply gene expression mean statistics by this factor (1.0 = no change)
+            variance_fold_change: Multiply gene expression variance statistics by this factor (1.0 = no change)
             sparsity_fold_change: Multiply zero proportion by this factor (1.0 = no change)
                                 - 0.5 = reduce sparsity by half (more expression)
                                 - 2.0 = double sparsity (more zeros)

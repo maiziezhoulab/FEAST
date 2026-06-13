@@ -125,7 +125,6 @@ class AlignmentSimulator:
         # Set default expression parameters
         if expression_params is None:
             expression_params = {
-                'sigma': 1.0,
                 'verbose': True,
                 'boundary_multiplier': 1.1
             }
@@ -208,7 +207,6 @@ class AlignmentSimulator:
         # Set default expression parameters
         if expression_params is None:
             expression_params = {
-                'sigma': 1.0,
                 'verbose': True,
                 'boundary_multiplier': 1.1
             }
@@ -279,7 +277,6 @@ class AlignmentSimulator:
         # Set default expression parameters
         if expression_params is None:
             expression_params = {
-                'sigma': 1.0,
                 'verbose': True,
                 'boundary_multiplier': 1.1
             }
@@ -426,7 +423,10 @@ def simulate_alignment_rotation(
     expression_params: Optional[Dict[str, Any]] = None,
     filter_edge_spots: bool = True,
     edge_margin_ratio: float = 0.03,
-    **kwargs
+    center_correction: Union[float, np.ndarray] = 0,
+    keep_bounds: bool = True,
+    min_space: Optional[float] = None,
+    max_grid_size: int = 10000,
 ) -> Tuple[ad.AnnData, ad.AnnData]:
     """
     Quick function to generate rotated alignment dataset using simulate_single_slice.
@@ -437,7 +437,10 @@ def simulate_alignment_rotation(
         data_type: 'imaging' or 'sequencing'
         fit_params: Parameters for model fitting (passed to simulate_single_slice)
         expression_params: Parameters for expression simulation (passed to simulate_single_slice)
-        **kwargs: Additional parameters for rotation
+        center_correction: Center point for rotation
+        keep_bounds: Whether to keep only spots within original bounds for imaging data
+        min_space: Minimal spacing for sequencing data
+        max_grid_size: Maximum grid size for sequencing data
     
     Returns:
         Tuple of (original_simulated, rotated_simulated) datasets
@@ -454,8 +457,6 @@ def simulate_alignment_rotation(
     # Set defaults if not provided
     if 'verbose' not in simulation_params:
         simulation_params['verbose'] = True
-    if 'sigma' not in simulation_params:
-        simulation_params['sigma'] = 1.0
     
     # Step 1: Generate original simulated data using single slice simulator
     print("Generating original dataset using simulate_single_slice...")
@@ -468,15 +469,15 @@ def simulate_alignment_rotation(
     if data_type.lower() == 'imaging':
         rotated_transformed = rotation_transformer.transform_imaging(
             rotation_angle=rotation_angle,
-            center_correction=kwargs.get('center_correction', 0),
-            keep_bounds=kwargs.get('keep_bounds', True)
+            center_correction=center_correction,
+            keep_bounds=keep_bounds
         )
     elif data_type.lower() == 'sequencing':
         rotated_transformed = rotation_transformer.transform_sequencing(
             rotation_angle=rotation_angle,
-            center_correction=kwargs.get('center_correction', 0),
-            min_space=kwargs.get('min_space'),
-            max_grid_size=kwargs.get('max_grid_size', 10000)
+            center_correction=center_correction,
+            min_space=min_space,
+            max_grid_size=max_grid_size
         )
     else:
         raise ValueError("data_type must be 'imaging' or 'sequencing'")
@@ -524,7 +525,9 @@ def simulate_alignment_warp(
     expression_params: Optional[Dict[str, Any]] = None,
     filter_edge_spots: bool = True,
     edge_margin_ratio: float = 0.03,
-    **kwargs
+    grid_size: int = 3,
+    alpha: float = 1.0,
+    apply_rotation: bool = True,
 ) -> Tuple[ad.AnnData, ad.AnnData]:
     """
     Quick function to generate TPS-warped alignment dataset using simulate_single_slice.
@@ -534,7 +537,9 @@ def simulate_alignment_warp(
         distort_level: Level of spatial distortion
         fit_params: Parameters for model fitting (passed to simulate_single_slice)
         expression_params: Parameters for expression simulation (passed to simulate_single_slice)
-        **kwargs: Additional parameters for warping
+        grid_size: Grid size for control points
+        alpha: TPS regularization parameter
+        apply_rotation: Whether to apply additional rotation/translation
     
     Returns:
         Tuple of (original_simulated, warped_simulated) datasets
@@ -551,8 +556,6 @@ def simulate_alignment_warp(
     # Set defaults if not provided
     if 'verbose' not in simulation_params:
         simulation_params['verbose'] = True
-    if 'sigma' not in simulation_params:
-        simulation_params['sigma'] = 1.0
     
     # Step 1: Generate original simulated data using single slice simulator
     print("Generating original dataset using simulate_single_slice...")
@@ -563,11 +566,11 @@ def simulate_alignment_warp(
     warp_transformer = WarpTransformer(
         original_simulated,
         distort_level=distort_level,
-        grid_size=kwargs.get('grid_size', 3),
-        alpha=kwargs.get('alpha', 1.0)
+        grid_size=grid_size,
+        alpha=alpha
     )
     warped_transformed = warp_transformer.transform(
-        apply_rotation=kwargs.get('apply_rotation', True)
+        apply_rotation=apply_rotation
     )
     
     # Optional: filter edge spots from the transformed slice to remove cut edges
@@ -593,9 +596,9 @@ def simulate_alignment_warp(
         'type': 'warped',
         'transformation': 'TPS',
         'distort_level': distort_level,
-        'grid_size': kwargs.get('grid_size', 3),
-        'alpha': kwargs.get('alpha', 1.0),
-        'apply_rotation': kwargs.get('apply_rotation', True),
+        'grid_size': grid_size,
+        'alpha': alpha,
+        'apply_rotation': apply_rotation,
         'simulation_method': 'simulate_single_slice',
         'simulation_params': simulation_params_serializable,
         'edge_filter': {'enabled': bool(filter_edge_spots), 'margin_ratio': float(edge_margin_ratio)}
@@ -667,8 +670,6 @@ def generate_alignment_benchmark_suite(
     # Set defaults
     if 'verbose' not in simulation_params:
         simulation_params['verbose'] = True
-    if 'sigma' not in simulation_params:
-        simulation_params['sigma'] = 1.0
     
     results = {}
     

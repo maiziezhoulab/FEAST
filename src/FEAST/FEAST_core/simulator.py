@@ -2,8 +2,44 @@ import scanpy as sc
 import anndata as ad
 import numpy as np
 import pandas as pd
+import warnings
 
-from .parameter_cloud import GeneParameterSimulator, convert_params_for_new_simulator
+from .count_decoding import decode_counts_from_quantiles
+from .parameter_cloud import (
+    STAT_COLUMNS,
+    GeneParameterSimulator,
+    alteration_config_to_dict,
+    calculate_fold_change,
+    convert_params_for_new_simulator,
+    resolve_simulation_mode,
+)
+
+QUANTILE_CALIBRATION_SOURCES = ("reference_rank", "raw")
+
+
+def resolve_quantile_calibration_source(quantile_calibration=None, simulation_mode: str = "generative") -> str:
+    """Normalize the source of spot-gene quantiles used during decoding."""
+    mode = resolve_simulation_mode(simulation_mode)
+    if quantile_calibration is None:
+        return "reference_rank" if mode == "empirical" else "raw"
+    source = str(quantile_calibration).lower().strip()
+    if source in {"auto", "default"}:
+        return "reference_rank" if mode == "empirical" else "raw"
+    aliases = {
+        "rank": "reference_rank",
+        "reference": "reference_rank",
+        "reference_rank": "reference_rank",
+        "empirical": "reference_rank",
+        "empirical_rank": "reference_rank",
+        "iid": "raw",
+        "uniform": "raw",
+        "raw": "raw",
+    }
+    source = aliases.get(source, source)
+    if source not in QUANTILE_CALIBRATION_SOURCES:
+        raise ValueError("quantile_calibration must be 'reference_rank', 'raw', or 'auto'.")
+    return source
+
 
 def safe_calculate_qc_metrics(adata, verbose=False):
     try:
@@ -15,45 +51,93 @@ def safe_calculate_qc_metrics(adata, verbose=False):
         adata.var['total_counts'] = np.asarray(adata.X.sum(axis=0)).flatten()
         adata.var['n_cells_by_counts'] = np.asarray((adata.X > 0).sum(axis=0)).flatten()
 
-def run_parameter_cloud_fitting(adata, visualize_fits=False, use_heuristic_search=True, min_accepted_error=0.5, assignment_weights=None, screening_pool_size=100, top_n_to_fully_evaluate=10, n_jobs=-1, alteration_config=None):
+def _dense_matrix(X, dtype=None):
+    if hasattr(X, 'toarray'):
+        X = X.toarray()
+    arr = np.asarray(X)
+    if dtype is not None:
+        arr = arr.astype(dtype, copy=False)
+    return arr
+
+
+def _gene_stats_from_matrix(matrix, gene_names) -> pd.DataFrame:
+    matrix = np.asarray(matrix, dtype=np.float64)
+    n_obs = matrix.shape[0]
+    return pd.DataFrame({
+        'mean': np.mean(matrix, axis=0),
+        'variance': np.var(matrix, axis=0),
+        'zero_prop': 1 - (np.count_nonzero(matrix, axis=0) / n_obs),
+    }, index=pd.Index(gene_names, name='gene_id')).clip(lower=1e-10)
+
+
+def _model_selection_counts(model_params: dict) -> dict:
+    selected = np.asarray(model_params.get('model_selected', []), dtype=object)
+    return {str(model): int(np.sum(selected == model)) for model in sorted(set(selected.tolist()))}
+
+
+def _hdf5_safe_metadata(value):
+    if value is None:
+        return "none"
+    if isinstance(value, dict):
+        return {str(k): _hdf5_safe_metadata(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_hdf5_safe_metadata(v) for v in value]
+    if isinstance(value, np.generic):
+        return value.item()
+    return value
+
+
+def run_parameter_cloud_fitting(adata, visualize_fits=False, use_heuristic_search=True, min_accepted_error=0.5, assignment_weights=None, screening_pool_size=100, top_n_to_fully_evaluate=10, n_jobs=-1, alteration_config=None, simulation_mode='generative', quantile_calibration=None, random_seed=None, hybrid_alpha=0.2):
     """
-    UPDATED: Calls the new two-stage, parallelized heuristic search with optional marginal distribution alteration.
-    
+    Build an integrated FEAST gene-parameter table and convert it to count-model parameters.
+
     Args:
         alteration_config (AlterationConfig or dict, optional): Configuration for altering marginal distributions
+        hybrid_alpha (float): Weight for log-space distance in hybrid OT cost (0.2 = 20% log, 80% raw).
+                              Set to 1.0 for old pure-log-space behavior.
     """
     print("\n>>> Entering STANDARD fitting pipeline: parameter_cloud <<<")
-    
+
     if assignment_weights is None:
-        assignment_weights = {'mean': 1, 'variance': 1, 'zero_prop': 1.0}
+        assignment_weights = {'mean': 3, 'variance': 1, 'zero_prop': 1.0}
+    mode = resolve_simulation_mode(simulation_mode)
+    quantile_source = resolve_quantile_calibration_source(quantile_calibration, mode)
+    if use_heuristic_search:
+        warnings.warn(
+            "use_heuristic_search is retained for compatibility but is ignored by the "
+            "integrated simulation_mode pipeline; generative mode uses Copula-rank OT.",
+            RuntimeWarning,
+            stacklevel=2,
+        )
 
     simulator = GeneParameterSimulator()
-    simulator.fit(adata, visualize_fits=visualize_fits)
-    
-    # Apply marginal distribution alterations if requested
-    if alteration_config is not None:
-        simulator.alter_marginal_distributions(alteration_config=alteration_config, verbose=True)
-    
-    if use_heuristic_search:
-        print("--- Activating Boosted Heuristic Optimization Mode ---")
-        assigned_synthetic_params = simulator.run_heuristic_search(
-            n_genes=adata.n_vars,
-            min_accepted_error=min_accepted_error,
-            assignment_weights=assignment_weights,
-            screening_pool_size=screening_pool_size,
-            top_n_to_fully_evaluate=top_n_to_fully_evaluate,
-            n_jobs=n_jobs
-        )
+    simulator.hybrid_alpha = hybrid_alpha
+    if mode == 'empirical':
+        simulator.fit_statistics_only(adata)
     else:
-        print("--- Using Standard Single-Shot Assignment ---")
-        synthetic_params = simulator.simulate(n_genes=adata.n_vars)
-        assigned_synthetic_params = simulator.assign_to_genes(
-            synthetic_params, 
-            weights=assignment_weights
-        )
+        simulator.fit(adata, visualize_fits=visualize_fits)
 
-    model_params = convert_params_for_new_simulator(assigned_synthetic_params)
-    model_params['simulation_evaluation'] = {'source': 'parameter_cloud_v2_robust_boosted'}
+    assigned_synthetic_params, diagnostics = simulator.build_gene_parameter_table(
+        alteration_config=alteration_config,
+        simulation_mode=mode,
+        assignment_weights=assignment_weights,
+        random_seed=random_seed,
+        verbose=True,
+    )
+
+    model_params = convert_params_for_new_simulator(
+        assigned_synthetic_params, n_spots=adata.n_obs)
+    model_params['simulation_evaluation'] = {
+        'source': 'integrated_parameter_cloud',
+        'simulation_mode': mode,
+        'quantile_calibration': quantile_source,
+    }
+    model_params['simulation_mode'] = mode
+    model_params['random_seed'] = None if random_seed is None else int(random_seed)
+    model_params['target_stats'] = assigned_synthetic_params
+    model_params['parameter_diagnostics'] = diagnostics
+    model_params['count_decode_method'] = 'quantile'
+    model_params['quantile_calibration'] = quantile_source
     print(">>> Exiting parameter_cloud pipeline <<<\n")
     return model_params
 
@@ -63,8 +147,13 @@ def run_direct_fitting_from_real_stats(adata):
     simulator = GeneParameterSimulator()
     simulator.fit_statistics_only(adata)
     real_stats_for_conversion = simulator.original_stats.reset_index().rename(columns={'index': 'gene_id'})
-    model_params = convert_params_for_new_simulator(real_stats_for_conversion)
-    model_params['simulation_evaluation'] = {'source': 'direct_from_real_stats'}
+    model_params = convert_params_for_new_simulator(
+        real_stats_for_conversion, n_spots=adata.n_obs)
+    model_params['simulation_evaluation'] = {'source': 'direct_from_real_stats', 'simulation_mode': 'empirical'}
+    model_params['simulation_mode'] = 'empirical'
+    model_params['target_stats'] = real_stats_for_conversion
+    model_params['count_decode_method'] = 'quantile'
+    model_params['quantile_calibration'] = 'reference_rank'
     print(">>> Diagnostic fitting complete <<<\n")
     return model_params
 
@@ -77,7 +166,7 @@ class SpatialSimulator:
         self.reference_adata.obs_names_make_unique()
         self._model_params = model_params
 
-    def fit_model(self, visualize_fits: bool = False, use_real_stats_directly: bool = False, use_heuristic_search: bool = False, min_accepted_error: float = 0.5, assignment_weights: dict = None, screening_pool_size: int = 100, top_n_to_fully_evaluate: int = 10, n_jobs: int = -1, alteration_config=None) -> 'SpatialSimulator':
+    def fit_model(self, visualize_fits: bool = False, use_real_stats_directly: bool = False, use_heuristic_search: bool = False, min_accepted_error: float = 0.5, assignment_weights: dict = None, screening_pool_size: int = 100, top_n_to_fully_evaluate: int = 10, n_jobs: int = -1, alteration_config=None, simulation_mode: str = 'generative', quantile_calibration=None, random_seed: int = None, hybrid_alpha: float = 0.2) -> 'SpatialSimulator':
         """
         UPDATED: Exposes the new boosted heuristic search parameters and marginal distribution alteration.
         
@@ -97,12 +186,16 @@ class SpatialSimulator:
                 screening_pool_size=screening_pool_size,
                 top_n_to_fully_evaluate=top_n_to_fully_evaluate,
                 n_jobs=n_jobs,
-                alteration_config=alteration_config
+                alteration_config=alteration_config,
+                simulation_mode=simulation_mode,
+                quantile_calibration=quantile_calibration,
+                random_seed=random_seed,
+                hybrid_alpha=hybrid_alpha,
             )
         return self
     
     def set_model_params(self, model_params: dict):
-        """Set model parameters directly (useful for parameter cloud interpolation)."""
+        """Set model parameters directly."""
         self._model_params = model_params
         return self
     
@@ -110,175 +203,183 @@ class SpatialSimulator:
         """Get current model parameters."""
         return self._model_params
     
-    def simulate(self, sigma: float = 1.0, follower_sigma_factor: float = 0.2, num_simulation_cores: int = 12, verbose: bool = True, clip_overshoot_factor: float = 0.0, boundary_multiplier: float = 1.1) -> ad.AnnData:
+    def simulate(self, num_simulation_cores: int = 12, verbose: bool = True, clip_overshoot_factor: float = 0.0, boundary_multiplier: float = 1.1, random_seed: int = None) -> ad.AnnData:
         """
         Args:
-            sigma (float): The key gentleness parameter. Controls the magnitude of primary spatial noise.
-                - sigma=0: Perfect pattern preservation (zero spatial change).
-                - sigma=0.5-1.5: "Gentle" mode, introduces subtle, local variations.
-                - sigma>2.0: "Exploratory" mode, introduces more significant changes.
-            follower_sigma_factor (float): Now used as correlation threshold for debugging.
-                The algorithm automatically uses correlation-guided interpolation for followers.
             num_simulation_cores (int): Number of cores for simulation (legacy parameter).
             verbose (bool): If True, prints progress updates.
             clip_overshoot_factor (float): Factor to clip max expression values relative to reference.
             boundary_multiplier (float): Multiplier for maximum count boundary constraint (default 1.1 = 110% of reference max).
+            random_seed (int, optional): Seed for raw generative quantile decoding.
         """
         if self._model_params is None:
             raise ValueError("Model parameters not set. Call fit_model() first or provide model_params in constructor.")
         
         if verbose:
-            if sigma == 0:
-                print("Generating simulated data using Perfect Pattern Preservation (sigma=0)...")
-            elif sigma <= 1.5:
-                print(f"Generating simulated data using Gentle G-SRBA with Correlation-Guided Followers (sigma={sigma})...")
-            else:
-                print(f"Generating simulated data using Exploratory G-SRBA with Correlation-Guided Followers (sigma={sigma})...")
+            print("Generating simulated data with quantile count decoding...")
         
-        # Apply the sophisticated G-SRBA algorithm with correlation-guided follower assignment
-        simulated_adata = self._apply_guided_stochastic_assignment(
+        simulated_adata = self._apply_quantile_count_decoding(
             reference_adata=self.reference_adata,
             model_params=self._model_params,
-            sigma=sigma,
-            follower_sigma_factor=follower_sigma_factor,
             verbose=verbose,
             clip_overshoot_factor=clip_overshoot_factor,
-            boundary_multiplier=boundary_multiplier
+            boundary_multiplier=boundary_multiplier,
+            random_seed=random_seed,
         )
         
         if verbose:
-            print(f"Correlation-Guided G-SRBA simulation complete for {simulated_adata.n_obs} spots and {simulated_adata.n_vars} genes")
+            print(f"Quantile simulation complete for {simulated_adata.n_obs} spots and {simulated_adata.n_vars} genes")
         
         safe_calculate_qc_metrics(simulated_adata)
         return simulated_adata
-    
-    def _apply_guided_stochastic_assignment(self, reference_adata, model_params, sigma=1.0, follower_sigma_factor=0.2, verbose=True, clip_overshoot_factor=0.0, boundary_multiplier=1.1, n_modules=30, n_neighbors=6):
-        """
-        REFINED: Implements the Guided Stochastic Rank-Based Assignment (G-SRBA) algorithm with tunable gentleness.
-        
-        Args:
-            boundary_multiplier (float): Multiplier for maximum count boundary constraint (default 1.1 = 110% of reference max)
-        
-        The "gentleness" is controlled by sigma:
-        - sigma=0: Zero spatial change, perfect pattern preservation
-        - sigma=0.5-1.5: Gentle mode with subtle local variations  
-        - sigma>2.0: Exploratory mode with significant spatial changes
-        """
-        try:
-            from sklearn.decomposition import NMF
-            from sklearn.neighbors import kneighbors_graph
-            from scipy.sparse import csgraph
-        except ImportError as e:
-            if verbose:
-                print(f"Warning: Required libraries not available ({e}). Using simplified assignment.")
-            return self._apply_simple_parameter_assignment(reference_adata, model_params, verbose)
-        
-        if verbose:
-            print("Applying Guided Stochastic Rank-Based Assignment (G-SRBA)...")
-        
-        # Extract data matrices
-        reference_matrix = reference_adata.X.toarray() if hasattr(reference_adata.X, 'toarray') else reference_adata.X.copy()
+
+    def _apply_quantile_count_decoding(self, reference_adata, model_params, verbose=True, clip_overshoot_factor=0.0, boundary_multiplier=1.1, random_seed=None):
+        """Generate counts from model parameters through the integrated quantile decoder."""
+        reference_matrix = _dense_matrix(reference_adata.X, dtype=np.float64)
         spatial_coords = reference_adata.obsm['spatial']
-        
-        # SPECIAL CASE: Perfect Pattern Preservation (sigma=0)
-        if sigma == 0:
-            if verbose:
-                print("Applying perfect pattern preservation - maintaining exact spatial structure...")
-            
-            # Generate new counts from parameters but preserve exact spatial ranking
-            new_counts = self._generate_counts_from_parameters(reference_adata, model_params, verbose)
-            
-            # For perfect preservation, assign new counts in exact same spatial order
-            # This applies statistical parameter changes while preserving spatial structure perfectly
-            simulated_matrix = np.zeros_like(reference_matrix, dtype=np.float32)
-            
-            for gene_idx in range(reference_matrix.shape[1]):
-                # Get the spatial ranking from original data
-                original_spatial_ranks = np.argsort(reference_matrix[:, gene_idx])
-                # Get the new expression values sorted by magnitude
-                new_values_sorted = np.sort(new_counts[:, gene_idx])
-                # Assign new values in same spatial order as original
-                simulated_matrix[original_spatial_ranks, gene_idx] = new_values_sorted
-            
-            simulated_adata = ad.AnnData(
-                X=simulated_matrix.astype(np.float32),
-                obs=reference_adata.obs.copy(),
-                var=reference_adata.var.copy(),
-                obsm={'spatial': spatial_coords.copy()}
-            )
-            
-            simulated_adata.uns['simulation_method'] = 'Perfect_Pattern_Preservation'
-            simulated_adata.uns['simulation_params'] = {
-                'sigma': sigma,
-                'follower_sigma_factor': follower_sigma_factor,
-                'clip_overshoot_factor': clip_overshoot_factor,
-                'preservation_mode': 'parameter_aware_perfect_ranking'
-            }
-            
-            return simulated_adata
-        
-        # Generate new counts based on model parameters
-        new_counts = self._generate_counts_from_parameters(reference_adata, model_params, verbose, boundary_multiplier)
-        
         n_spots, n_genes = reference_matrix.shape
-        
-        # Phase 1: Discover Co-expression Structure
-        if verbose:
-            print(f"Phase 1: Finding {n_modules} gene co-expression modules...")
-        
-        gene_modules, leader_genes_indices = self._find_gene_modules(new_counts, n_modules, verbose)
-        
-        # Phase 2: Prepare Spatial Structure
-        if verbose:
-            print(f"Phase 2: Building spatial graph with {n_neighbors} neighbors...")
-        
-        spatial_smoother = self._create_spatial_smoother(spatial_coords, n_neighbors)
-        
-        # Phase 3: G-SRBA Core Algorithm
-        if verbose:
-            if sigma == 0:
-                print("Phase 3: Applying perfect pattern preservation...")
-            elif sigma <= 1.5:
-                print(f"Phase 3: Applying gentle stochastic assignment (sigma={sigma})...")
-            else:
-                print(f"Phase 3: Applying exploratory stochastic assignment (sigma={sigma})...")
-        
-        S_final = self._guided_assignment_core(
-            reference_matrix, new_counts, spatial_smoother, 
-            gene_modules, leader_genes_indices, sigma, follower_sigma_factor, verbose
+
+        mode = resolve_simulation_mode(model_params.get('simulation_mode', 'empirical'))
+        diagnostics_seed = model_params.get('random_seed', None)
+        seed = random_seed if random_seed is not None else diagnostics_seed
+        quantile_calibration = model_params.get(
+            'quantile_calibration',
+            'reference_rank' if mode == 'empirical' else 'raw',
         )
-        
-        # Apply clipping if requested
+
+        if quantile_calibration == 'reference_rank':
+            quantile_input = reference_matrix
+            decoder_calibration = 'rank'
+        elif quantile_calibration == 'raw':
+            rng = np.random.default_rng(None if seed is None else int(seed))
+            quantile_input = rng.random((n_spots, n_genes), dtype=np.float64)
+            decoder_calibration = 'raw'
+        else:
+            raise ValueError("quantile_calibration must be 'reference_rank' or 'raw' for integrated simulation.")
+
+        simulated_matrix = decode_counts_from_quantiles(
+            quantile_input,
+            model_params,
+            method='quantile',
+            quantile_calibration=decoder_calibration,
+            boundary_multiplier=boundary_multiplier,
+            reference_X=reference_matrix,
+            random_seed=seed,
+        ).astype(np.float32, copy=False)
+
+        boundary_clipped_gene_count = 0
         if clip_overshoot_factor > 0:
             max_ref_counts = np.max(reference_matrix, axis=0)
             clip_max = max_ref_counts * (1 + clip_overshoot_factor)
-            S_final = np.clip(S_final, 0, clip_max)
-        
-        # Create output AnnData
+            before = simulated_matrix.copy()
+            simulated_matrix = np.clip(simulated_matrix, 0, clip_max)
+            boundary_clipped_gene_count = int(np.any(np.abs(before - simulated_matrix) > 1e-12, axis=0).sum())
+
         simulated_adata = ad.AnnData(
-            X=S_final.astype(np.float32),
+            X=simulated_matrix.astype(np.float32),
             obs=reference_adata.obs.copy(),
             var=reference_adata.var.copy(),
             obsm={'spatial': spatial_coords.copy()}
         )
-        
-        # Add metadata about the simulation
-        if sigma == 0:
-            method_name = 'Perfect_Pattern_Preservation'
-        elif sigma <= 1.5:
-            method_name = 'Gentle_Correlation_Guided_G-SRBA'
-        else:
-            method_name = 'Exploratory_Correlation_Guided_G-SRBA'
-            
-        simulated_adata.uns['simulation_method'] = method_name
+        simulated_adata.uns['simulation_method'] = 'Quantile_Count_Decoding'
         simulated_adata.uns['simulation_params'] = {
-            'n_modules': n_modules,
-            'n_neighbors': n_neighbors,
-            'sigma': sigma,
-            'follower_method': 'correlation_guided_interpolation',
+            'clip_overshoot_factor': float(clip_overshoot_factor),
+            'boundary_multiplier': float(boundary_multiplier),
+            'simulation_mode': mode,
+            'random_seed': "none" if seed is None else int(seed),
+        }
+        simulated_adata.uns['simulation_diagnostics'] = _hdf5_safe_metadata(self._build_simulation_diagnostics(
+            reference_matrix=reference_matrix,
+            simulated_matrix=simulated_matrix,
+            model_params=model_params,
+            simulation_mode=mode,
+            quantile_calibration=quantile_calibration,
+            random_seed=seed,
+            boundary_clipped_gene_count=boundary_clipped_gene_count,
+            clip_overshoot_factor=clip_overshoot_factor,
+        ))
+        if model_params.get('parameter_diagnostics', {}).get('requested_config') is not None:
+            simulated_adata.uns['alteration_diagnostics'] = _hdf5_safe_metadata({
+                'requested_config': model_params['parameter_diagnostics'].get('requested_config'),
+                'target_stage_achieved_change': model_params['parameter_diagnostics'].get('target_stage_achieved_change'),
+                'realized_stage_achieved_change': simulated_adata.uns['simulation_diagnostics'].get('realized_stage_achieved_change'),
+            })
+        return simulated_adata
+
+    def _build_simulation_diagnostics(
+        self,
+        reference_matrix,
+        simulated_matrix,
+        model_params,
+        simulation_mode,
+        quantile_calibration,
+        random_seed,
+        boundary_clipped_gene_count,
+        clip_overshoot_factor,
+    ):
+        reference_stats = _gene_stats_from_matrix(reference_matrix, self.reference_adata.var_names)
+        realized_stats = _gene_stats_from_matrix(simulated_matrix, self.reference_adata.var_names)
+        target_stats = model_params.get('target_stats')
+        target_change = None
+        if isinstance(target_stats, pd.DataFrame):
+            target_change = calculate_fold_change(reference_stats, target_stats)
+
+        parameter_diagnostics = model_params.get('parameter_diagnostics', {})
+        diagnostics = {
+            'simulation_mode': simulation_mode,
+            'gene_parameter_engine': parameter_diagnostics.get('gene_parameter_engine', simulation_mode),
+            'assignment_method': parameter_diagnostics.get(
+                'assignment_method',
+                'identity' if simulation_mode == 'empirical' else 'copula_rank_ot',
+            ),
+            'count_decode_method': 'quantile',
+            'quantile_calibration': quantile_calibration,
+            'random_seed': None if random_seed is None else int(random_seed),
+            'requested_config': parameter_diagnostics.get('requested_config'),
+            'target_fold_change': parameter_diagnostics.get('target_fold_change'),
+            'target_stage_achieved_change': target_change or parameter_diagnostics.get('target_stage_achieved_change'),
+            'realized_stage_achieved_change': calculate_fold_change(reference_stats, realized_stats),
+            'copula_rank_diagnostics': parameter_diagnostics.get('copula_rank_diagnostics', {}),
+            'moment_feasibility': parameter_diagnostics.get('moment_feasibility', {'infeasible_gene_count': 0}),
+            'boundary_clipping': {
+                'clip_overshoot_factor': float(clip_overshoot_factor),
+                'clipped_gene_count': int(boundary_clipped_gene_count),
+            },
+            'model_selection_counts': _model_selection_counts(model_params),
+        }
+        return diagnostics
+    
+    def _apply_deterministic_rank_assignment(self, reference_adata, model_params, verbose=True, clip_overshoot_factor=0.0, boundary_multiplier=1.1, n_modules=30, n_neighbors=6):
+        """Generate counts from model parameters while preserving per-gene reference ranks."""
+        reference_matrix = reference_adata.X.toarray() if hasattr(reference_adata.X, 'toarray') else reference_adata.X.copy()
+        spatial_coords = reference_adata.obsm['spatial']
+
+        if verbose:
+            print("Applying deterministic rank-preserving assignment...")
+
+        new_counts = self._generate_counts_from_parameters(reference_adata, model_params, verbose, boundary_multiplier)
+        simulated_matrix = np.zeros_like(reference_matrix, dtype=np.float32)
+
+        for gene_idx in range(reference_matrix.shape[1]):
+            original_spatial_ranks = np.argsort(reference_matrix[:, gene_idx], kind="mergesort")
+            new_values_sorted = np.sort(new_counts[:, gene_idx])
+            simulated_matrix[original_spatial_ranks, gene_idx] = new_values_sorted
+        
+        if clip_overshoot_factor > 0:
+            max_ref_counts = np.max(reference_matrix, axis=0)
+            clip_max = max_ref_counts * (1 + clip_overshoot_factor)
+            simulated_matrix = np.clip(simulated_matrix, 0, clip_max)
+        
+        simulated_adata = ad.AnnData(
+            X=simulated_matrix.astype(np.float32),
+            obs=reference_adata.obs.copy(),
+            var=reference_adata.var.copy(),
+            obsm={'spatial': spatial_coords.copy()}
+        )
+        simulated_adata.uns['simulation_method'] = 'Deterministic_Rank_Preservation'
+        simulated_adata.uns['simulation_params'] = {
             'clip_overshoot_factor': clip_overshoot_factor
         }
-        
         return simulated_adata
     
     def _find_gene_modules(self, new_counts, n_modules, verbose=False):
@@ -352,190 +453,19 @@ class SpatialSimulator:
         
         return smoother
     
-    def _guided_assignment_core(self, reference_matrix, new_counts, spatial_smoother, 
-                               gene_modules, leader_genes_indices, sigma, follower_sigma_factor, verbose=False):
-        """
-        REFINED Core G-SRBA Algorithm with Correlation-Guided Interpolation for Followers.
-        
-        Args:
-            sigma (float): Controls the magnitude of spatial noise for leaders
-            follower_sigma_factor (float): Legacy parameter, now used as correlation threshold
-        """
+    def _guided_assignment_core(self, reference_matrix, new_counts, spatial_smoother,
+                               gene_modules, leader_genes_indices, verbose=False):
+        """Compatibility wrapper for deterministic rank assignment."""
         n_spots, n_genes = reference_matrix.shape
         S_final = np.zeros_like(reference_matrix, dtype=np.float32)
-        
-        # Precompute rank orderings
         reference_ranks = np.argsort(reference_matrix, axis=0)
         new_counts_ranks = np.argsort(new_counts, axis=0)
-        
-        # Calculate gene-gene correlation matrix for guidance
-        if verbose:
-            print("Calculating gene-gene correlation matrix for correlation-guided interpolation...")
-        
-        # Use pandas for robust correlation calculation
-        gene_corr = pd.DataFrame(new_counts).corr().values
-        
-        # Track assigned genes to handle overlaps
-        assigned_genes = set()
-        
-        for i, module in enumerate(gene_modules):
-            if not module or i >= len(leader_genes_indices):
-                continue
-            
-            leader_gene_idx = leader_genes_indices[i]
-            
-            if leader_gene_idx >= n_genes or leader_gene_idx in assigned_genes:
-                continue
-            
-            # Step A: Assign leader gene with controlled spatial noise
-            base_noise = np.random.randn(n_spots)
-            smooth_noise = spatial_smoother.dot(base_noise)
-            
-            # Normalize the smooth noise to have controlled magnitude
-            if np.std(smooth_noise) > 0:
-                smooth_noise = smooth_noise / np.std(smooth_noise)
-            
-            perfect_map = np.arange(n_spots, dtype=np.float64)
-            
-            # Apply sigma-controlled perturbation with ULTRA-CONSERVATIVE scaling
-            if sigma > 0:
-                # ULTRA-CONSERVATIVE: For small sigma, use extremely gentle scaling
-                # Target: sigma=0.05 should preserve ~80% spatial correlation
-                
-                if sigma <= 0.05:
-                    # For very tiny sigma: use minimal perturbation
-                    # sigma=0.05 -> noise_scale = 0.05 * 10 * 0.1 = 0.05 (extremely gentle)
-                    noise_scale = sigma * np.sqrt(n_spots) * 0.1
-                elif sigma <= 0.1:
-                    # For small sigma: slightly more perturbation
-                    # sigma=0.1 -> noise_scale = 0.1 * 10 * 0.2 = 0.2
-                    noise_scale = sigma * np.sqrt(n_spots) * 0.2
-                else:
-                    # For larger sigma: more traditional scaling
-                    noise_scale = sigma * n_spots * 0.3
-                
-                perturbed_map = perfect_map + smooth_noise * noise_scale
-                shuffled_indices = np.argsort(perturbed_map)
-            else:
-                shuffled_indices = np.arange(n_spots, dtype=int)
-            
-            # Assign leader gene
-            assigned_indices = new_counts_ranks[shuffled_indices, leader_gene_idx]
-            S_final[reference_ranks[:, leader_gene_idx], leader_gene_idx] = \
-                new_counts[assigned_indices, leader_gene_idx]
-            
-            assigned_genes.add(leader_gene_idx)
-            
-            # Step B: Assign follower genes with Correlation-Guided Interpolation
-            leader_pattern_ranks = np.argsort(S_final[:, leader_gene_idx])
-            
-            for follower_gene_idx in module:
-                if follower_gene_idx == leader_gene_idx or follower_gene_idx >= n_genes:
-                    continue
-                if follower_gene_idx in assigned_genes:
-                    continue
-                
-                # 1. Get the correlation weight (how much should this gene follow the leader?)
-                correlation = gene_corr[leader_gene_idx, follower_gene_idx]
-                # Use absolute correlation and clip to ensure it's a valid weight (0 to 1)
-                correlation_weight = np.clip(abs(correlation), 0, 1)
-                
-                # 2. SIMPLE INTERPOLATION: Blend the two rank patterns
-                # Pattern A: The leader's new spatial pattern
-                pattern_A_ranks = leader_pattern_ranks.astype(np.float64)
-                # Pattern B: The follower's original spatial pattern from reference
-                pattern_B_ranks = reference_ranks[:, follower_gene_idx].astype(np.float64)
-                
-                # 3. Linear interpolation based on correlation strength
-                # High correlation = more following of leader, low correlation = more independent
-                interpolated_rank_map = (pattern_A_ranks * correlation_weight) + \
-                                      (pattern_B_ranks * (1 - correlation_weight))
-                
-                # 4. Convert to assignment indices
-                follower_shuffled_indices = np.argsort(interpolated_rank_map)
-                
-                # 5. Assign the follower's counts
-                assigned_indices_follower = new_counts_ranks[follower_shuffled_indices, follower_gene_idx]
-                S_final[:, follower_gene_idx] = \
-                    new_counts[assigned_indices_follower, follower_gene_idx]
-                
-                assigned_genes.add(follower_gene_idx)
-        
-        # Handle any unassigned genes with simple SRBA
-        unassigned_genes = set(range(n_genes)) - assigned_genes
-        if unassigned_genes and verbose:
-            print(f"Assigning {len(unassigned_genes)} remaining genes with gentle SRBA...")
-        
-        for gene_idx in unassigned_genes:
-            base_noise = np.random.randn(n_spots)
-            smooth_noise = spatial_smoother.dot(base_noise)
-            
-            # Normalize noise
-            if np.std(smooth_noise) > 0:
-                smooth_noise = smooth_noise / np.std(smooth_noise)
-            
-            perfect_map = np.arange(n_spots, dtype=np.float64)
-            
-            # Apply reduced noise for unassigned genes
-            if sigma > 0:
-                # Use ultra-conservative scaling for unassigned genes too
-                if sigma <= 0.05:
-                    reduced_noise_scale = 0.2 * sigma * np.sqrt(n_spots) * 0.1
-                elif sigma <= 0.1:
-                    reduced_noise_scale = 0.2 * sigma * np.sqrt(n_spots) * 0.2
-                else:
-                    reduced_noise_scale = 0.2 * sigma * n_spots * 0.3
-                
-                perturbed_map = perfect_map + smooth_noise * reduced_noise_scale
-                shuffled_indices = np.argsort(perturbed_map)
-            else:
-                shuffled_indices = np.arange(n_spots, dtype=int)
-            
+        shuffled_indices = np.arange(n_spots, dtype=int)
+        for gene_idx in range(n_genes):
             assigned_indices = new_counts_ranks[shuffled_indices, gene_idx]
             S_final[reference_ranks[:, gene_idx], gene_idx] = \
                 new_counts[assigned_indices, gene_idx]
-        
         return S_final
-    
-    def _apply_local_neighbor_swapping(self, perfect_map, spatial_smoother, sigma, n_spots):
-        """
-        FUNDAMENTAL APPROACH: For very small sigma, instead of adding noise,
-        perform controlled local swaps between spatial neighbors.
-        This preserves global spatial structure while introducing minimal local variation.
-        """
-        perturbed_map = perfect_map.copy()
-        
-        # Calculate number of swaps based on sigma
-        # For sigma=0.05, we want ~5% of spots to participate in local swaps
-        max_swaps = int(sigma * n_spots * 10)  # sigma=0.05 -> ~5 swaps for 100 spots
-        
-        if max_swaps == 0:
-            return perturbed_map
-        
-        # Get spatial adjacency information
-        # Convert spatial_smoother to adjacency list for efficiency
-        adjacency = spatial_smoother.tocoo()
-        
-        # Find all spatial neighbor pairs
-        neighbor_pairs = []
-        for i, j in zip(adjacency.row, adjacency.col):
-            if i < j:  # Avoid duplicates
-                neighbor_pairs.append((i, j))
-        
-        if len(neighbor_pairs) == 0:
-            return perturbed_map
-        
-        # Randomly select pairs to swap
-        n_swaps = min(max_swaps, len(neighbor_pairs))
-        swap_pairs = np.random.choice(len(neighbor_pairs), size=n_swaps, replace=False)
-        
-        # Perform the swaps
-        for swap_idx in swap_pairs:
-            i, j = neighbor_pairs[swap_idx]
-            # Swap the ranking positions of these two neighbors
-            perturbed_map[i], perturbed_map[j] = perturbed_map[j], perturbed_map[i]
-        
-        return perturbed_map
     
     def _resolve_assignment_conflicts(self, assignment_map):
         """
@@ -860,7 +790,7 @@ class SpatialSimulator:
         return new_counts
     
     def _apply_simple_parameter_assignment(self, reference_adata, model_params, verbose=False):
-        """Fallback method if G-SRBA dependencies are not available."""
+        """Fallback method for environments missing optional assignment dependencies."""
         if verbose:
             print("Using simplified parameter assignment (fallback mode)...")
         
@@ -882,19 +812,42 @@ class SpatialSimulator:
     def simulate_slice(self, **kwargs):
         """Convenience method for single slice simulation with parameter validation."""
         return self.simulate(**kwargs)
+
+    def simulate_by_annotation(self, annotation_key: str, **kwargs) -> ad.AnnData:
+        """Compatibility path for annotation-key callers."""
+        if annotation_key not in self.reference_adata.obs:
+            raise KeyError(f"annotation_key '{annotation_key}' not found in adata.obs.")
+        fit_kwargs = {
+            "visualize_fits": kwargs.get("visualize_fits", False),
+            "use_real_stats_directly": kwargs.get("use_real_stats_directly", False),
+            "use_heuristic_search": kwargs.get("use_heuristic_search", False),
+            "min_accepted_error": kwargs.get("min_accepted_error", 0.5),
+            "assignment_weights": kwargs.get("assignment_weights"),
+            "screening_pool_size": kwargs.get("screening_pool_size", 100),
+            "top_n_to_fully_evaluate": kwargs.get("top_n_to_fully_evaluate", 10),
+            "n_jobs": kwargs.get("n_jobs", -1),
+            "alteration_config": kwargs.get("alteration_config"),
+            "simulation_mode": kwargs.get("simulation_mode", "generative"),
+            "quantile_calibration": kwargs.get("quantile_calibration"),
+            "random_seed": kwargs.get("random_seed"),
+        }
+        self.fit_model(**fit_kwargs)
+        simulated = self.simulate(
+            num_simulation_cores=kwargs.get("num_simulation_cores", 12),
+            verbose=kwargs.get("verbose", True),
+            clip_overshoot_factor=kwargs.get("clip_overshoot_factor", 0.1),
+            boundary_multiplier=kwargs.get("boundary_multiplier", 1.1),
+            random_seed=kwargs.get("random_seed"),
+        )
+        simulated.uns["annotation_key"] = annotation_key
+        return simulated
     
 
-def simulate_single_slice(adata: ad.AnnData, sigma: float = 0, follower_sigma_factor: float = 0, visualize_fits: bool = False, num_simulation_cores: int = 12, verbose: bool = True, clip_overshoot_factor: float = 0.1, use_real_stats_directly: bool = False, annotation_key: str = None, use_heuristic_search: bool = False, min_accepted_error: float = 0.005, assignment_weights: dict = None, screening_pool_size: int = 1000, top_n_to_fully_evaluate: int = 10, n_jobs: int = -1, alteration_config=None, boundary_multiplier: float = 1.1, **kwargs) -> ad.AnnData:
+def simulate_single_slice(adata: ad.AnnData, visualize_fits: bool = False, num_simulation_cores: int = 12, verbose: bool = True, clip_overshoot_factor: float = 0.1, use_real_stats_directly: bool = False, annotation_key: str = None, use_heuristic_search: bool = False, min_accepted_error: float = 0.005, assignment_weights: dict = None, screening_pool_size: int = 1000, top_n_to_fully_evaluate: int = 10, n_jobs: int = -1, alteration_config=None, boundary_multiplier: float = 1.1, simulation_mode: str = 'generative', quantile_calibration=None, random_seed: int = None, hybrid_alpha: float = 0.2) -> ad.AnnData:
     """
-    UPDATED: G-SRBA with Correlation-Guided Interpolation for follower genes and marginal distribution alteration.
+    Run single-slice simulation with explicit generative or empirical semantics.
     
     Args:
-        sigma (float): The key gentleness parameter. Controls the magnitude of primary spatial noise.
-            - sigma=0: Perfect pattern preservation (zero spatial change).
-            - sigma=0.5-1.5: "Gentle" mode, introduces subtle, local variations.
-            - sigma>2.0: "Exploratory" mode, introduces more significant changes.
-        follower_sigma_factor (float): Legacy parameter, now automatically uses correlation-guided 
-            interpolation for followers based on gene-gene correlations in the target distribution.
         boundary_multiplier (float): Multiplier for maximum count boundary constraint (default 1.1 = 110% of reference max).
             - 1.0: Strict boundary at reference maximum
             - 1.1: Allow 10% overshoot (default)
@@ -909,8 +862,13 @@ def simulate_single_slice(adata: ad.AnnData, sigma: float = 0, follower_sigma_fa
                     apply_to_mean=True,
                     apply_to_variance=True
                 )
+        simulation_mode: "generative" by default, or "empirical" for strict controlled alteration.
+        quantile_calibration: "raw" for iid uniform quantiles, "reference_rank" for reference-ranked quantiles,
+            or "auto" to use the mode default.
+        random_seed: Optional seed for reproducible generative sampling and quantile decoding.
         Other parameters: See individual parameter documentation in fit_model() and simulate() methods.
     """
+    simulation_mode = resolve_simulation_mode(simulation_mode)
     if verbose: print("Starting comprehensive single slice simulation...")
     adata = adata.copy()
     safe_calculate_qc_metrics(adata, verbose=verbose)
@@ -923,7 +881,11 @@ def simulate_single_slice(adata: ad.AnnData, sigma: float = 0, follower_sigma_fa
         'assignment_weights': assignment_weights,
         'screening_pool_size': screening_pool_size,
         'top_n_to_fully_evaluate': top_n_to_fully_evaluate,
-        'n_jobs': n_jobs
+        'n_jobs': n_jobs,
+        'simulation_mode': simulation_mode,
+        'quantile_calibration': quantile_calibration,
+        'random_seed': random_seed,
+        'hybrid_alpha': hybrid_alpha,
     }
 
     if annotation_key:
@@ -935,8 +897,9 @@ def simulate_single_slice(adata: ad.AnnData, sigma: float = 0, follower_sigma_fa
             num_simulation_cores=num_simulation_cores, 
             verbose=verbose, 
             clip_overshoot_factor=clip_overshoot_factor, 
+            boundary_multiplier=boundary_multiplier,
+            alteration_config=alteration_config,
             **heuristic_kwargs, # Pass all heuristic controls
-            **kwargs
         )
 
 
@@ -946,13 +909,8 @@ def simulate_single_slice(adata: ad.AnnData, sigma: float = 0, follower_sigma_fa
         elif use_heuristic_search:
             if verbose: print("--- RUNNING IN BOOSTED HEURISTIC OPTIMIZATION MODE ---")
         else:
-            if verbose: 
-                if sigma == 0:
-                    print("--- RUNNING IN STANDARD MODE WITH PERFECT PATTERN PRESERVATION ---")
-                elif sigma <= 1.5:
-                    print(f"--- RUNNING IN STANDARD MODE WITH GENTLE G-SRBA (sigma={sigma}) ---")
-                else:
-                    print(f"--- RUNNING IN STANDARD MODE WITH EXPLORATORY G-SRBA (sigma={sigma}) ---")
+            if verbose:
+                print("--- RUNNING IN STANDARD DETERMINISTIC MODE ---")
         
         simulator.fit_model(
             visualize_fits=visualize_fits, 
@@ -961,12 +919,11 @@ def simulate_single_slice(adata: ad.AnnData, sigma: float = 0, follower_sigma_fa
             **heuristic_kwargs # Pass all heuristic controls
         )
         simulated_adata = simulator.simulate(
-            sigma=sigma,
-            follower_sigma_factor=follower_sigma_factor,
             num_simulation_cores=num_simulation_cores, 
             verbose=verbose, 
             clip_overshoot_factor=clip_overshoot_factor,
-            boundary_multiplier=boundary_multiplier
+            boundary_multiplier=boundary_multiplier,
+            random_seed=random_seed,
         )
         
     if verbose: print(f"\nSimulation completed successfully!")

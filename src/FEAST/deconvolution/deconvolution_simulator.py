@@ -25,8 +25,6 @@ class DeconvolutionSimulator:
                                    grid_type: str = 'hexagonal',
                                    alpha: float = 0.01,
                                    cell_type_key: Optional[str] = None,
-                                   # Single slice simulation parameters
-                                   sigma: float = 1.0,
                                    visualize_fits: bool = False,
                                    use_heuristic_search: bool = False,
                                    alteration_config: Optional[Any] = None,
@@ -48,10 +46,6 @@ class DeconvolutionSimulator:
         cell_type_key : str, optional
             Key in reference_adata.obs for cell type annotations (for ground truth)
         
-        Single Slice Simulation Parameters:
-        ----------------------------------
-        sigma : float, default=1.0
-            Spatial smoothness parameter for G-SRBA algorithm
         visualize_fits : bool, default=False
             Whether to show parameter fitting visualizations
         use_heuristic_search : bool, default=False
@@ -73,11 +67,10 @@ class DeconvolutionSimulator:
         if self.verbose:
             print(f"\n--- Stage 1: Single Slice Simulation ---")
             print(f"Reference data: {reference_adata.shape}")
-            print(f"Sigma: {sigma}, Boundary multiplier: {boundary_multiplier}")
+            print(f"Boundary multiplier: {boundary_multiplier}")
             
         simulated_slice = simulate_single_slice(
             adata=reference_adata,
-            sigma=sigma,
             visualize_fits=visualize_fits,
             use_heuristic_search=use_heuristic_search,
             alteration_config=alteration_config,
@@ -118,7 +111,6 @@ class DeconvolutionSimulator:
         deconvolution_data.uns['downsampling_factor'] = float(downsampling_factor)
         deconvolution_data.uns['grid_type'] = str(grid_type)
         deconvolution_data.uns['alpha'] = float(alpha)
-        deconvolution_data.uns['sigma'] = float(sigma)
         deconvolution_data.uns['boundary_multiplier'] = float(boundary_multiplier)
         if alteration_config is not None:
             deconvolution_data.uns['alteration_config'] = str(alteration_config)
@@ -237,7 +229,6 @@ class DeconvolutionSimulator:
                                            downsampling_factors: List[float] = [0.1, 0.25, 0.5],
                                            grid_types: List[str] = ['hexagonal', 'square', 'kmeans'],
                                            cell_type_key: Optional[str] = None,
-                                           sigma_values: List[float] = [0.5, 1.0, 1.5],
                                            alpha: float = 0.01,
                                            **simulation_kwargs) -> Dict[str, ad.AnnData]:
         """
@@ -253,8 +244,6 @@ class DeconvolutionSimulator:
             Different spatial grid types to test
         cell_type_key : str, optional
             Key for cell type annotations
-        sigma_values : List[float]
-            Different spatial smoothness values to test
         alpha : float
             Alpha parameter for tissue boundary detection
         **simulation_kwargs
@@ -269,44 +258,40 @@ class DeconvolutionSimulator:
             print("\n=== CREATING DECONVOLUTION BENCHMARK SUITE ===")
             print(f"Downsampling factors: {downsampling_factors}")
             print(f"Grid types: {grid_types}")
-            print(f"Sigma values: {sigma_values}")
-            
+
         benchmark_datasets = {}
-        total_combinations = len(downsampling_factors) * len(grid_types) * len(sigma_values)
+        total_combinations = len(downsampling_factors) * len(grid_types)
         current = 0
-        
+
         for downsample in downsampling_factors:
             for grid_type in grid_types:
-                for sigma in sigma_values:
-                    current += 1
-                    
+                current += 1
+
+                if self.verbose:
+                    print(f"\n--- Combination {current}/{total_combinations} ---")
+                    print(f"Downsampling: {downsample}, Grid: {grid_type}")
+
+                key = f"downsample_{downsample}_grid_{grid_type}"
+
+                try:
+                    benchmark_data = self.simulate_deconvolution_data(
+                        reference_adata=reference_adata,
+                        downsampling_factor=downsample,
+                        grid_type=grid_type,
+                        alpha=alpha,
+                        cell_type_key=cell_type_key,
+                        **simulation_kwargs
+                    )
+
+                    benchmark_datasets[key] = benchmark_data
+
                     if self.verbose:
-                        print(f"\n--- Combination {current}/{total_combinations} ---")
-                        print(f"Downsampling: {downsample}, Grid: {grid_type}, Sigma: {sigma}")
-                        
-                    key = f"downsample_{downsample}_grid_{grid_type}_sigma_{sigma}"
-                    
-                    try:
-                        benchmark_data = self.simulate_deconvolution_data(
-                            reference_adata=reference_adata,
-                            downsampling_factor=downsample,
-                            grid_type=grid_type,
-                            alpha=alpha,
-                            cell_type_key=cell_type_key,
-                            sigma=sigma,
-                            verbose=False,  # Reduce verbosity for batch processing
-                            **simulation_kwargs
-                        )
-                        
-                        benchmark_datasets[key] = benchmark_data
-                        
-                        if self.verbose:
-                            print(f"✓ {key}: {benchmark_data.shape}")
-                            
-                    except Exception as e:
-                        if self.verbose:
-                            print(f"✗ Failed {key}: {e}")
-                        continue
+                        print(f"✓ {key}: {benchmark_data.shape}")
+
+                except Exception as e:
+                    if self.verbose:
+                        print(f"✗ Failed {key}: {e}")
+                    continue
                         
         if self.verbose:
             print(f"\n✓ Benchmark suite complete! Created {len(benchmark_datasets)}/{total_combinations} datasets")
@@ -319,7 +304,6 @@ def simulate_deconvolution_from_single_cells(reference_adata: ad.AnnData,
                                            cell_type_key: Optional[str] = None,
                                            downsampling_factor: float = 0.25,
                                            grid_type: str = 'hexagonal',
-                                           sigma: float = 1.0,
                                            alpha: float = 0.01,
                                            verbose: bool = True,
                                            **kwargs) -> ad.AnnData:
@@ -340,8 +324,6 @@ def simulate_deconvolution_from_single_cells(reference_adata: ad.AnnData,
         Factor to reduce spatial resolution
     grid_type : str, default='hexagonal'
         Type of spatial grid for aggregation
-    sigma : float, default=1.0
-        Spatial smoothness for single slice simulation
     alpha : float, default=0.01
         Alpha parameter for tissue boundary detection
     verbose : bool, default=True
@@ -362,7 +344,6 @@ def simulate_deconvolution_from_single_cells(reference_adata: ad.AnnData,
         grid_type=grid_type,
         alpha=alpha,
         cell_type_key=cell_type_key,
-        sigma=sigma,
         **kwargs
     )
 
@@ -370,7 +351,6 @@ def simulate_deconvolution_from_single_cells(reference_adata: ad.AnnData,
 def create_deconvolution_benchmark_suite(reference_adata: ad.AnnData,
                                         cell_type_key: Optional[str] = None,
                                         downsampling_factors: List[float] = [0.1, 0.25, 0.5],
-                                        sigma_values: List[float] = [0.5, 1.0, 1.5],
                                         verbose: bool = True) -> Dict[str, ad.AnnData]:
     """
     Create a comprehensive deconvolution benchmark suite.
@@ -383,8 +363,6 @@ def create_deconvolution_benchmark_suite(reference_adata: ad.AnnData,
         Key for cell type annotations
     downsampling_factors : List[float]
         Resolution reduction factors to test
-    sigma_values : List[float]
-        Spatial smoothness values to test
     verbose : bool
         Whether to print progress messages
         
@@ -398,6 +376,5 @@ def create_deconvolution_benchmark_suite(reference_adata: ad.AnnData,
     return simulator.create_deconvolution_benchmark_suite(
         reference_adata=reference_adata,
         cell_type_key=cell_type_key,
-        downsampling_factors=downsampling_factors,
-        sigma_values=sigma_values
+        downsampling_factors=downsampling_factors
     )
