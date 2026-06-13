@@ -10,7 +10,7 @@ import os
 import argparse
 from pathlib import Path
 import scanpy as sc
-from FEAST import STmulator
+from FEAST import FEAST
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from dataset_paths import DATASETS, check_dataset_exists
@@ -42,17 +42,15 @@ if __name__ == "__main__":
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     
-    simulator = STmulator(adata)
-
-    simulator = STmulator(adata)
+    simulator = FEAST(adata)
 
     for angle in [1, 5, 10, 30, 45, 60]:
         original_adata, transformed_adata = simulator.simulate_alignment(
             transformation_type='rotation',
             rotation_angle=angle,
             data_type='sequencing',
-            sigma=0,
-            warp_strength=0
+            warp_strength=0,
+            quantile_calibration='reference_rank'
         )
 
         if angle == 1:

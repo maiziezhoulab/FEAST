@@ -45,8 +45,11 @@ if __name__ == "__main__":
     input_adata.write_h5ad(output_dir / "raw_adata.h5ad")
     
     print("Running baseline simulation (no alterations)...")
-    no_alter_simulation = simulator.simulate_single_slice(input_adata, min_accepted_error=0.0001,
-            screening_pool_size=50000)
+    no_alter_simulation = simulator.simulate_single_slice(
+            input_adata,
+            min_accepted_error=0.0001,
+            screening_pool_size=50000,
+            quantile_calibration='reference_rank')
     no_alter_simulation.write_h5ad(output_dir / "no_alter_simulation.h5ad")
 
     print("\nRunning controlled experiment 1: Mean-only alterations...")
@@ -66,12 +69,11 @@ if __name__ == "__main__":
             verbose=False,
             use_real_stats_directly=False,
             use_heuristic_search=True,
-            follower_sigma_factor=0,
-            sigma=0,
             min_accepted_error=0.0001,
             screening_pool_size=10000,
             assignment_weights = {'mean': 1, 'variance': 1, 'zero_prop': 1.0},
-            top_n_to_fully_evaluate=10
+            top_n_to_fully_evaluate=10,
+            quantile_calibration='reference_rank'
         )
         simulated_adata.write_h5ad(output_dir / f"mean_only_fc_{mean_fold_change}.h5ad")
 
@@ -93,12 +95,11 @@ if __name__ == "__main__":
             verbose=False,
             use_real_stats_directly=False,
             use_heuristic_search=True,
-            follower_sigma_factor=0,
-            sigma=0,
             min_accepted_error=0.0001,
             screening_pool_size=10000,
             assignment_weights = {'mean': 1, 'variance': 1, 'zero_prop': 1.0},
-            top_n_to_fully_evaluate=10
+            top_n_to_fully_evaluate=10,
+            quantile_calibration='reference_rank'
         )
         simulated_adata.write_h5ad(output_dir / f"variance_only_fc_{var_fold_change}.h5ad")
 
@@ -119,12 +120,11 @@ if __name__ == "__main__":
             verbose=False,
             use_real_stats_directly=False,
             use_heuristic_search=True,
-            follower_sigma_factor=0,
-            sigma=0,
             min_accepted_error=0.0001,
             screening_pool_size=10000,
             assignment_weights = {'mean': 1, 'variance': 1, 'zero_prop': 1.0},
-            top_n_to_fully_evaluate=10
+            top_n_to_fully_evaluate=10,
+            quantile_calibration='reference_rank'
         )
         simulated_adata.write_h5ad(output_dir / f"sparsity_only_fc_{sparsity_fold_change}.h5ad")
 
@@ -135,6 +135,3 @@ if __name__ == "__main__":
     print("  - Variance-only: variance_only_fc_*.h5ad (8 conditions)")
     print("  - Sparsity-only: sparsity_only_fc_*.h5ad (9 conditions)")
     print("  - Total: 26 simulation files")
-
-
-        

@@ -1,0 +1,29 @@
+name: feast-py311-conda
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+variables:
+  MPLCONFIGDIR: /tmp/matplotlib
+  NUMBA_CACHE_DIR: /tmp/numba-cache
+dependencies:
+  - python=3.11
+  - pip
+  - pytest
+  - python-build
+  - setuptools>=61.0
+  - wheel
+  - numpy=1.26
+  - pandas
+  - matplotlib
+  - scanpy
+  - scikit-learn
+  - scipy
+  - seaborn
+  - tqdm
+  - pydot
+  - pot
+  - pyvinecopulib
+  - alphashape
+  - pytorch=2.6.0=gpu_cuda124_py311*
+  - pytorch-cuda=12.4

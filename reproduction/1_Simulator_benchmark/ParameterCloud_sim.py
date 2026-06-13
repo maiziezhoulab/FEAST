@@ -29,8 +29,6 @@ def single_slice_sim(adata_path, output_path):
         visualize_fits=True, 
         use_real_stats_directly=True,
         use_heuristic_search=True,
-        follower_sigma_factor=0,
-        sigma=0,
         min_accepted_error=0.0001,
         screening_pool_size=50000,
         assignment_weights = {'mean': 1, 'variance': 1, 'zero_prop': 1.0},
@@ -71,4 +69,3 @@ Examples:
             sys.exit(1)
     
     single_slice_sim(str(input_path), args.output)
-

@@ -78,8 +78,8 @@ if __name__ == "__main__":
             cell_type_key=cell_type_key,
             downsampling_factor=resolution,
             grid_type='hexagonal',
-            sigma=0.01,
             alpha=0.005,
+            quantile_calibration='reference_rank',
             verbose=True
         )
         
