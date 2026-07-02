@@ -5,7 +5,7 @@ import pandas as pd
 import warnings
 from scipy.spatial.distance import cdist
 
-from .count_decoding import decode_counts_by_rank
+from .count_decoding import decode_counts_by_spatial_intensity
 from .parameter_cloud import (
     BatchDeformation,
     GeneParameterSimulator,
@@ -278,7 +278,7 @@ def simulate_batch_effect(
       3. Apply affine deformation                 -> apply_batch_deformation()
       4. Convert back to stats                    -> theta_to_stats()
       5. Convert stats to count-model params      -> convert_params_for_new_simulator()
-      6. Decode counts preserving spatial rank    -> decode_counts_by_rank()
+      6. Decode counts from reference intensity   -> decode_counts_by_spatial_intensity()
 
     Parameters
     ----------
@@ -296,7 +296,7 @@ def simulate_batch_effect(
     from scipy.sparse import issparse
     from .theta_transform import stats_to_theta, theta_to_stats
     from .parameter_cloud import apply_batch_deformation, convert_params_for_new_simulator
-    from .count_decoding import decode_counts_by_rank
+    from .count_decoding import decode_counts_by_spatial_intensity
 
     ref_matrix = adata_ref.X.toarray() if issparse(adata_ref.X) else np.asarray(
         adata_ref.X, dtype=np.float64
@@ -318,8 +318,17 @@ def simulate_batch_effect(
         stats_for_conversion, n_spots=n_obs, boundary_multiplier=boundary_multiplier
     )
     model_params["simulation_mode"] = "empirical"
+    model_params["target_stats"] = stats_batch[["mean", "variance", "zero_prop"]].reset_index(drop=True)
+    theta_delta = np.abs(theta_batch - theta_ref)
+    model_params["parameter_diagnostics"] = {
+        "requested_config": {
+            "apply_to_variance": bool(np.any(theta_delta[:, 1] > 1e-8)),
+            "apply_to_zero_prop": bool(np.any(theta_delta[:, 2] > 1e-8)),
+            "mean_variance_coupling": None,
+        }
+    }
 
-    simulated_matrix = decode_counts_by_rank(
+    simulated_matrix = decode_counts_by_spatial_intensity(
         ref_matrix.astype(np.float64),
         model_params,
         boundary_multiplier=boundary_multiplier,
@@ -589,6 +598,7 @@ class SpatialSimulator:
                     block_size=ot_block_size,
                     overlap_frac=ot_overlap_frac,
                     max_block_pairs=ot_pair_limit,
+                    transport_rank=False,
                 )
                 spatial_coords = target_coords.copy()
                 n_spots = n_target
@@ -599,25 +609,11 @@ class SpatialSimulator:
                 b = np.ones(n_target) / n_target
 
                 from ..de_novo._ot_transport import sinkhorn_transport
-                from ..de_novo.quantile_field import midpoint_rank_normalize
-
                 plan = sinkhorn_transport(M=cost, a=a, b=b, reg=0.05)
-
-                ref_quantiles = midpoint_rank_normalize(
-                    reference_matrix,
-                    tie_policy='stable_ordinal',
-                    clip_eps=1e-6,
-                )
 
                 col_mass = plan.sum(axis=0, keepdims=True)
                 safe_mass = np.where(col_mass > 1e-12, col_mass, 1.0)
-                transported = (plan / safe_mass).T @ ref_quantiles
-
-                transported = midpoint_rank_normalize(
-                    transported,
-                    tie_policy='stable_ordinal',
-                    clip_eps=1e-6,
-                )
+                transported = (plan / safe_mass).T @ reference_matrix
 
                 spatial_coords = target_coords.copy()
                 n_spots = n_target
@@ -627,7 +623,7 @@ class SpatialSimulator:
             clip_ref = reference_sparse if reference_sparse is not None else reference_matrix
             quantile_input = reference_matrix
 
-        simulated_matrix = decode_counts_by_rank(
+        simulated_matrix = decode_counts_by_spatial_intensity(
             quantile_input,
             model_params,
             boundary_multiplier=boundary_multiplier,
@@ -782,6 +778,7 @@ def _block_ot_transport(
     overlap_frac=0.25,
     max_block_pairs=None,
     memory_budget_gb=None,
+    transport_rank=True,
 ):
     """Block-based optimal transport for large datasets.
 
@@ -808,7 +805,10 @@ def _block_ot_transport(
         raise ValueError("ot_overlap_frac must be a non-negative finite number.")
     max_block_pairs = _resolve_ot_block_max_pairs(max_block_pairs, memory_budget_gb)
 
-    ref_quantiles = midpoint_rank_normalize(reference_matrix, tie_policy='stable_ordinal', clip_eps=1e-6)
+    if transport_rank:
+        source_values = midpoint_rank_normalize(reference_matrix, tie_policy='stable_ordinal', clip_eps=1e-6)
+    else:
+        source_values = np.asarray(reference_matrix, dtype=np.float64)
 
     tgt_x, tgt_y = target_coords[:, 0], target_coords[:, 1]
     src_x, src_y = source_coords[:, 0], source_coords[:, 1]
@@ -866,7 +866,7 @@ def _block_ot_transport(
 
                 col_mass = plan.sum(axis=0, keepdims=True)
                 safe_mass = np.where(col_mass > 1e-12, col_mass, 1.0)
-                transported_local = (plan / safe_mass).T @ ref_quantiles[sub_src_idx, :]
+                transported_local = (plan / safe_mass).T @ source_values[sub_src_idx, :]
 
                 transported_accum[sub_tgt_idx, :] += transported_local
                 count_accum[sub_tgt_idx] += 1
@@ -878,12 +878,13 @@ def _block_ot_transport(
         nn = NearestNeighbors(n_neighbors=1, metric='euclidean')
         nn.fit(source_coords)
         nearest_src = nn.kneighbors(target_coords[uncovered_idx], return_distance=False).ravel()
-        transported_accum[uncovered_idx, :] = ref_quantiles[nearest_src, :]
+        transported_accum[uncovered_idx, :] = source_values[nearest_src, :]
         count_accum[uncovered_idx] = 1.0
 
     transported = transported_accum / count_accum[:, None]
 
-    transported = midpoint_rank_normalize(transported, tie_policy='stable_ordinal', clip_eps=1e-6)
+    if transport_rank:
+        transported = midpoint_rank_normalize(transported, tie_policy='stable_ordinal', clip_eps=1e-6)
     return transported
 
 

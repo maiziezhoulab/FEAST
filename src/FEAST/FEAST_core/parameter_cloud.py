@@ -375,7 +375,7 @@ class GeneParameterSimulator:
             return self.target_stats
         return self.original_stats
 
-    def simulate(self, n_genes, overgeneration_factor=2.0, verbose=True, random_seed=None, return_uniform=False):
+    def simulate(self, n_genes, overgeneration_factor=3.0, verbose=True, random_seed=None, return_uniform=False):
         if not self.fitted: raise RuntimeError("Simulator must be fitted first.")
         n_to_generate = max(int(n_genes), int(n_genes * overgeneration_factor))
         if verbose: print(f"\n--- [SIMULATING] Generating {n_to_generate} synthetic profiles...")
@@ -623,7 +623,7 @@ class GeneParameterSimulator:
         assignment_weights=None,
         random_seed=None,
         assignment_method='hybrid',
-        overgeneration_factor=2.0,
+        overgeneration_factor=3.0,
         verbose=True,
         use_distributional_alteration: bool = False,
         assignment_solver: str = 'scipy',

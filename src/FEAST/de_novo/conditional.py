@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 from sklearn.neighbors import NearestNeighbors
 
-from ..FEAST_core.count_decoding import decode_counts_by_rank
+from ..FEAST_core.count_decoding import decode_counts_by_spatial_intensity
 from ._metadata import records_by_label_to_h5ad_uns
 from ._ot_transport import sinkhorn_transport
 from .core import SliceBlueprint, active_mask_metadata, assign_generated_coordinates, load_blueprint
@@ -377,10 +377,19 @@ def simulate_from_reference(
             )
         else:
             model_params = _stats_frame_to_model_params(label_clouds[label])
-            decoded = decode_counts_by_rank(
-                label_q,
+            intensity = _decode_label_aware_rank_counts(
+                quantiles=label_q,
+                label=label,
+                label_key=model.label_key,
+                gene_names=model.gene_names,
+                eligible_refs=eligible_refs,
+                reference_weights=label_weights_out[label],
+            ).astype(np.float64, copy=False)
+            decoded = decode_counts_by_spatial_intensity(
+                intensity,
                 model_params,
                 boundary_multiplier=float(gen_cfg.boundary_multiplier),
+                reference_X=intensity,
                 random_seed=int(random_seed),
                 show_progress=bool(gen_cfg.verbose),
             )
@@ -1016,6 +1025,14 @@ def _stats_frame_to_model_params(stats: pd.DataFrame) -> dict:
         "genes": list(stats.index.astype(str)),
         "model_selected": model_selected,
         "marginal_param1": marginal_param1,
+        "target_stats": stats[["mean", "variance", "zero_prop"]].reset_index(drop=True).copy(),
+        "parameter_diagnostics": {
+            "requested_config": {
+                "apply_to_variance": True,
+                "apply_to_zero_prop": True,
+                "mean_variance_coupling": None,
+            }
+        },
     }
 
 

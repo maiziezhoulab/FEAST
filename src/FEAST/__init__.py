@@ -6,7 +6,6 @@ Primary API
 :func:`generate`      — create a virtual ST slice from a blueprint + parameter cloud.
 :func:`generate_from` — create a virtual ST slice conditioned on a real reference.
 :func:`fit`           — learn a parameter-cloud model from real data.
-:func:`decode`        — convert a parameter cloud + rank scores into a count matrix.
 
 Alteration
 ----------
@@ -28,7 +27,6 @@ __version__ = "1.0.2"
 from .FEAST_core.simulator import simulate_single_slice as _simulate_single_slice
 from .FEAST_core.simulator import simulate_batch_effect, characterize_batch
 from .FEAST_core.parameter_cloud import GeneParameterSimulator, BatchDeformation
-from .FEAST_core.count_decoding import decode_counts_by_rank as _decode_counts_by_rank
 from .FEAST_core.theta_transform import stats_to_theta, theta_to_stats
 from .modeling.marginal_alteration import AlterationConfig as _AlterationConfig
 from .de_novo.builder import simulate_from_design as _simulate_from_design
@@ -233,24 +231,6 @@ def fit(
     return sim
 
 
-def decode(params, rank_scores):
-    """Decode a parameter cloud and rank scores into a count matrix.
-
-    Parameters
-    ----------
-    params:
-        Parameter table from :func:`fit` or built manually.
-    rank_scores:
-        (N_spots, N_genes) array of rank scores in [0, 1].
-
-    Returns
-    -------
-    :class:`~anndata.AnnData`
-        Count matrix with ``.layers['counts']`` and ``.layers['feast_quantiles']``.
-    """
-    return _decode_counts_by_rank(params, rank_scores)
-
-
 # ---------------------------------------------------------------------------
 # Lazy subpackage loading
 # ---------------------------------------------------------------------------
@@ -281,7 +261,6 @@ __all__ = [
     "generate",
     "generate_from",
     "fit",
-    "decode",
     # Batch effect
     "simulate_batch_effect",
     "characterize_batch",

@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from ..FEAST_core.count_decoding import decode_counts_by_rank
+from ..FEAST_core.count_decoding import decode_counts_by_spatial_intensity
 from .conditional import SimulationConfig, _quantile_field_config
 from .core import SliceBlueprint, active_mask_metadata, assign_generated_coordinates, load_blueprint
 from .pattern import diffuse_quantile_map
@@ -135,6 +135,14 @@ def _stats_frame_to_model_params(stats: pd.DataFrame) -> dict:
         "genes": list(stats.index.astype(str)),
         "model_selected": model_selected,
         "marginal_param1": marginal_param1,
+        "target_stats": stats[list(REQUIRED_STATS_COLUMNS)].reset_index(drop=True).copy(),
+        "parameter_diagnostics": {
+            "requested_config": {
+                "apply_to_variance": True,
+                "apply_to_zero_prop": True,
+                "mean_variance_coupling": None,
+            }
+        },
     }
 
 
@@ -485,7 +493,7 @@ def simulate_from_design(
         mask = labels == label
         label_cloud = _resolve_parameter_cloud_for_label(parameter_cloud, gene_names, label=label)
         model_params = _stats_frame_to_model_params(label_cloud)
-        decoded = decode_counts_by_rank(
+        decoded = decode_counts_by_spatial_intensity(
             quantiles_arr[mask, :],
             model_params,
             boundary_multiplier=float(gen_cfg.boundary_multiplier),
