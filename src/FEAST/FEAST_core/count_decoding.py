@@ -410,7 +410,9 @@ def decode_counts_by_spatial_intensity(
 
         ref_values = _gene_values(intensity, gene_idx, n_spots)
         if preserve_reference_zero:
-            target_zero = float(np.mean(ref_values <= 0.0))
+            ref_zero_source = reference_X if reference_X is not None else intensity
+            zero_ref = _gene_values(ref_zero_source, gene_idx, n_spots)
+            target_zero = float(np.mean(zero_ref <= 0.0))
         component_mu = _component_mu_for_overall_mean(model_type, target_mean, pi0)
 
         spatial_intensity, effective_target_var = _calibrated_intensity(
