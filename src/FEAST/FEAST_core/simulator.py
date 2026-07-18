@@ -154,7 +154,11 @@ def run_parameter_cloud_fitting(adata, visualize_fits=False, use_heuristic_searc
     )
 
     model_params = convert_params_for_new_simulator(
-        assigned_synthetic_params, n_spots=adata.n_obs, n_jobs=convert_n_jobs)
+        assigned_synthetic_params,
+        n_spots=adata.n_obs,
+        n_jobs=convert_n_jobs,
+        random_seed=random_seed,
+    )
     model_params['simulation_evaluation'] = {
         'source': 'integrated_parameter_cloud',
         'simulation_mode': mode,
@@ -166,17 +170,21 @@ def run_parameter_cloud_fitting(adata, visualize_fits=False, use_heuristic_searc
     print(">>> Exiting parameter_cloud pipeline <<<\n")
     return model_params
 
-def run_direct_fitting_from_real_stats(adata):
+def run_direct_fitting_from_real_stats(adata, random_seed=None):
     """Run diagnostic pipeline using real stats directly."""
     print("\n>>> Entering DIAGNOSTIC fitting pipeline: Using REAL stats directly <<<")
     simulator = GeneParameterSimulator()
     simulator.fit_statistics_only(adata)
     real_stats_for_conversion = simulator.original_stats.reset_index().rename(columns={'index': 'gene_id'})
     model_params = convert_params_for_new_simulator(
-        real_stats_for_conversion, n_spots=adata.n_obs)
+        real_stats_for_conversion,
+        n_spots=adata.n_obs,
+        random_seed=random_seed,
+    )
     model_params['simulation_evaluation'] = {'source': 'direct_from_real_stats', 'simulation_mode': 'empirical'}
     model_params['simulation_mode'] = 'empirical'
     model_params['target_stats'] = real_stats_for_conversion
+    model_params['random_seed'] = None if random_seed is None else int(random_seed)
     print(">>> Diagnostic fitting complete <<<\n")
     return model_params
 
@@ -235,7 +243,10 @@ def simulate_batch_effect(
         columns={"index": "gene_id"}
     )
     model_params = convert_params_for_new_simulator(
-        stats_for_conversion, n_spots=n_obs, boundary_multiplier=boundary_multiplier
+        stats_for_conversion,
+        n_spots=n_obs,
+        boundary_multiplier=boundary_multiplier,
+        random_seed=random_seed,
     )
     model_params["simulation_mode"] = "empirical"
     model_params["target_stats"] = stats_batch[["mean", "variance", "zero_prop"]].reset_index(drop=True)
@@ -389,7 +400,10 @@ class SpatialSimulator:
         """
         adata_for_fitting = self.reference_adata.copy(); safe_calculate_qc_metrics(adata_for_fitting)
         if use_real_stats_directly:
-            self._model_params = run_direct_fitting_from_real_stats(adata_for_fitting)
+            self._model_params = run_direct_fitting_from_real_stats(
+                adata_for_fitting,
+                random_seed=random_seed,
+            )
         else:
             self._model_params = run_parameter_cloud_fitting(
                 adata_for_fitting,

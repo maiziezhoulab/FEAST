@@ -104,9 +104,8 @@ def simulate(
         Optional :class:`Alteration` config to systematically modify
         expression statistics (mean, variance, or sparsity).
     seed:
-        Seed for FEAST's documented generator and assignment paths. Exact
-        output can still depend on ambient NumPy state because the current
-        finite-sample ZIP/ZINB correction uses NumPy's global RNG.
+        Run-wide seed for reproducible fitting, assignment, transport, and
+        count generation. Seeded output is independent of ambient NumPy state.
     parameter_mode:
         ``"hungarian"`` (generative fitting) or ``"reference_stats"``
         (use reference stats directly).

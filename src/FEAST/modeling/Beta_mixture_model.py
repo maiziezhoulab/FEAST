@@ -22,9 +22,9 @@ def _beta_pdf(x, alpha, beta_param):
     """PDF of Beta distribution."""
     return beta.pdf(x, alpha, beta_param)
 
-def _beta_rvs(alpha, beta_param, size=1):
+def _beta_rvs(alpha, beta_param, size=1, random_state=None):
     """Sample from Beta distribution."""
-    return beta.rvs(alpha, beta_param, size=size)
+    return beta.rvs(alpha, beta_param, size=size, random_state=random_state)
 
 def fit_single_beta(data):
     """
@@ -340,7 +340,7 @@ class BetaMixtureMarginalModeler:
 
         return self
     
-    def sample(self, n):
+    def sample(self, n, random_state=None):
         """
         Sample from the fitted Beta mixture model.
         
@@ -354,7 +354,8 @@ class BetaMixtureMarginalModeler:
             raise RuntimeError("Model not fitted. Call fit() first.")
         
         # Choose components according to mixture weights
-        component_choices = np.random.choice(
+        rng = np.random if random_state is None else np.random.default_rng(int(random_state))
+        component_choices = rng.choice(
             len(self.model_params['weights']),
             size=n,
             p=self.model_params['weights']
@@ -366,11 +367,16 @@ class BetaMixtureMarginalModeler:
             mask = component_choices == i
             n_samples = np.sum(mask)
             if n_samples > 0:
-                samples[mask] = _beta_rvs(alpha, beta_param, size=n_samples)
+                samples[mask] = _beta_rvs(
+                    alpha,
+                    beta_param,
+                    size=n_samples,
+                    random_state=None if random_state is None else rng,
+                )
         
         return samples
     
-    def ppf(self, q, n_samples=200000):
+    def ppf(self, q, n_samples=200000, random_state=None):
         """
         Percent point function (inverse CDF) using sample-based approximation.
         
@@ -385,13 +391,18 @@ class BetaMixtureMarginalModeler:
             raise RuntimeError("Model not fitted. Call fit() first.")
         
         # Use cached samples if available
-        if n_samples not in self._ppf_cache:
-            samples = self.sample(n_samples)
+        cache_key = (
+            n_samples
+            if random_state is None
+            else (n_samples, int(random_state))
+        )
+        if cache_key not in self._ppf_cache:
+            samples = self.sample(n_samples, random_state=random_state)
             sorted_samples = np.sort(samples)
             quantiles = np.linspace(1/(n_samples+1), 1-1/(n_samples+1), n_samples)
-            self._ppf_cache[n_samples] = (quantiles, sorted_samples)
+            self._ppf_cache[cache_key] = (quantiles, sorted_samples)
         
-        q_ref, v_ref = self._ppf_cache[n_samples]
+        q_ref, v_ref = self._ppf_cache[cache_key]
         
         # Interpolate to get quantiles
         return np.interp(q, q_ref, v_ref)
