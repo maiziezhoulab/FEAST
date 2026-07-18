@@ -1,8 +1,9 @@
-import scanpy as sc
+import warnings
+
 import anndata as ad
 import numpy as np
 import pandas as pd
-import warnings
+import scanpy as sc
 
 from .count_decoding import decode_counts_by_spatial_intensity
 from .parameter_cloud import (
@@ -13,6 +14,7 @@ from .parameter_cloud import (
     convert_params_for_new_simulator,
     resolve_simulation_mode,
 )
+from ..de_novo._metadata import records_to_h5ad_uns
 
 PARAMETER_MODES = ("hungarian", "reference_stats")
 SPATIAL_MODES = ("reference_rank", "ot_spatial")
@@ -618,9 +620,11 @@ class SpatialSimulator:
                 quantile_input,
                 dtype=np.float32,
             )
-            simulated_adata.uns['simulation_diagnostics']['transport'] = _hdf5_safe_metadata(
-                transport_diagnostics
+            safe_transport_diagnostics = _hdf5_safe_metadata(transport_diagnostics)
+            safe_transport_diagnostics['blocks'] = records_to_h5ad_uns(
+                transport_diagnostics.get('blocks', [])
             )
+            simulated_adata.uns['simulation_diagnostics']['transport'] = safe_transport_diagnostics
             simulated_adata.uns['simulation_diagnostics']['method_version'] = 'unified_latent_ot_v1'
             simulated_adata.uns['simulation_diagnostics']['marginal_model'] = 'parameter_cloud'
         if model_params.get('parameter_diagnostics', {}).get('requested_config') is not None:

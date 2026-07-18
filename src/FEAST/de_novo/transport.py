@@ -173,6 +173,11 @@ def transport_reference_field(
 def _validate_config(config: TransportConfig) -> None:
     if not 0.0 <= float(config.assignment_randomness) <= 1.0:
         raise ValueError("assignment_randomness must be between 0 and 1 inclusive.")
+    if (
+        not np.isfinite(float(config.latent_clip_eps))
+        or not 0.0 < float(config.latent_clip_eps) < 0.5
+    ):
+        raise ValueError("latent_clip_eps must be finite and in (0, 0.5).")
     if not np.isfinite(float(config.epsilon)) or float(config.epsilon) <= 0.0:
         raise ValueError("epsilon must be positive and finite.")
     if int(config.sinkhorn_iter) < 1:

@@ -192,6 +192,141 @@ def test_assignment_randomness_is_validated_by_shared_transport_config():
             )
 
 
+@pytest.mark.parametrize("invalid", [0.0, -1e-6, 0.5, 0.6, np.nan, np.inf])
+def test_global_ot_rejects_invalid_latent_clip_eps(invalid):
+    reference = _reference()
+    target = _target(reference, fill_value=0)
+
+    with pytest.raises(ValueError, match="latent_clip_eps"):
+        FEAST.simulate(
+            reference,
+            target,
+            parameter_mode="reference_stats",
+            transport=_balanced_transport(latent_clip_eps=invalid),
+            seed=3,
+            verbose=False,
+        )
+
+
+def test_balanced_sinkhorn_reports_positive_convergence_evidence():
+    from FEAST.de_novo._ot_transport import sinkhorn_transport
+
+    cost = np.array(
+        [
+            [0.0, 1.0, 4.0],
+            [1.0, 0.0, 1.0],
+            [4.0, 1.0, 0.0],
+        ]
+    )
+    mass = np.full(3, 1.0 / 3.0)
+
+    _, diagnostics = sinkhorn_transport(
+        cost,
+        mass,
+        mass,
+        reg=0.5,
+        numItermax=1000,
+        stopThr=1e-9,
+        return_diagnostics=True,
+    )
+
+    assert diagnostics["converged"] is True
+    assert isinstance(diagnostics["iterations"], int)
+    assert 0 <= diagnostics["iterations"] < diagnostics["max_iterations"]
+    assert np.isfinite(diagnostics["final_error"])
+    assert diagnostics["final_error"] < diagnostics["stop_threshold"]
+
+
+@pytest.mark.parametrize("policy", ["raise", "warn"])
+def test_balanced_sinkhorn_nonconvergence_obeys_policy(monkeypatch, policy):
+    from FEAST.de_novo import _ot_transport
+
+    def finite_nonconverged_plan(*args, **kwargs):
+        assert kwargs["log"] is True
+        return np.full((2, 2), 0.25), {"err": [0.2, 0.1], "niter": 2}
+
+    monkeypatch.setattr(_ot_transport.ot, "sinkhorn", finite_nonconverged_plan)
+
+    def call():
+        return _ot_transport.sinkhorn_transport(
+            np.zeros((2, 2)),
+            np.ones(2),
+            np.ones(2),
+            numItermax=2,
+            stopThr=1e-5,
+            nonconvergence=policy,
+            return_diagnostics=True,
+        )
+
+    if policy == "raise":
+        with pytest.raises(_ot_transport.OptimalTransportError, match="Balanced OT"):
+            call()
+    else:
+        with pytest.warns(
+            _ot_transport.OptimalTransportConvergenceWarning,
+            match="Balanced OT",
+        ):
+            _, diagnostics = call()
+        assert diagnostics["converged"] is False
+        assert diagnostics["iterations"] == 2
+        assert diagnostics["final_error"] == pytest.approx(0.1)
+
+
+def test_global_ot_diagnostics_roundtrip_through_h5ad(tmp_path):
+    reference = _reference()
+    target = _target(reference, fill_value=0)
+
+    result = FEAST.simulate(
+        reference,
+        target,
+        parameter_mode="reference_stats",
+        transport=_balanced_transport(
+            epsilon=0.5,
+            sinkhorn_tol=1e-7,
+            max_transport_pairs=12,
+        ),
+        seed=13,
+        verbose=False,
+        clip_overshoot_factor=0.0,
+    )
+    output = tmp_path / "global_ot.h5ad"
+    result.write_h5ad(output)
+    restored = ad.read_h5ad(output)
+
+    np.testing.assert_array_equal(restored.X, result.X)
+    np.testing.assert_array_equal(
+        restored.layers["feast_quantiles"],
+        result.layers["feast_quantiles"],
+    )
+    transport = restored.uns["simulation_diagnostics"]["transport"]
+    blocks = transport["blocks"]
+    assert transport["converged"]
+    assert transport["n_blocks"] == 3
+    assert blocks["format"] == "columnar_records_v1"
+    assert blocks["n_records"] == transport["n_blocks"]
+    assert set(blocks) == {
+        "format",
+        "n_records",
+        "converged",
+        "iterations",
+        "final_error",
+        "stop_threshold",
+        "max_iterations",
+        "unbalanced",
+        "block_index",
+        "source_spots",
+        "target_spots",
+        "transport_mass",
+    }
+    assert list(blocks["converged"]) == ["True", "True", "True"]
+    assert list(blocks["unbalanced"]) == ["False", "False", "False"]
+    assert all(int(value) >= 0 for value in blocks["iterations"])
+    assert all(
+        float(value) < transport["stop_threshold"]
+        for value in blocks["final_error"]
+    )
+
+
 def test_legacy_adata_keyword_is_a_deprecated_compatibility_alias():
     with pytest.warns(DeprecationWarning, match="reference"):
         result = FEAST.simulate(

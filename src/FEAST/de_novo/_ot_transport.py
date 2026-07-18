@@ -44,9 +44,9 @@ def sinkhorn_transport(
 ) -> np.ndarray | tuple[np.ndarray, dict[str, float | int | bool | None]]:
     """Compute entropic-regularized OT via POT and verify solver status.
 
-    ``nonconvergence='warn'`` exists only to make legacy unbalanced results
-    explicit while retaining their numerical output. New callers should use
-    the strict default.
+    ``nonconvergence='warn'`` makes a finite, nonconverged result explicit
+    while retaining its numerical output. New callers should use the strict
+    default.
     """
     if nonconvergence not in {"raise", "warn"}:
         raise ValueError("nonconvergence must be 'raise' or 'warn'.")
@@ -70,10 +70,19 @@ def sinkhorn_transport(
                 log=True,
             )
         else:
-            plan = ot.sinkhorn(a, b, M, reg,
-                               numItermax=numItermax,
-                               stopThr=stopThr)
-            solver_log = None
+            solver_result = ot.sinkhorn(
+                a,
+                b,
+                M,
+                reg,
+                numItermax=numItermax,
+                stopThr=stopThr,
+                log=True,
+            )
+            if isinstance(solver_result, tuple) and len(solver_result) == 2:
+                plan, solver_log = solver_result
+            else:
+                plan, solver_log = solver_result, {}
 
     solver_failures = [
         warning
@@ -91,28 +100,34 @@ def sinkhorn_transport(
             warning.lineno,
         )
 
-    final_error = None
-    iterations = None
-    converged = True
-    if unbalanced:
-        error_history = np.asarray(solver_log.get("err", []), dtype=np.float64)
-        iterations = int(error_history.size)
-        if error_history.size:
-            final_error = float(error_history[-1])
-        converged = bool(
-            final_error is not None
-            and np.isfinite(final_error)
-            and final_error < float(stopThr)
+    if not hasattr(solver_log, "get"):
+        solver_log = {}
+    error_history = np.asarray(
+        solver_log.get("err", []),
+        dtype=np.float64,
+    ).reshape(-1)
+    final_error = float(error_history[-1]) if error_history.size else None
+    logged_iterations = solver_log.get("niter")
+    iterations = (
+        int(logged_iterations)
+        if logged_iterations is not None
+        else int(error_history.size)
+    )
+    converged = bool(
+        final_error is not None
+        and np.isfinite(final_error)
+        and final_error < float(stopThr)
+    )
+    if not converged:
+        solver_kind = "Unbalanced" if unbalanced else "Balanced"
+        message = (
+            f"{solver_kind} OT did not converge to the requested tolerance: "
+            f"iterations={iterations}/{int(numItermax)}, "
+            f"final_error={final_error!r}, stopThr={float(stopThr):g}."
         )
-        if not converged:
-            message = (
-                "Unbalanced OT did not converge to the requested tolerance: "
-                f"iterations={iterations}/{int(numItermax)}, "
-                f"final_error={final_error!r}, stopThr={float(stopThr):g}."
-            )
-            if nonconvergence == "raise":
-                raise OptimalTransportError(message)
-            warnings.warn(message, OptimalTransportConvergenceWarning, stacklevel=2)
+        if nonconvergence == "raise":
+            raise OptimalTransportError(message)
+        warnings.warn(message, OptimalTransportConvergenceWarning, stacklevel=2)
 
     plan = np.asarray(plan, dtype=np.float32)
     if plan.shape != M.shape:
