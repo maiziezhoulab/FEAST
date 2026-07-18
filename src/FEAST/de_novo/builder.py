@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 
 from ..FEAST_core.count_decoding import decode_counts_by_spatial_intensity
+from ._metadata import encode_blueprint_h5ad_metadata, encode_feast_h5ad_metadata
 from .conditional import SimulationConfig, _quantile_field_config
 from .core import SliceBlueprint, active_mask_metadata, assign_generated_coordinates, load_blueprint
 from .pattern import diffuse_quantile_map
@@ -533,7 +534,7 @@ def simulate_from_design(
         result.layers["feast_quantiles"] = quantiles_arr.astype(np.float32, copy=False)
     if q_cfg.store_latent_scores and latent_scores is not None:
         result.layers["latent_scores"] = latent_scores.astype(np.float32, copy=False)
-    result.uns["de_novo"] = {
+    result.uns["de_novo"] = encode_feast_h5ad_metadata({
         "conditional_generation": False,
         "designed_generation": True,
         "label_key": label_key,
@@ -564,14 +565,16 @@ def simulate_from_design(
             "quantiles_stored": bool(store_q),
             "random_seed": int(random_seed),
         },
-    }
+    })
     assign_generated_coordinates(result, bp.coordinates)
-    result.uns["target_blueprint"] = bp.to_dict()
+    result.uns["target_blueprint"] = encode_blueprint_h5ad_metadata(bp.to_dict())
     if pattern_spec is not None:
-        result.uns["de_novo"]["pattern_spec"] = {
+        result.uns["de_novo"]["pattern_spec"] = encode_feast_h5ad_metadata({
             str(gene): [dict(motif) for motif in motifs]
             for gene, motifs in pattern_spec.items()
-        }
+        })
     if program_spec is not None:
-        result.uns["de_novo"]["program_spec"] = [dict(program) for program in program_spec]
+        result.uns["de_novo"]["program_spec"] = encode_feast_h5ad_metadata(
+            [dict(program) for program in program_spec]
+        )
     return result

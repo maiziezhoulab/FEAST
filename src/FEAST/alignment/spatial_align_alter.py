@@ -3,6 +3,100 @@ import scipy.spatial
 import anndata as ad
 from tps import ThinPlateSpline
 
+
+def rigid_rotation_transform(angle_degrees, center):
+    """Return forward and inverse 2D homogeneous rotation matrices.
+
+    Positive angles rotate counter-clockwise around ``center``.  The matrices
+    act on homogeneous column vectors ``[x, y, 1]``.
+    """
+    center = np.asarray(center, dtype=np.float64)
+    if center.shape != (2,) or not np.isfinite(center).all():
+        raise ValueError("center must contain two finite coordinates")
+
+    theta = np.deg2rad(float(angle_degrees))
+    if not np.isfinite(theta):
+        raise ValueError("angle_degrees must be finite")
+    cosine, sine = np.cos(theta), np.sin(theta)
+    rotation = np.array(
+        [[cosine, -sine], [sine, cosine]], dtype=np.float64
+    )
+
+    forward = np.eye(3, dtype=np.float64)
+    forward[:2, :2] = rotation
+    forward[:2, 2] = center - rotation @ center
+    inverse = np.linalg.inv(forward)
+    return forward, inverse
+
+
+def apply_spatial_transform(coords, transform):
+    """Apply a 3x3 homogeneous transform to finite 2D coordinates."""
+    coords = np.asarray(coords, dtype=np.float64)
+    transform = np.asarray(transform, dtype=np.float64)
+    if coords.ndim != 2 or coords.shape[1] != 2:
+        raise ValueError("coords must have shape (n_spots, 2)")
+    if transform.shape != (3, 3):
+        raise ValueError("transform must have shape (3, 3)")
+    if not np.isfinite(coords).all() or not np.isfinite(transform).all():
+        raise ValueError("coordinates and transform must be finite")
+
+    homogeneous = np.column_stack([coords, np.ones(coords.shape[0])])
+    transformed = homogeneous @ transform.T
+    if not np.allclose(transformed[:, 2], 1.0, rtol=0.0, atol=1e-12):
+        raise ValueError("transform produced invalid homogeneous coordinates")
+    return transformed[:, :2]
+
+
+def rotate_spatial(
+    adata,
+    angle_degrees,
+    *,
+    center=None,
+    spatial_key="spatial",
+    original_key="spatial_original",
+):
+    """Rotate an AnnData slice without changing its spot support or identity.
+
+    The transformation is centered on the coordinate centroid unless an
+    explicit center is supplied.  It never snaps, crops, deduplicates, or
+    reorders spots.  Forward and inverse matrices are recorded in ``.uns``.
+    """
+    if spatial_key not in adata.obsm:
+        raise ValueError(f"obsm[{spatial_key!r}] is required")
+    if not adata.obs_names.is_unique:
+        raise ValueError("stable observation identifiers must be unique")
+
+    spatial = np.asarray(adata.obsm[spatial_key], dtype=np.float64)
+    if spatial.ndim != 2 or spatial.shape[1] != 2:
+        raise ValueError(f"obsm[{spatial_key!r}] must have shape (n_spots, 2)")
+    if spatial.shape[0] != adata.n_obs or not np.isfinite(spatial).all():
+        raise ValueError("spatial coordinates must be finite and match n_obs")
+
+    rotation_center = spatial.mean(axis=0) if center is None else np.asarray(center)
+    forward, inverse = rigid_rotation_transform(angle_degrees, rotation_center)
+    rotated = apply_spatial_transform(spatial, forward)
+
+    result = adata.copy()
+    result.obsm[original_key] = spatial.copy()
+    result.obsm[spatial_key] = rotated
+    result.uns["feast_alignment_transform"] = {
+        "schema_version": 1,
+        "method": "centered_rigid_rotation",
+        "angle_degrees": float(angle_degrees),
+        "center": rotation_center.astype(float),
+        "forward_matrix": forward,
+        "inverse_matrix": inverse,
+        "spatial_key": spatial_key,
+        "original_key": original_key,
+        "preserve_spot_identity": True,
+        "preserve_spot_count": True,
+        "n_spots": int(adata.n_obs),
+    }
+
+    if result.n_obs != adata.n_obs or not result.obs_names.equals(adata.obs_names):
+        raise RuntimeError("rigid rotation changed spot support or ordering")
+    return result
+
 class SpatialTransformer:
     """Base class for spatial transcriptomics data transformations with ground truth tracking."""
     
@@ -65,6 +159,14 @@ class RotationTransformer:
         rotated_coords -= center_correction
 
         return rotated_coords
+
+    def transform_rigid(self, rotation_angle=0, center=None):
+        """Apply the publication-safe centered continuous rotation."""
+        return rotate_spatial(
+            self.adata,
+            rotation_angle,
+            center=center,
+        )
     
     def _generate_offset_grid(self, rows, cols, spacing, offset, x_range, y_range):
         """

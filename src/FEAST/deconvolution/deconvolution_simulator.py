@@ -302,7 +302,7 @@ def simulate_deconvolution_from_single_cells(reference_adata: ad.AnnData,
     reference_adata : AnnData
         Reference spatial transcriptomics data
     cell_type_key : str, optional
-        Key for cell type annotations (ground truth)
+        Key for cell type annotations used to derive known simulated composition
     downsampling_factor : float, default=0.25
         Factor to reduce spatial resolution
     grid_type : str, default='hexagonal'
@@ -311,7 +311,7 @@ def simulate_deconvolution_from_single_cells(reference_adata: ad.AnnData,
         Alpha parameter for tissue boundary detection
     verbose : bool, default=True
         Whether to print progress messages
-    **kwargs
+    kwargs
         Additional parameters for single slice simulation
         
     Returns:

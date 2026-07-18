@@ -37,8 +37,27 @@ dependencies = [
     "thin-plate-spline>=1.2.0",
 ]
 
+[project.optional-dependencies]
+test = [
+    "pytest>=8,<10",
+]
+docs = [
+    "sphinx>=7.2,<9",
+    "sphinx-rtd-theme>=2.0,<4",
+]
+publication = [
+    "build>=1.2,<2",
+    "pytest>=8,<10",
+    "sphinx>=7.2,<9",
+    "sphinx-rtd-theme>=2.0,<4",
+]
+
 [tool.setuptools]
 package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields as dataclass_fields
 from pathlib import Path
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
 
@@ -10,22 +10,24 @@ import pandas as pd
 from sklearn.neighbors import NearestNeighbors
 
 from ..FEAST_core.count_decoding import decode_counts_by_spatial_intensity
-from ._metadata import records_by_label_to_h5ad_uns
-from ._ot_transport import sinkhorn_transport
+from ._metadata import (
+    encode_blueprint_h5ad_metadata,
+    encode_feast_h5ad_metadata,
+    records_by_label_to_h5ad_uns,
+)
 from .core import SliceBlueprint, active_mask_metadata, assign_generated_coordinates, load_blueprint
 from .pattern import diffuse_quantile_map
 from .quantile_field import (
     combine_weighted_arrays,
-    quantiles_to_normal_scores,
     rank_normalize_by_scope,
     reference_conflict_score,
     resolve_auto_rank_scope,
     should_store_quantiles,
-    transport_latent_scores,
     validate_quantile_field_config,
     weighted_stats_log_space,
     QuantileFieldConfig,
 )
+from .transport import TransportConfig, normalize_coordinates, transport_reference_field
 
 
 @dataclass
@@ -38,29 +40,21 @@ class ReferenceFitConfig:
 
 
 @dataclass
-class SimulationConfig:
-    epsilon: float = 0.05
-    sinkhorn_iter: int = 200
-    sinkhorn_tol: float = 1e-5
-    unbalanced_transport: bool = True
-    reg_m: float = 5.0
-    geometry_weight: float = 1.0
-    boundary_weight: float = 0.25
+class SimulationConfig(TransportConfig):
+    """Reference-conditioned generation config built on shared OT settings."""
+
     reference_weight_eta: float = 4.0
     boundary_multiplier: float = 1.1
     diffusion_level: float = 0.0
     boundary_softness: float = 0.0
-    assignment_randomness: float = 0.0
     coordinate_scale: Optional[Sequence[float]] = None
     verbose: bool = False
     quantile_field_mode: str = "auto"
     rank_scope: str = "auto"
     target_parameter_mode: str = "reference_weighted_log"
     tie_policy: str = "stable_ordinal"
-    latent_clip_eps: float = 1e-6
     tie_jitter_scale: float = 1e-9
     min_rank_scope_size: int = 20
-    gene_chunk_size: int = 512
     store_latent_scores: bool = False
     store_quantiles: Any = "auto"
     max_stored_quantile_elements: int = 50_000_000
@@ -88,6 +82,20 @@ def _quantile_field_config(config: SimulationConfig) -> QuantileFieldConfig:
             program_normalization=str(config.program_normalization),
         )
     )
+
+
+def _simulation_config(config: Optional[TransportConfig]) -> SimulationConfig:
+    if config is None:
+        return SimulationConfig()
+    if isinstance(config, SimulationConfig):
+        return config
+    if not isinstance(config, TransportConfig):
+        raise TypeError("config must be a TransportConfig or SimulationConfig.")
+    values = {
+        item.name: getattr(config, item.name)
+        for item in dataclass_fields(TransportConfig)
+    }
+    return SimulationConfig(**values)
 
 
 @dataclass
@@ -160,7 +168,7 @@ def fit_reference(
             label_map[label] = ReferenceLabelData(
                 label=label,
                 coordinates=label_coords,
-                normalized_coordinates=_normalize_label_coordinates(label_scaled_coords),
+                normalized_coordinates=normalize_coordinates(label_scaled_coords),
                 boundary_scores=boundary_scores[mask],
                 quantiles=label_quantiles,
                 stats=_stats_dataframe(label_counts, filtered_genes),
@@ -195,11 +203,25 @@ def simulate_from_reference(
     model: SimulationReference,
     target_blueprint: Union[SliceBlueprint, ad.AnnData, Mapping[str, Any], str, Path],
     parameter_cloud: Optional[Union[pd.DataFrame, Mapping[str, Any]]] = None,
-    config: Optional[SimulationConfig] = None,
+    config: Optional[TransportConfig] = None,
     random_seed: int = 0,
     reference_weights: Optional[Mapping[str, float]] = None,
+    marginal_model: Optional[str] = None,
 ) -> ad.AnnData:
-    gen_cfg = config or SimulationConfig()
+    gen_cfg = _simulation_config(config)
+    resolved_marginal_model = (
+        str(marginal_model)
+        if marginal_model is not None
+        else ("parameter_cloud" if parameter_cloud is not None else "empirical_reference")
+    )
+    if resolved_marginal_model not in {"empirical_reference", "parameter_cloud"}:
+        raise ValueError(
+            "marginal_model must be 'empirical_reference' or 'parameter_cloud'."
+        )
+    if resolved_marginal_model == "empirical_reference" and parameter_cloud is not None:
+        raise ValueError(
+            "parameter_cloud cannot be supplied when marginal_model='empirical_reference'."
+        )
     q_cfg = _quantile_field_config(gen_cfg)
     if q_cfg.mode == "auto":
         quantile_field_mode = "latent_reference"
@@ -241,99 +263,103 @@ def simulate_from_reference(
     latent_scores_store = np.zeros((n_spots, n_genes), dtype=np.float32) if q_cfg.store_latent_scores else None
 
     unique_labels = sorted(set(target_labels.tolist()))
-    random_state = np.random.get_state()
-    np.random.seed(int(random_seed))
-    try:
-        for label in unique_labels:
-            target_mask = target_labels == label
-            target_indices = np.where(target_mask)[0]
-            target_coords_label = target_coords[target_mask]
-            target_boundary_label = target_boundary_scores[target_mask]
-            target_coords_norm = _normalize_label_coordinates(target_coords_label)
+    transport_index = 0
+    for label in unique_labels:
+        target_mask = target_labels == label
+        target_indices = np.where(target_mask)[0]
+        target_coords_label = target_coords[target_mask]
+        target_boundary_label = target_boundary_scores[target_mask]
+        target_coords_norm = normalize_coordinates(target_coords_label)
 
-            eligible_refs = [ref for ref in model.references if label in ref.labels]
-            if not eligible_refs:
-                raise ValueError(f"No reference slice contains target label '{label}'.")
+        eligible_refs = [ref for ref in model.references if label in ref.labels]
+        if not eligible_refs:
+            raise ValueError(f"No reference slice contains target label '{label}'.")
 
-            if reference_weights is None:
-                ref_weights = _reference_weights_for_label(
-                    eligible_refs,
-                    label,
-                    target_coords_norm,
-                    target_boundary_label,
-                    gen_cfg.reference_weight_eta,
-                )
-            else:
-                ref_weights = _fixed_reference_weights_for_label(eligible_refs, reference_weights)
-            label_weights_out[label] = ref_weights
-
-            transported_parts = []
-            label_diags: List[Dict[str, Any]] = []
-            part_weights: list[float] = []
-            for ref in eligible_refs:
-                ref_label = ref.labels[label]
-                plan = _solve_label_transport(
-                    source_coords=ref_label.normalized_coordinates,
-                    target_coords=target_coords_norm,
-                    source_boundary=ref_label.boundary_scores,
-                    target_boundary=target_boundary_label,
-                    config=gen_cfg,
-                )
-                part = _transport_reference_latent_scores(
-                    plan,
-                    ref_label.quantiles,
-                    assignment_randomness=float(gen_cfg.assignment_randomness),
-                    clip_eps=float(q_cfg.latent_clip_eps),
-                    gene_chunk_size=int(q_cfg.gene_chunk_size),
-                )
-                transported_parts.append(part)
-                part_weights.append(float(ref_weights[ref.reference_name]))
-                ref_conflict = reference_conflict_score(
-                    transported_parts,
-                    part_weights,
-                )
-                label_diags.append(
-                    {
-                        "reference_name": ref.reference_name,
-                        "transport_mass": float(plan.sum()),
-                        "source_spots": int(ref_label.quantiles.shape[0]),
-                        "target_spots": int(len(target_indices)),
-                        "assignment_randomness": float(gen_cfg.assignment_randomness),
-                        "quantile_field_mode": quantile_field_mode,
-                        "reference_conflict_score": float(ref_conflict),
-                    }
-                )
-            transport_diagnostics[label] = label_diags
-
-            conflict = reference_conflict_score(transported_parts, part_weights)
-            if q_cfg.reference_conflict_policy == "highest_weight" and conflict >= 0.9:
-                chosen_idx = int(np.argmax(np.asarray(part_weights, dtype=float)))
-                combined_scores = np.asarray(transported_parts[chosen_idx], dtype=np.float32)
-            else:
-                combined_scores = combine_weighted_arrays(transported_parts, part_weights)
-            combined_latent_scores[target_indices, :] = combined_scores.astype(np.float32, copy=False)
-            q_meta = {
-                "reference_conflict_score": float(conflict),
-                "reference_conflict_policy": str(q_cfg.reference_conflict_policy),
-            }
-            quantile_field_labels[label] = q_meta
-
-            label_cloud = _resolve_parameter_cloud(
-                parameter_cloud=parameter_cloud,
-                label=label,
-                gene_names=model.gene_names,
-                eligible_refs=eligible_refs,
-                reference_weights=ref_weights,
-                target_parameter_mode=str(q_cfg.target_parameter_mode),
+        if reference_weights is None:
+            ref_weights = _reference_weights_for_label(
+                eligible_refs,
+                label,
+                target_coords_norm,
+                target_boundary_label,
+                gen_cfg.reference_weight_eta,
             )
-            label_clouds[label] = label_cloud
-            label_cloud_out[label] = {
-                "mean_mean": float(label_cloud["mean"].mean()),
-                "variance_mean": float(label_cloud["variance"].mean()),
-                "zero_prop_mean": float(label_cloud["zero_prop"].mean()),
-            }
-    finally:
-        np.random.set_state(random_state)
+        else:
+            ref_weights = _fixed_reference_weights_for_label(eligible_refs, reference_weights)
+        label_weights_out[label] = ref_weights
+
+        transported_parts = []
+        label_diags: List[Dict[str, Any]] = []
+        part_weights: list[float] = []
+        for ref in eligible_refs:
+            ref_label = ref.labels[label]
+            transport_result = transport_reference_field(
+                source_coordinates=ref_label.normalized_coordinates,
+                target_coordinates=target_coords_norm,
+                source_quantiles=ref_label.quantiles,
+                source_boundary=ref_label.boundary_scores,
+                target_boundary=target_boundary_label,
+                config=gen_cfg,
+                random_seed=int(random_seed) + transport_index,
+            )
+            transport_index += 1
+            part = transport_result.latent_scores
+            solve_diagnostics = transport_result.diagnostics
+            transported_parts.append(part)
+            part_weights.append(float(ref_weights[ref.reference_name]))
+            ref_conflict = reference_conflict_score(
+                transported_parts,
+                part_weights,
+            )
+            label_diags.append(
+                {
+                    "reference_name": ref.reference_name,
+                    "transport_mass": float(solve_diagnostics["transport_mass"]),
+                    "source_spots": int(ref_label.quantiles.shape[0]),
+                    "target_spots": int(len(target_indices)),
+                    "assignment_randomness": float(gen_cfg.assignment_randomness),
+                    "quantile_field_mode": quantile_field_mode,
+                    "reference_conflict_score": float(ref_conflict),
+                    "transport_converged": bool(solve_diagnostics["converged"]),
+                    "transport_iterations": solve_diagnostics["iterations"],
+                    "transport_final_error": solve_diagnostics["final_error"],
+                    "transport_stop_threshold": solve_diagnostics["stop_threshold"],
+                    "transport_max_iterations": solve_diagnostics["max_iterations"],
+                    "transport_nonconvergence_policy": str(
+                        gen_cfg.transport_nonconvergence
+                    ),
+                    "transport_blocked": bool(solve_diagnostics["blocked"]),
+                    "transport_blocks": int(solve_diagnostics["n_blocks"]),
+                }
+            )
+        transport_diagnostics[label] = label_diags
+
+        conflict = reference_conflict_score(transported_parts, part_weights)
+        if q_cfg.reference_conflict_policy == "highest_weight" and conflict >= 0.9:
+            chosen_idx = int(np.argmax(np.asarray(part_weights, dtype=float)))
+            combined_scores = np.asarray(transported_parts[chosen_idx], dtype=np.float32)
+        else:
+            combined_scores = combine_weighted_arrays(transported_parts, part_weights)
+        combined_latent_scores[target_indices, :] = combined_scores.astype(np.float32, copy=False)
+        q_meta = {
+            "reference_conflict_score": float(conflict),
+            "reference_conflict_policy": str(q_cfg.reference_conflict_policy),
+        }
+        quantile_field_labels[label] = q_meta
+
+        label_cloud = _resolve_parameter_cloud(
+            parameter_cloud=parameter_cloud,
+            label=label,
+            gene_names=model.gene_names,
+            eligible_refs=eligible_refs,
+            reference_weights=ref_weights,
+            target_parameter_mode=str(q_cfg.target_parameter_mode),
+        )
+        label_clouds[label] = label_cloud
+        label_cloud_out[label] = {
+            "mean_mean": float(label_cloud["mean"].mean()),
+            "variance_mean": float(label_cloud["variance"].mean()),
+            "zero_prop_mean": float(label_cloud["zero_prop"].mean()),
+        }
 
     global_q_meta: Dict[str, Any] = {}
     resolved_scope = resolve_auto_rank_scope(
@@ -362,11 +388,11 @@ def simulate_from_reference(
         float(gen_cfg.diffusion_level),
     ).astype(np.float32, copy=False)
 
-    for label in unique_labels:
+    for label_index, label in enumerate(unique_labels):
         target_mask = target_labels == label
         label_q = quantiles[target_mask, :]
         eligible_refs = [ref for ref in model.references if label in ref.labels]
-        if parameter_cloud is None:
+        if resolved_marginal_model == "empirical_reference":
             decoded = _decode_label_aware_rank_counts(
                 quantiles=label_q,
                 label=label,
@@ -377,20 +403,16 @@ def simulate_from_reference(
             )
         else:
             model_params = _stats_frame_to_model_params(label_clouds[label])
-            intensity = _decode_label_aware_rank_counts(
-                quantiles=label_q,
-                label=label,
-                label_key=model.label_key,
-                gene_names=model.gene_names,
-                eligible_refs=eligible_refs,
-                reference_weights=label_weights_out[label],
-            ).astype(np.float64, copy=False)
             decoded = decode_counts_by_spatial_intensity(
-                intensity,
+                label_q,
                 model_params,
                 boundary_multiplier=float(gen_cfg.boundary_multiplier),
-                reference_X=intensity,
-                random_seed=int(random_seed),
+                reference_X=_reference_counts_for_label(
+                    eligible_refs,
+                    label,
+                    model.label_key,
+                ),
+                random_seed=int(random_seed) + label_index,
                 show_progress=bool(gen_cfg.verbose),
             )
         counts[target_mask, :] = np.asarray(decoded, dtype=np.int32)
@@ -399,17 +421,10 @@ def simulate_from_reference(
     if "domain" not in obs:
         obs["domain"] = target_labels
     obs.index = [str(idx) for idx in obs.index]
-    global_cloud = _resolve_parameter_cloud(
-        parameter_cloud=parameter_cloud,
-        label=None,
-        gene_names=model.gene_names,
-        eligible_refs=model.references,
-        reference_weights=(
-            _normalize_reference_weight_mapping(model.references, reference_weights)
-            if reference_weights is not None
-            else {ref.reference_name: 1.0 / len(model.references) for ref in model.references}
-        ),
-        target_parameter_mode=str(q_cfg.target_parameter_mode),
+    global_cloud = _aggregate_label_parameter_clouds(
+        label_clouds,
+        target_labels,
+        model.gene_names,
     )
     var = pd.DataFrame(index=model.gene_names)
     var["target_mean"] = global_cloud["mean"].to_numpy(dtype=np.float64)
@@ -427,21 +442,26 @@ def simulate_from_reference(
         result.layers["feast_quantiles"] = quantiles.astype(np.float32, copy=False)
     if latent_scores_store is not None:
         result.layers["latent_scores"] = latent_scores_store.astype(np.float32, copy=False)
-    result.uns["de_novo"] = {
+    result.uns["de_novo"] = encode_feast_h5ad_metadata({
         "conditional_generation": True,
         "label_key": model.label_key,
         "reference_metadata": dict(model.reference_metadata),
         "transport_weights": label_weights_out,
         "transport_diagnostics": records_by_label_to_h5ad_uns(transport_diagnostics),
         "parameter_cloud_summary": label_cloud_out,
-        "decode_method": "rank",
+        "decode_method": (
+            "empirical_rank"
+            if resolved_marginal_model == "empirical_reference"
+            else "parameter_cloud_spatial_intensity"
+        ),
+        "marginal_model": resolved_marginal_model,
         "quantile_calibration": "reference_rank",
         "diffusion_level": float(gen_cfg.diffusion_level),
         "boundary_softness": float(gen_cfg.boundary_softness),
         "assignment_randomness": float(gen_cfg.assignment_randomness),
         "mask": mask_metadata,
         "quantile_field": {
-            "method_version": "latent_v1",
+            "method_version": "unified_latent_ot_v1",
             "mode": quantile_field_mode,
             "source": "reference_transport",
             "requested_rank_scope": str(q_cfg.rank_scope),
@@ -459,9 +479,11 @@ def simulate_from_reference(
             "quantiles_stored": bool(store_q),
             "random_seed": int(random_seed),
         },
-    }
+    })
     assign_generated_coordinates(result, target_coords_raw)
-    result.uns["target_blueprint"] = blueprint.to_dict()
+    result.uns["target_blueprint"] = encode_blueprint_h5ad_metadata(
+        blueprint.to_dict()
+    )
     return result
 
 
@@ -615,17 +637,6 @@ def _calculate_quantiles(matrix: np.ndarray) -> np.ndarray:
     return np.clip(ranks, 1e-6, 1.0 - 1e-6).astype(np.float32, copy=False)
 
 
-def _normalize_label_coordinates(coords: np.ndarray) -> np.ndarray:
-    coords = np.asarray(coords, dtype=float)
-    if coords.shape[0] == 0:
-        coordinate_dim = coords.shape[1] if coords.ndim == 2 else 0
-        return coords.reshape(0, coordinate_dim)
-    center = coords.mean(axis=0, keepdims=True)
-    scale = coords.std(axis=0, keepdims=True)
-    scale[scale <= 1e-6] = 1.0
-    return (coords - center) / scale
-
-
 def _boundary_scores(coords: np.ndarray, labels: np.ndarray, n_neighbors: int) -> np.ndarray:
     coords = np.asarray(coords, dtype=float)
     labels = np.asarray(labels).astype(str)
@@ -736,91 +747,22 @@ def _fixed_reference_weights_for_label(
     return {name: max(weight, 0.0) / total for name, weight in weights.items()}
 
 
-def _normalize_reference_weight_mapping(
+def _reference_counts_for_label(
     references: Sequence[ReferenceSliceData],
-    reference_weights: Mapping[str, float],
-) -> Dict[str, float]:
-    weights = {
-        ref.reference_name: float(reference_weights.get(ref.reference_name, 0.0))
-        for ref in references
-    }
-    total = float(sum(max(weight, 0.0) for weight in weights.values()))
-    if total <= 0.0:
-        return {ref.reference_name: 1.0 / len(references) for ref in references}
-    return {name: max(weight, 0.0) / total for name, weight in weights.items()}
-
-
-def _solve_label_transport(
-    source_coords: np.ndarray,
-    target_coords: np.ndarray,
-    source_boundary: np.ndarray,
-    target_boundary: np.ndarray,
-    config: SimulationConfig,
+    label: str,
+    label_key: str,
 ) -> np.ndarray:
-    source_coords = np.asarray(source_coords, dtype=np.float32)
-    target_coords = np.asarray(target_coords, dtype=np.float32)
-    if source_coords.shape[0] == 0 or target_coords.shape[0] == 0:
-        return np.zeros((source_coords.shape[0], target_coords.shape[0]), dtype=np.float32)
+    """Collect aligned reference counts used only for decoder boundaries."""
 
-    source_boundary = np.asarray(source_boundary, dtype=np.float32).reshape(-1, 1)
-    target_boundary = np.asarray(target_boundary, dtype=np.float32).reshape(1, -1)
-    source_sq = np.sum(source_coords**2, axis=1, keepdims=True)
-    target_sq = np.sum(target_coords**2, axis=1, keepdims=True).T
-    dist2 = np.maximum(source_sq + target_sq - 2.0 * source_coords @ target_coords.T, 0.0)
-    boundary_cost = np.abs(source_boundary - target_boundary)
-    cost = float(config.geometry_weight) * dist2 + float(config.boundary_weight) * boundary_cost
-    a = np.full(source_coords.shape[0], 1.0 / source_coords.shape[0], dtype=np.float32)
-    b = np.full(target_coords.shape[0], 1.0 / target_coords.shape[0], dtype=np.float32)
-
-    plan = sinkhorn_transport(
-        M=cost,
-        a=a,
-        b=b,
-        reg=float(config.epsilon),
-        numItermax=int(config.sinkhorn_iter),
-        stopThr=float(config.sinkhorn_tol),
-        unbalanced=bool(config.unbalanced_transport),
-        reg_m=float(config.reg_m),
-    )
-    return plan
-
-
-def _transport_reference_latent_scores(
-    plan: np.ndarray,
-    quantiles: np.ndarray,
-    *,
-    assignment_randomness: float,
-    clip_eps: float,
-    gene_chunk_size: int,
-) -> np.ndarray:
-    plan = np.asarray(plan, dtype=np.float64)
-    quantiles = np.asarray(quantiles, dtype=np.float64)
-    if plan.shape[0] != quantiles.shape[0]:
-        raise ValueError("transport plan source dimension does not match source quantiles.")
-    n_target = int(plan.shape[1])
-    n_genes = int(quantiles.shape[1])
-    if n_target == 0:
-        return np.zeros((0, n_genes), dtype=np.float32)
-
-    out = np.zeros((n_target, n_genes), dtype=np.float32)
-    chunk_size = max(1, int(gene_chunk_size))
-    randomness = float(np.clip(assignment_randomness, 0.0, 1.0))
-    sampled_indices = None
-    if randomness > 0.0 and quantiles.shape[0] > 0:
-        sampled_indices = np.random.randint(0, quantiles.shape[0], size=n_target)
-
-    for start in range(0, n_genes, chunk_size):
-        end = min(start + chunk_size, n_genes)
-        source_scores = quantiles_to_normal_scores(
-            quantiles[:, start:end],
-            clip_eps=float(clip_eps),
-        )
-        part = transport_latent_scores(plan, source_scores)
-        if sampled_indices is not None:
-            sampled = source_scores[sampled_indices, :]
-            part = (1.0 - randomness) * part + randomness * sampled
-        out[:, start:end] = np.asarray(part, dtype=np.float32)
-    return out
+    parts = []
+    for ref in references:
+        labels = ref.adata.obs[label_key].astype(str).to_numpy()
+        mask = labels == str(label)
+        if np.any(mask):
+            parts.append(_counts_matrix(ref.adata)[mask, :])
+    if not parts:
+        return np.zeros((0, len(references[0].adata.var_names)), dtype=np.float32)
+    return np.vstack(parts).astype(np.float32, copy=False)
 
 
 def _decode_label_aware_rank_counts(
@@ -979,6 +921,53 @@ def _weighted_stats(
     out["variance"] = np.clip(out["variance"], 1e-8, None)
     out["zero_prop"] = np.clip(out["zero_prop"], 0.0, 0.99)
     return out
+
+
+def _aggregate_label_parameter_clouds(
+    label_clouds: Mapping[str, pd.DataFrame],
+    target_labels: np.ndarray,
+    gene_names: Sequence[str],
+) -> pd.DataFrame:
+    """Summarize resolved label clouds over the target label composition."""
+    labels = np.asarray(target_labels).astype(str)
+    ordered_labels = list(label_clouds)
+    weights = np.asarray(
+        [np.count_nonzero(labels == label) for label in ordered_labels],
+        dtype=np.float64,
+    )
+    weights /= weights.sum()
+
+    frames = [
+        _normalize_stats_frame(label_clouds[label], gene_names)
+        for label in ordered_labels
+    ]
+    means = np.stack(
+        [frame["mean"].to_numpy(dtype=np.float64) for frame in frames]
+    )
+    variances = np.stack(
+        [frame["variance"].to_numpy(dtype=np.float64) for frame in frames]
+    )
+    zero_props = np.stack(
+        [frame["zero_prop"].to_numpy(dtype=np.float64) for frame in frames]
+    )
+
+    mean = np.sum(weights[:, None] * means, axis=0)
+    second_moment = np.sum(
+        weights[:, None] * (variances + np.square(means)),
+        axis=0,
+    )
+    return pd.DataFrame(
+        {
+            "mean": np.clip(mean, 1e-8, None),
+            "variance": np.clip(second_moment - np.square(mean), 1e-8, None),
+            "zero_prop": np.clip(
+                np.sum(weights[:, None] * zero_props, axis=0),
+                0.0,
+                0.99,
+            ),
+        },
+        index=list(gene_names),
+    )
 
 
 def _normalize_stats_frame(frame: pd.DataFrame, gene_names: Sequence[str]) -> pd.DataFrame:
