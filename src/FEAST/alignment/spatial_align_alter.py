@@ -52,14 +52,18 @@ def rotate_spatial(
     angle_degrees,
     *,
     center=None,
+    plate_bounds=None,
     spatial_key="spatial",
     original_key="spatial_original",
 ):
-    """Rotate an AnnData slice without changing its spot support or identity.
+    """Rotate an AnnData slice, optionally cropping to a fixed plate.
 
     The transformation is centered on the coordinate centroid unless an
-    explicit center is supplied.  It never snaps, crops, deduplicates, or
-    reorders spots.  Forward and inverse matrices are recorded in ``.uns``.
+    explicit center is supplied.  By default it never changes spot support.
+    Pass ``plate_bounds`` as ``[[x_min, y_min], [x_max, y_max]]`` to retain
+    only rotated spots inside that inclusive rectangle.  It never snaps,
+    deduplicates, or reorders spots.  Transform and crop metadata are recorded
+    in ``.uns``.
     """
     if spatial_key not in adata.obsm:
         raise ValueError(f"obsm[{spatial_key!r}] is required")
@@ -72,14 +76,46 @@ def rotate_spatial(
     if spatial.shape[0] != adata.n_obs or not np.isfinite(spatial).all():
         raise ValueError("spatial coordinates must be finite and match n_obs")
 
+    validated_bounds = None
+    if plate_bounds is not None:
+        try:
+            validated_bounds = np.asarray(plate_bounds, dtype=np.float64)
+        except (TypeError, ValueError) as error:
+            raise ValueError(
+                "plate_bounds must be finite [[x_min, y_min], [x_max, y_max]]"
+            ) from error
+        if (
+            validated_bounds.shape != (2, 2)
+            or not np.isfinite(validated_bounds).all()
+        ):
+            raise ValueError(
+                "plate_bounds must be finite [[x_min, y_min], [x_max, y_max]]"
+            )
+        if not np.all(validated_bounds[0] < validated_bounds[1]):
+            raise ValueError(
+                "plate_bounds lower coordinates must be less than upper coordinates"
+            )
+
     rotation_center = spatial.mean(axis=0) if center is None else np.asarray(center)
     forward, inverse = rigid_rotation_transform(angle_degrees, rotation_center)
     rotated = apply_spatial_transform(spatial, forward)
 
-    result = adata.copy()
-    result.obsm[original_key] = spatial.copy()
-    result.obsm[spatial_key] = rotated
-    result.uns["feast_alignment_transform"] = {
+    retained_mask = np.ones(adata.n_obs, dtype=bool)
+    if validated_bounds is not None:
+        retained_mask = np.all(
+            (rotated >= validated_bounds[0]) & (rotated <= validated_bounds[1]),
+            axis=1,
+        )
+    result = (
+        adata[retained_mask].copy()
+        if validated_bounds is not None
+        else adata.copy()
+    )
+    result.obsm[original_key] = spatial[retained_mask].copy()
+    result.obsm[spatial_key] = rotated[retained_mask].copy()
+
+    retained_n_spots = int(retained_mask.sum())
+    transform_metadata = {
         "schema_version": 1,
         "method": "centered_rigid_rotation",
         "angle_degrees": float(angle_degrees),
@@ -89,12 +125,23 @@ def rotate_spatial(
         "spatial_key": spatial_key,
         "original_key": original_key,
         "preserve_spot_identity": True,
-        "preserve_spot_count": True,
+        "preserve_spot_count": retained_n_spots == adata.n_obs,
+        "plate_bounds_applied": validated_bounds is not None,
+        "input_n_spots": int(adata.n_obs),
+        "retained_n_spots": retained_n_spots,
+        "dropped_n_spots": int(adata.n_obs - retained_n_spots),
+        "retained_fraction": float(retained_n_spots / adata.n_obs)
+        if adata.n_obs
+        else 1.0,
         "n_spots": int(adata.n_obs),
     }
+    if validated_bounds is not None:
+        transform_metadata["plate_bounds"] = validated_bounds.copy()
+    result.uns["feast_alignment_transform"] = transform_metadata
 
-    if result.n_obs != adata.n_obs or not result.obs_names.equals(adata.obs_names):
-        raise RuntimeError("rigid rotation changed spot support or ordering")
+    expected_names = adata.obs_names[retained_mask]
+    if result.n_obs != retained_n_spots or not result.obs_names.equals(expected_names):
+        raise RuntimeError("rotation changed expected spot support or ordering")
     return result
 
 class SpatialTransformer:
