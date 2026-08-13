@@ -6,9 +6,19 @@ import anndata as ad
 import pytest
 
 import FEAST
-from FEAST.FEAST_core.simulator import SpatialSimulator, simulate_single_slice
+from FEAST.FEAST_core.parameter_cloud import GeneParameterSimulator
+from FEAST.FEAST_core.simulator import (
+    SpatialSimulator,
+    run_parameter_cloud_fitting,
+    simulate_single_slice,
+)
 from FEAST.modeling.marginal_alteration import AlterationConfig
-from FEAST.alignment import simulate_alignment_rotation, simulate_alignment_warp
+from FEAST.alignment import (
+    AlignmentSimulator,
+    RotationTransformer,
+    simulate_alignment_rotation,
+    simulate_alignment_warp,
+)
 from FEAST.deconvolution import (
     DeconvolutionSimulator,
     create_deconvolution_benchmark_suite,
@@ -77,6 +87,55 @@ def test_public_core_api_exposes_simulation_mode_and_random_seed():
     # Public simulation functions use "parameter_mode" (translated internally to simulation_mode)
     for fn in [simulate_single_slice, FEAST.simulate]:
         assert inspect.signature(fn).parameters["parameter_mode"].default == "hungarian"
+
+
+def test_obsolete_controls_are_removed_from_active_apis():
+    removed = {
+        "max_grid_size",
+        "use_heuristic_search",
+        "min_accepted_error",
+        "screening_pool_size",
+        "top_n_to_fully_evaluate",
+        "n_jobs",
+        "num_simulation_cores",
+        "assignment_n_jobs",
+    }
+    callables = [
+        FEAST.simulate,
+        run_parameter_cloud_fitting,
+        SpatialSimulator.fit_model,
+        SpatialSimulator.simulate,
+        simulate_single_slice,
+        AlignmentSimulator.simulate_with_rotation,
+        simulate_alignment_rotation,
+        RotationTransformer.transform_sequencing,
+        DeconvolutionSimulator.simulate_deconvolution_data,
+        GeneParameterSimulator.assign_to_genes,
+    ]
+    for fn in callables:
+        assert removed.isdisjoint(inspect.signature(fn).parameters)
+
+    for fn in [run_parameter_cloud_fitting, SpatialSimulator.fit_model, simulate_single_slice]:
+        parameters = inspect.signature(fn).parameters
+        assert "beta_n_jobs" in parameters
+        assert "convert_n_jobs" in parameters
+    assert "spatial_mode" not in inspect.signature(SpatialSimulator.fit_model).parameters
+    assert "spatial_mode" in inspect.signature(SpatialSimulator.simulate).parameters
+
+    simulator = SpatialSimulator(_adata(), model_params=_model_params())
+    with pytest.raises(TypeError):
+        simulator.simulate(num_simulation_cores=1, verbose=False)
+    with pytest.raises(TypeError):
+        FEAST.simulate(
+            _adata(),
+            parameter_mode="reference_stats",
+            n_jobs=1,
+            verbose=False,
+        )
+    with pytest.raises(TypeError):
+        simulate_single_slice(_adata(), use_heuristic_search=False, verbose=False)
+    with pytest.raises(TypeError):
+        RotationTransformer(_adata()).transform_sequencing(max_grid_size=1)
 
 
 def test_empirical_mode_with_model_params_uses_reference_rank_spatial_mode():

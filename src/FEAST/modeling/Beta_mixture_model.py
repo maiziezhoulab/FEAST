@@ -330,6 +330,7 @@ class BetaMixtureMarginalModeler:
         if self.model_params is None:
             raise RuntimeError("All model fitting attempts failed.")
 
+        self._ppf_cache.clear()
         self._is_fitted = True
 
         print(f"✓ Best model: {self.best_n_components} components "

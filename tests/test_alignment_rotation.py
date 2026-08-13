@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+import inspect
+
 import anndata as ad
 import numpy as np
 import pandas as pd
 import pytest
 from scipy.spatial.distance import pdist
 
-from FEAST.alignment import apply_spatial_transform, rotate_spatial
+from FEAST.alignment import RotationTransformer, apply_spatial_transform, rotate_spatial
 
 
 def _fixture() -> ad.AnnData:
@@ -161,3 +163,17 @@ def test_rotation_rejects_nonfinite_coordinates_and_duplicate_ids() -> None:
     duplicate.obs_names = ["duplicate"] * duplicate.n_obs
     with pytest.raises(ValueError, match="identifiers"):
         rotate_spatial(duplicate, 10.0)
+
+
+def test_sequencing_rotation_uses_existing_uncapped_grid_behavior() -> None:
+    transformed = RotationTransformer(_fixture()).transform_sequencing(
+        rotation_angle=15.0,
+        min_space=1.0,
+    )
+
+    assert transformed.n_obs > 0
+    assert transformed.obsm["spatial"].shape == (transformed.n_obs, 2)
+    assert transformed.uns["transformation"]["actual_grid_size"] > 0
+    assert "max_grid_size" not in inspect.signature(
+        RotationTransformer.transform_sequencing
+    ).parameters

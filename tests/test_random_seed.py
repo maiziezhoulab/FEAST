@@ -51,6 +51,19 @@ def _beta_model() -> BetaMixtureMarginalModeler:
     return model
 
 
+def test_beta_ppf_cache_is_cleared_after_refit():
+    model = BetaMixtureMarginalModeler(max_components=1)
+    model.fit(np.linspace(0.04, 0.16, 100), visualize=False)
+    low_median = model.ppf(0.5, n_samples=10_000, random_state=17)
+    assert model._ppf_cache
+
+    model.fit(np.linspace(0.84, 0.96, 100), visualize=False)
+    assert not model._ppf_cache
+    high_median = model.ppf(0.5, n_samples=10_000, random_state=17)
+
+    assert high_median > low_median + 0.5
+
+
 class _SeededCopula:
     def simulate(self, n, seeds):
         return np.random.default_rng(int(seeds[0])).random((n, 3))
@@ -200,14 +213,12 @@ def test_parameter_fitting_propagates_run_seed_to_zip_correction():
         reference,
         simulation_mode="empirical",
         random_seed=7,
-        use_heuristic_search=False,
     )
     np.random.seed(200)
     second = run_parameter_cloud_fitting(
         reference,
         simulation_mode="empirical",
         random_seed=7,
-        use_heuristic_search=False,
     )
 
     assert first["model_selected"] == second["model_selected"]

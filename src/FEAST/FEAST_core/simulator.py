@@ -99,7 +99,7 @@ def _hdf5_safe_metadata(value):
     return value
 
 
-def run_parameter_cloud_fitting(adata, visualize_fits=False, use_heuristic_search=True, min_accepted_error=0.5, assignment_weights=None, screening_pool_size=100, top_n_to_fully_evaluate=10, n_jobs=-1, alteration_config=None, simulation_mode='generative', spatial_mode='reference_rank', assignment_method='hybrid', random_seed=None, hybrid_alpha=0.2, use_distributional_alteration=False, ppf_method='interp', beta_n_jobs=1, beta_early_stopping_patience: int = 2, assignment_solver='scipy', assignment_n_jobs=1, assignment_blocks=True, assignment_block_size=None, assignment_block_multiplier=8, convert_n_jobs=1):
+def run_parameter_cloud_fitting(adata, visualize_fits=False, assignment_weights=None, alteration_config=None, simulation_mode='generative', assignment_method='hybrid', random_seed=None, hybrid_alpha=0.2, use_distributional_alteration=False, ppf_method='interp', beta_n_jobs=1, beta_early_stopping_patience: int = 2, assignment_solver='scipy', assignment_blocks=True, assignment_block_size=None, assignment_block_multiplier=8, convert_n_jobs=1):
     """
     Build an integrated FEAST gene-parameter table and convert it to count-model parameters.
 
@@ -121,13 +121,6 @@ def run_parameter_cloud_fitting(adata, visualize_fits=False, use_heuristic_searc
     if assignment_weights is None:
         assignment_weights = {'mean': 3, 'variance': 1, 'zero_prop': 1.0}
     mode = resolve_simulation_mode(simulation_mode)
-    if use_heuristic_search:
-        warnings.warn(
-            "use_heuristic_search is retained for compatibility but is ignored by the "
-            "integrated simulation_mode pipeline; generative mode uses Copula-rank OT.",
-            RuntimeWarning,
-            stacklevel=2,
-        )
 
     simulator = GeneParameterSimulator(
         ppf_method=ppf_method,
@@ -149,7 +142,6 @@ def run_parameter_cloud_fitting(adata, visualize_fits=False, use_heuristic_searc
         verbose=True,
         use_distributional_alteration=use_distributional_alteration,
         assignment_solver=assignment_solver,
-        assignment_n_jobs=assignment_n_jobs,
         assignment_blocks=assignment_blocks,
         assignment_block_size=assignment_block_size,
         assignment_block_multiplier=assignment_block_multiplier,
@@ -386,9 +378,9 @@ class SpatialSimulator:
         self.reference_adata.obs_names_make_unique()
         self._model_params = model_params
 
-    def fit_model(self, visualize_fits: bool = False, use_real_stats_directly: bool = False, use_heuristic_search: bool = False, min_accepted_error: float = 0.5, assignment_weights: dict = None, screening_pool_size: int = 100, top_n_to_fully_evaluate: int = 10, n_jobs: int = -1, alteration_config=None, simulation_mode: str = 'generative', spatial_mode: str = 'reference_rank', assignment_method: str = 'hybrid', random_seed: int = None, hybrid_alpha: float = 0.2, use_distributional_alteration: bool = False, ppf_method: str = 'interp', beta_n_jobs: int = 1, beta_early_stopping_patience: int = 2, assignment_solver: str = 'scipy', assignment_n_jobs: int = 1, assignment_blocks: bool = True, assignment_block_size: int = None, assignment_block_multiplier: int = 8, convert_n_jobs: int = 1) -> 'SpatialSimulator':
+    def fit_model(self, visualize_fits: bool = False, use_real_stats_directly: bool = False, assignment_weights: dict = None, alteration_config=None, simulation_mode: str = 'generative', assignment_method: str = 'hybrid', random_seed: int = None, hybrid_alpha: float = 0.2, use_distributional_alteration: bool = False, ppf_method: str = 'interp', beta_n_jobs: int = 1, beta_early_stopping_patience: int = 2, assignment_solver: str = 'scipy', assignment_blocks: bool = True, assignment_block_size: int = None, assignment_block_multiplier: int = 8, convert_n_jobs: int = 1) -> 'SpatialSimulator':
         """
-        Exposes heuristic search parameters and marginal distribution alteration.
+        Fit marginal distribution and count-model parameters.
 
         Args:
             alteration_config (AlterationConfig or dict, optional): Configuration for altering marginal distributions
@@ -410,15 +402,9 @@ class SpatialSimulator:
             self._model_params = run_parameter_cloud_fitting(
                 adata_for_fitting,
                 visualize_fits=visualize_fits,
-                use_heuristic_search=use_heuristic_search,
-                min_accepted_error=min_accepted_error,
                 assignment_weights=assignment_weights,
-                screening_pool_size=screening_pool_size,
-                top_n_to_fully_evaluate=top_n_to_fully_evaluate,
-                n_jobs=n_jobs,
                 alteration_config=alteration_config,
                 simulation_mode=simulation_mode,
-                spatial_mode=spatial_mode,
                 assignment_method=assignment_method,
                 random_seed=random_seed,
                 hybrid_alpha=hybrid_alpha,
@@ -427,7 +413,6 @@ class SpatialSimulator:
                 beta_n_jobs=beta_n_jobs,
                 beta_early_stopping_patience=beta_early_stopping_patience,
                 assignment_solver=assignment_solver,
-                assignment_n_jobs=assignment_n_jobs,
                 assignment_blocks=assignment_blocks,
                 assignment_block_size=assignment_block_size,
                 assignment_block_multiplier=assignment_block_multiplier,
@@ -444,10 +429,9 @@ class SpatialSimulator:
         """Get current model parameters."""
         return self._model_params
     
-    def simulate(self, num_simulation_cores: int = 12, verbose: bool = True, clip_overshoot_factor: float = 0.0, boundary_multiplier: float = 1.1, random_seed: int = None, spatial_mode: str = 'reference_rank', target_adata=None, transport_config=None, ot_block_max_pairs: int = None, ot_memory_budget_gb: float = None) -> ad.AnnData:
+    def simulate(self, verbose: bool = True, clip_overshoot_factor: float = 0.0, boundary_multiplier: float = 1.1, random_seed: int = None, spatial_mode: str = 'reference_rank', target_adata=None, transport_config=None, ot_block_max_pairs: int = None, ot_memory_budget_gb: float = None) -> ad.AnnData:
         """
         Args:
-            num_simulation_cores (int): Number of cores for simulation (legacy parameter).
             verbose (bool): If True, prints progress updates.
             clip_overshoot_factor (float): Factor to clip max expression values relative to reference.
             boundary_multiplier (float): Multiplier for maximum count boundary constraint (default 1.1 = 110% of reference max).
@@ -684,17 +668,11 @@ class SpatialSimulator:
         fit_kwargs = {
             "visualize_fits": kwargs.get("visualize_fits", False),
             "use_real_stats_directly": kwargs.get("use_real_stats_directly", False),
-            "use_heuristic_search": kwargs.get("use_heuristic_search", False),
-            "min_accepted_error": kwargs.get("min_accepted_error", 0.5),
             "assignment_weights": kwargs.get("assignment_weights"),
-            "screening_pool_size": kwargs.get("screening_pool_size", 100),
-            "top_n_to_fully_evaluate": kwargs.get("top_n_to_fully_evaluate", 10),
-            "n_jobs": kwargs.get("n_jobs", -1),
             "alteration_config": kwargs.get("alteration_config"),
             "simulation_mode": _translate_parameter_mode(
                 kwargs.get("parameter_mode", "hungarian")
             ),
-            "spatial_mode": kwargs.get("spatial_mode", "reference_rank"),
             "assignment_method": kwargs.get("assignment_method", "hybrid"),
             "random_seed": kwargs.get("random_seed"),
             "hybrid_alpha": kwargs.get("hybrid_alpha", 0.2),
@@ -703,7 +681,6 @@ class SpatialSimulator:
             "beta_n_jobs": kwargs.get("beta_n_jobs", 1),
             "beta_early_stopping_patience": kwargs.get("beta_early_stopping_patience", 2),
             "assignment_solver": kwargs.get("assignment_solver", "scipy"),
-            "assignment_n_jobs": kwargs.get("assignment_n_jobs", 1),
             "assignment_blocks": kwargs.get("assignment_blocks", True),
             "assignment_block_size": kwargs.get("assignment_block_size"),
             "assignment_block_multiplier": kwargs.get("assignment_block_multiplier", 8),
@@ -711,7 +688,6 @@ class SpatialSimulator:
         }
         self.fit_model(**fit_kwargs)
         simulated = self.simulate(
-            num_simulation_cores=kwargs.get("num_simulation_cores", 12),
             verbose=kwargs.get("verbose", True),
             clip_overshoot_factor=kwargs.get("clip_overshoot_factor", 0.1),
             boundary_multiplier=kwargs.get("boundary_multiplier", 1.1),
@@ -726,7 +702,7 @@ class SpatialSimulator:
         return simulated
     
 
-def simulate_single_slice(adata: ad.AnnData, visualize_fits: bool = False, num_simulation_cores: int = 12, verbose: bool = True, clip_overshoot_factor: float = 0.1, use_real_stats_directly: bool = False, annotation_key: str = None, use_heuristic_search: bool = False, min_accepted_error: float = 0.005, assignment_weights: dict = None, screening_pool_size: int = 1000, top_n_to_fully_evaluate: int = 10, n_jobs: int = -1, alteration_config=None, boundary_multiplier: float = 1.1, parameter_mode: str = 'hungarian', spatial_mode: str = 'reference_rank', target_adata=None, assignment_method: str = 'hybrid', random_seed: int = None, hybrid_alpha: float = 0.2, use_distributional_alteration: bool = False, ppf_method: str = 'interp', beta_n_jobs: int = 1, beta_early_stopping_patience: int = 2, assignment_solver: str = 'scipy', assignment_n_jobs: int = 1, assignment_blocks: bool = True, assignment_block_size: int = None, assignment_block_multiplier: int = 8, convert_n_jobs: int = 1, transport_config=None, ot_block_max_pairs: int = None, ot_memory_budget_gb: float = None) -> ad.AnnData:
+def simulate_single_slice(adata: ad.AnnData, visualize_fits: bool = False, verbose: bool = True, clip_overshoot_factor: float = 0.1, use_real_stats_directly: bool = False, annotation_key: str = None, assignment_weights: dict = None, alteration_config=None, boundary_multiplier: float = 1.1, parameter_mode: str = 'hungarian', spatial_mode: str = 'reference_rank', target_adata=None, assignment_method: str = 'hybrid', random_seed: int = None, hybrid_alpha: float = 0.2, use_distributional_alteration: bool = False, ppf_method: str = 'interp', beta_n_jobs: int = 1, beta_early_stopping_patience: int = 2, assignment_solver: str = 'scipy', assignment_blocks: bool = True, assignment_block_size: int = None, assignment_block_multiplier: int = 8, convert_n_jobs: int = 1, transport_config=None, ot_block_max_pairs: int = None, ot_memory_budget_gb: float = None) -> ad.AnnData:
     """
     Run single-slice simulation.
 
@@ -769,15 +745,9 @@ def simulate_single_slice(adata: ad.AnnData, visualize_fits: bool = False, num_s
     safe_calculate_qc_metrics(adata, verbose=verbose)
     simulator = SpatialSimulator(adata)
     
-    heuristic_kwargs = {
-        'use_heuristic_search': use_heuristic_search,
-        'min_accepted_error': min_accepted_error,
+    fit_kwargs = {
         'assignment_weights': assignment_weights,
-        'screening_pool_size': screening_pool_size,
-        'top_n_to_fully_evaluate': top_n_to_fully_evaluate,
-        'n_jobs': n_jobs,
         'simulation_mode': simulation_mode,
-        'spatial_mode': spatial_mode,
         'assignment_method': assignment_method,
         'random_seed': random_seed,
         'hybrid_alpha': hybrid_alpha,
@@ -786,7 +756,6 @@ def simulate_single_slice(adata: ad.AnnData, visualize_fits: bool = False, num_s
         'beta_n_jobs': beta_n_jobs,
         'beta_early_stopping_patience': beta_early_stopping_patience,
         'assignment_solver': assignment_solver,
-        'assignment_n_jobs': assignment_n_jobs,
         'assignment_blocks': assignment_blocks,
         'assignment_block_size': assignment_block_size,
         'assignment_block_multiplier': assignment_block_multiplier,
@@ -799,7 +768,6 @@ def simulate_single_slice(adata: ad.AnnData, visualize_fits: bool = False, num_s
         simulated_adata = simulator.simulate_by_annotation(
             annotation_key=annotation_key,
             visualize_fits=visualize_fits,
-            num_simulation_cores=num_simulation_cores,
             verbose=verbose,
             clip_overshoot_factor=clip_overshoot_factor,
             boundary_multiplier=boundary_multiplier,
@@ -808,15 +776,13 @@ def simulate_single_slice(adata: ad.AnnData, visualize_fits: bool = False, num_s
             transport_config=transport_config,
             ot_block_max_pairs=ot_block_max_pairs,
             ot_memory_budget_gb=ot_memory_budget_gb,
-            **heuristic_kwargs, # Pass all heuristic controls
+            **fit_kwargs,
         )
 
 
     else:
         if use_real_stats_directly:
             if verbose: print("--- RUNNING IN DIAGNOSTIC MODE (USING REAL STATS) ---")
-        elif use_heuristic_search:
-            if verbose: print("--- RUNNING IN BOOSTED HEURISTIC OPTIMIZATION MODE ---")
         else:
             if verbose:
                 print("--- RUNNING IN STANDARD DETERMINISTIC MODE ---")
@@ -825,10 +791,9 @@ def simulate_single_slice(adata: ad.AnnData, visualize_fits: bool = False, num_s
             visualize_fits=visualize_fits, 
             use_real_stats_directly=use_real_stats_directly,
             alteration_config=alteration_config,  # Pass alteration configuration
-            **heuristic_kwargs # Pass all heuristic controls
+            **fit_kwargs,
         )
         simulated_adata = simulator.simulate(
-            num_simulation_cores=num_simulation_cores,
             verbose=verbose,
             clip_overshoot_factor=clip_overshoot_factor,
             boundary_multiplier=boundary_multiplier,

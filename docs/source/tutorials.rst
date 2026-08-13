@@ -27,7 +27,7 @@ Simulation with expression alteration:
     from FEAST import simulate, Alteration
 
     config = Alteration.mean_only(fold_change=0.95)
-    altered = simulate(adata, alteration=config, use_heuristic_search=True)
+    altered = simulate(adata, alteration=config)
 
 Alignment simulation
 --------------------

@@ -412,7 +412,6 @@ class GeneParameterSimulator:
         verbose=True,
         hybrid_alpha=0.2,
         assignment_solver='scipy',
-        n_jobs: int = 1,
         assignment_blocks: bool = True,
         assignment_block_size: Optional[int] = None,
         assignment_block_multiplier: int = 8,
@@ -425,13 +424,6 @@ class GeneParameterSimulator:
         assignment_blocks=True uses batched Hungarian assignment to reduce peak memory.
         assignment_blocks=False recovers the original full-matrix global assignment.
         """
-        if n_jobs > 1:
-            warnings.warn(
-                "n_jobs > 1 is not currently used for assignment; "
-                "assignment runs sequentially regardless of this setting.",
-                UserWarning,
-                stacklevel=2,
-            )
         if verbose:
             print(
                 f"\n--- [ASSIGNING] Assigning synthetic profiles "
@@ -634,7 +626,6 @@ class GeneParameterSimulator:
         verbose=True,
         use_distributional_alteration: bool = False,
         assignment_solver: str = 'scipy',
-        assignment_n_jobs: int = 1,
         assignment_blocks: bool = True,
         assignment_block_size: Optional[int] = None,
         assignment_block_multiplier: int = 8,
@@ -721,7 +712,6 @@ class GeneParameterSimulator:
                 verbose=verbose,
                 hybrid_alpha=getattr(self, 'hybrid_alpha', 0.2),
                 assignment_solver=assignment_solver,
-                n_jobs=assignment_n_jobs,
                 assignment_blocks=assignment_blocks,
                 assignment_block_size=assignment_block_size,
                 assignment_block_multiplier=assignment_block_multiplier,

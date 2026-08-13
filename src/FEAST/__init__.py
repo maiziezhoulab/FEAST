@@ -67,7 +67,6 @@ def simulate(
     seed: int | None = None,
     parameter_mode: str = "hungarian",
     spatial_mode: str | None = None,
-    n_jobs: int = -1,
     verbose: bool = True,
     **kwargs,
 ):
@@ -114,14 +113,11 @@ def simulate(
         ``"ot_spatial"`` (optimal-transport spatial assignment). When
         omitted, FEAST selects OT if ``target`` or ``transport`` is provided
         and reference-rank assignment otherwise.
-    n_jobs:
-        Number of parallel jobs (``-1`` = all CPUs).
     verbose:
         Print progress messages.
     kwargs:
         Advanced parameters passed through to the underlying simulator
-        (e.g. ``use_heuristic_search``, ``assignment_solver``,
-        ``ppf_method``, ``beta_n_jobs``).
+        (e.g. ``assignment_solver``, ``ppf_method``, ``beta_n_jobs``).
 
     Returns
     -------
@@ -220,7 +216,6 @@ def simulate(
         random_seed=seed,
         parameter_mode=parameter_mode,
         spatial_mode=resolved_spatial_mode,
-        n_jobs=n_jobs,
         verbose=verbose,
         target_adata=target_adata,
         transport_config=transport,

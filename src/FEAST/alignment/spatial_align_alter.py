@@ -316,7 +316,7 @@ class RotationTransformer:
         return in_bounds
     
     def transform_sequencing(self, rotation_angle=0, center_correction=0, 
-                             min_space=None, max_grid_size=10000):
+                             min_space=None):
         """
         Transform sequencing-based spatial data with rotation and grid alignment.
         

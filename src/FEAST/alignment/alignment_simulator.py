@@ -91,7 +91,6 @@ class AlignmentSimulator:
         center_correction: Union[float, np.ndarray] = 0,
         keep_bounds: bool = True,
         min_space: Optional[float] = None,
-        max_grid_size: int = 10000,
         expression_params: Optional[Dict[str, Any]] = None
     ) -> Tuple[ad.AnnData, ad.AnnData]:
         """
@@ -103,7 +102,6 @@ class AlignmentSimulator:
             center_correction: Center point for rotation
             keep_bounds: Whether to keep only spots within original bounds
             min_space: Minimal spacing for sequencing data (auto-calculated if None)
-            max_grid_size: Maximum grid size for sequencing data
             expression_params: Parameters for expression simulation
         
         Returns:
@@ -137,7 +135,6 @@ class AlignmentSimulator:
                 rotation_angle=rotation_angle,
                 center_correction=center_correction,
                 min_space=min_space,
-                max_grid_size=max_grid_size
             )
         else:
             raise ValueError("data_type must be 'imaging' or 'sequencing'")
@@ -346,7 +343,6 @@ class AlignmentSimulator:
                     center_correction=config.get('center_correction', 0),
                     keep_bounds=config.get('keep_bounds', True),
                     min_space=config.get('min_space'),
-                    max_grid_size=config.get('max_grid_size', 10000),
                     expression_params=expression_params
                 )
             
@@ -402,7 +398,6 @@ def simulate_alignment_rotation(
     center_correction: Union[float, np.ndarray] = 0,
     keep_bounds: bool = True,
     min_space: Optional[float] = None,
-    max_grid_size: int = 10000,
 ) -> Tuple[ad.AnnData, ad.AnnData]:
     """
     Quick function to generate rotated alignment dataset using simulate_single_slice.
@@ -416,7 +411,6 @@ def simulate_alignment_rotation(
         center_correction: Center point for rotation
         keep_bounds: Whether to keep only spots within original bounds for imaging data
         min_space: Minimal spacing for sequencing data
-        max_grid_size: Maximum grid size for sequencing data
     
     Returns:
         Tuple of (original_simulated, rotated_simulated) datasets
@@ -451,7 +445,6 @@ def simulate_alignment_rotation(
             rotation_angle=rotation_angle,
             center_correction=center_correction,
             min_space=min_space,
-            max_grid_size=max_grid_size
         )
     else:
         raise ValueError("data_type must be 'imaging' or 'sequencing'")
@@ -654,8 +647,7 @@ def generate_alignment_benchmark_suite(
                 expression_params=expression_params,
                 center_correction=config.get('center_correction', 0),
                 keep_bounds=config.get('keep_bounds', True),
-                min_space=config.get('min_space'),
-                max_grid_size=config.get('max_grid_size', 10000)
+                min_space=config.get('min_space')
             )
         
         elif transform_type == 'warp':
