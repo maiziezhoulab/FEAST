@@ -375,16 +375,23 @@ class GeneParameterSimulator:
             return self.target_stats
         return self.original_stats
 
-    def simulate(self, n_genes, overgeneration_factor=2.0, verbose=True, random_seed=None, return_uniform=False):
+    def simulate(self, n_genes, overgeneration_factor=3.0, verbose=True, random_seed=None, return_uniform=False):
         if not self.fitted: raise RuntimeError("Simulator must be fitted first.")
         n_to_generate = max(int(n_genes), int(n_genes * overgeneration_factor))
         if verbose: print(f"\n--- [SIMULATING] Generating {n_to_generate} synthetic profiles...")
         
         seed = int(random_seed) if random_seed is not None else int(np.random.randint(1e6))
         uniform_samples = self.copula_model.simulate(n=n_to_generate, seeds=[seed])
-        final_params = pd.DataFrame({
-            param: modeler.ppf(uniform_samples[:, i]) for i, (param, modeler) in enumerate(self.param_models.items())
-        })
+        simulated_params = {}
+        for i, (param, modeler) in enumerate(self.param_models.items()):
+            if param == 'zero_prop':
+                simulated_params[param] = modeler.ppf(
+                    uniform_samples[:, i],
+                    random_state=seed,
+                )
+            else:
+                simulated_params[param] = modeler.ppf(uniform_samples[:, i])
+        final_params = pd.DataFrame(simulated_params)
         
         reference_stats = self._assignment_stats()
         if verbose: print("  > Enforcing minimum target parameter boundaries...")
@@ -405,7 +412,6 @@ class GeneParameterSimulator:
         verbose=True,
         hybrid_alpha=0.2,
         assignment_solver='scipy',
-        n_jobs: int = 1,
         assignment_blocks: bool = True,
         assignment_block_size: Optional[int] = None,
         assignment_block_multiplier: int = 8,
@@ -418,13 +424,6 @@ class GeneParameterSimulator:
         assignment_blocks=True uses batched Hungarian assignment to reduce peak memory.
         assignment_blocks=False recovers the original full-matrix global assignment.
         """
-        if n_jobs > 1:
-            warnings.warn(
-                "n_jobs > 1 is not currently used for assignment; "
-                "assignment runs sequentially regardless of this setting.",
-                UserWarning,
-                stacklevel=2,
-            )
         if verbose:
             print(
                 f"\n--- [ASSIGNING] Assigning synthetic profiles "
@@ -623,11 +622,10 @@ class GeneParameterSimulator:
         assignment_weights=None,
         random_seed=None,
         assignment_method='hybrid',
-        overgeneration_factor=2.0,
+        overgeneration_factor=3.0,
         verbose=True,
         use_distributional_alteration: bool = False,
         assignment_solver: str = 'scipy',
-        assignment_n_jobs: int = 1,
         assignment_blocks: bool = True,
         assignment_block_size: Optional[int] = None,
         assignment_block_multiplier: int = 8,
@@ -710,11 +708,10 @@ class GeneParameterSimulator:
             assigned = self.assign_to_genes(
                 projected,
                 weights=assignment_weights or {'mean': 3.0, 'variance': 1.0, 'zero_prop': 1.0},
-                random_seed=random_seed or 42,
+                random_seed=42 if random_seed is None else int(random_seed),
                 verbose=verbose,
                 hybrid_alpha=getattr(self, 'hybrid_alpha', 0.2),
                 assignment_solver=assignment_solver,
-                n_jobs=assignment_n_jobs,
                 assignment_blocks=assignment_blocks,
                 assignment_block_size=assignment_block_size,
                 assignment_block_multiplier=assignment_block_multiplier,
@@ -988,7 +985,7 @@ def _moment_objective_function_log_scale(params, target_stats, model_type):
 
 
 def _estimate_zip_by_moment_optimization(mu_total, var_total, zero_prop,
-                                          n_spots=None, boundary=None):
+                                          n_spots=None, boundary=None, rng=None):
     """Finds ZIP parameters by minimizing log-scale objective + finite-sample correction."""
     target_stats = np.array([mu_total, var_total, zero_prop])
 
@@ -1013,18 +1010,21 @@ def _estimate_zip_by_moment_optimization(mu_total, var_total, zero_prop,
         pi0, lam = initial_guess[0], initial_guess[1]
 
     if n_spots is not None:
-        pi0, lam = _finite_sample_correct_zip(pi0, lam, target_stats, n_spots, boundary)
+        pi0, lam = _finite_sample_correct_zip(
+            pi0, lam, target_stats, n_spots, boundary, rng=rng
+        )
 
     return {'pi0': pi0, 'lambda': lam}
 
 
-def _finite_sample_correct_zip(pi0, lam, target_stats, n_spots, boundary=None):
+def _finite_sample_correct_zip(pi0, lam, target_stats, n_spots, boundary=None, rng=None):
     """Adjust ZIP params so realized finite-sample moments match targets."""
+    rng = np.random if rng is None else rng
     target_mean, target_var, target_zero = target_stats
     for _ in range(10):
         lam = float(np.clip(lam, 1e-8, 1e9))
-        zero_mask = np.random.random(n_spots) < pi0
-        counts = np.random.poisson(lam, size=n_spots)
+        zero_mask = rng.random(n_spots) < pi0
+        counts = rng.poisson(lam, size=n_spots)
         counts[zero_mask] = 0
         if boundary is not None and np.isfinite(boundary):
             counts = np.minimum(counts, boundary)
@@ -1046,7 +1046,7 @@ def _finite_sample_correct_zip(pi0, lam, target_stats, n_spots, boundary=None):
     return pi0, lam
 
 def _estimate_zinb_by_moment_optimization(mu_total, var_total, zero_prop,
-                                           n_spots=None, boundary=None):
+                                           n_spots=None, boundary=None, rng=None):
     """Finds ZINB parameters by minimizing log-scale objective + finite-sample correction."""
     target_stats = np.array([mu_total, var_total, zero_prop])
 
@@ -1072,18 +1072,25 @@ def _estimate_zinb_by_moment_optimization(mu_total, var_total, zero_prop,
         pi0, mu, r = initial_guess[0], initial_guess[1], initial_guess[2]
 
     if n_spots is not None:
-        pi0, mu, r = _finite_sample_correct_zinb(pi0, mu, r, target_stats, n_spots, boundary)
+        pi0, mu, r = _finite_sample_correct_zinb(
+            pi0, mu, r, target_stats, n_spots, boundary, rng=rng
+        )
 
     return {'pi0': pi0, 'mu': mu, 'r': r}
 
 
-def _finite_sample_correct_zinb(pi0, mu, r, target_stats, n_spots, boundary=None):
+def _finite_sample_correct_zinb(
+    pi0, mu, r, target_stats, n_spots, boundary=None, rng=None
+):
     """Adjust ZINB params so realized finite-sample moments match targets."""
+    rng = np.random if rng is None else rng
     target_mean, target_var, target_zero = target_stats
     for _ in range(10):
-        zero_mask = np.random.random(n_spots) < pi0
+        zero_mask = rng.random(n_spots) < pi0
         p = r / (r + mu)
-        counts = np.random.negative_binomial(r, np.clip(p, 1e-8, 1 - 1e-8), size=n_spots)
+        counts = rng.negative_binomial(
+            r, np.clip(p, 1e-8, 1 - 1e-8), size=n_spots
+        )
         counts[zero_mask] = 0
         if boundary is not None and np.isfinite(boundary):
             counts = np.minimum(counts, boundary)
@@ -1146,7 +1153,7 @@ def _select_model_with_heuristic(mu_total, var_total, zero_prop,
             return 'NB'
 
 def _estimate_params_no_fallback(model_name, mu_total, var_total, zero_prop,
-                                  n_spots=None, boundary=None):
+                                  n_spots=None, boundary=None, rng=None):
     """Master function to dispatch to the correct moment-matching optimizer."""
     if model_name == 'Poisson':
         return {'lambda': max(mu_total, 1e-8)}
@@ -1155,13 +1162,15 @@ def _estimate_params_no_fallback(model_name, mu_total, var_total, zero_prop,
         return {'mu': max(mu_total, 1e-8), 'r': r}
     if model_name == 'ZIP':
         return _estimate_zip_by_moment_optimization(mu_total, var_total, zero_prop,
-                                                     n_spots=n_spots, boundary=boundary)
+                                                     n_spots=n_spots, boundary=boundary,
+                                                     rng=rng)
     if model_name == 'ZINB':
         return _estimate_zinb_by_moment_optimization(mu_total, var_total, zero_prop,
-                                                      n_spots=n_spots, boundary=boundary)
+                                                      n_spots=n_spots, boundary=boundary,
+                                                      rng=rng)
     return {}
 
-def _convert_gene_batch(gene_batch, n_spots, boundary_multiplier):
+def _convert_gene_batch(gene_batch, n_spots, boundary_multiplier, random_seed):
     """Convert one batch of genes to count-model params (worker for joblib)."""
     model_selected = []
     marginal_param1 = []
@@ -1169,6 +1178,8 @@ def _convert_gene_batch(gene_batch, n_spots, boundary_multiplier):
     debug_stats = []
 
     for i, gene_id, mu, var, zp in gene_batch:
+        gene_seed = np.random.SeedSequence([int(random_seed), int(i)])
+        gene_rng = np.random.default_rng(gene_seed)
         overdispersion = var / mu if mu > 1e-8 else 0
         zero_pois = np.exp(-mu) if mu > 1e-8 else 1.0
         excess_zero = zp - zero_pois
@@ -1181,7 +1192,8 @@ def _convert_gene_batch(gene_batch, n_spots, boundary_multiplier):
         model_type = _select_model_with_heuristic(mu, var, zp)
         params = _estimate_params_no_fallback(model_type, mu, var, zp,
                                                n_spots=n_spots,
-                                               boundary=boundary_multiplier)
+                                               boundary=boundary_multiplier,
+                                               rng=gene_rng)
         model_counts[model_type] = model_counts.get(model_type, 0) + 1
 
         pi0, r, mean_param = 0.0, np.inf, 0.0
@@ -1208,7 +1220,8 @@ def _convert_gene_batch(gene_batch, n_spots, boundary_multiplier):
 def convert_params_for_new_simulator(stats_df: pd.DataFrame,
                                      n_spots: int = None,
                                      boundary_multiplier: float = 1.1,
-                                     n_jobs: int = 1):
+                                     n_jobs: int = 1,
+                                     random_seed: int = None):
     """
     Converts a DataFrame of statistics (mean, variance, zero_prop) into
     parameters for specific count models (ZINB, etc.) using improved
@@ -1219,6 +1232,7 @@ def convert_params_for_new_simulator(stats_df: pd.DataFrame,
         n_spots: if provided, enable finite-sample moment correction
         boundary_multiplier: max count boundary for finite-sample simulation
         n_jobs: number of parallel workers (1 = sequential)
+        random_seed: run-wide seed used to derive stable per-gene RNG streams
     """
     if 'gene_id' in stats_df.columns:
         stats_df = stats_df.set_index('gene_id')
@@ -1233,13 +1247,24 @@ def convert_params_for_new_simulator(stats_df: pd.DataFrame,
     # Build per-gene records
     records = [(i, gene_id, row['mean'], row['variance'], row['zero_prop'])
                for i, (gene_id, row) in enumerate(stats_df.iterrows())]
+    conversion_seed = (
+        int(random_seed)
+        if random_seed is not None
+        else (
+            int(np.random.randint(0, 2**32 - 1))
+            if n_spots is not None
+            else 0
+        )
+    )
 
     if n_jobs > 1:
         from joblib import Parallel, delayed
         chunk_size = max(1, n_genes // (n_jobs * 4))
         batches = [records[i:i + chunk_size] for i in range(0, n_genes, chunk_size)]
         results = Parallel(n_jobs=n_jobs)(
-            delayed(_convert_gene_batch)(batch, n_spots, boundary_multiplier)
+            delayed(_convert_gene_batch)(
+                batch, n_spots, boundary_multiplier, conversion_seed
+            )
             for batch in batches
         )
         # Merge
@@ -1259,7 +1284,9 @@ def convert_params_for_new_simulator(stats_df: pd.DataFrame,
         model_counts = {}
         debug_stats = []
         for rec in records:
-            r = _convert_gene_batch([rec], n_spots, boundary_multiplier)
+            r = _convert_gene_batch(
+                [rec], n_spots, boundary_multiplier, conversion_seed
+            )
             output_dict['model_selected'].extend(r['model_selected'])
             output_dict['marginal_param1'].extend(r['marginal_param1'])
             for k, v in r['model_counts'].items():

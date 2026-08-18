@@ -3,6 +3,147 @@ import scipy.spatial
 import anndata as ad
 from tps import ThinPlateSpline
 
+
+def rigid_rotation_transform(angle_degrees, center):
+    """Return forward and inverse 2D homogeneous rotation matrices.
+
+    Positive angles rotate counter-clockwise around ``center``.  The matrices
+    act on homogeneous column vectors ``[x, y, 1]``.
+    """
+    center = np.asarray(center, dtype=np.float64)
+    if center.shape != (2,) or not np.isfinite(center).all():
+        raise ValueError("center must contain two finite coordinates")
+
+    theta = np.deg2rad(float(angle_degrees))
+    if not np.isfinite(theta):
+        raise ValueError("angle_degrees must be finite")
+    cosine, sine = np.cos(theta), np.sin(theta)
+    rotation = np.array(
+        [[cosine, -sine], [sine, cosine]], dtype=np.float64
+    )
+
+    forward = np.eye(3, dtype=np.float64)
+    forward[:2, :2] = rotation
+    forward[:2, 2] = center - rotation @ center
+    inverse = np.linalg.inv(forward)
+    return forward, inverse
+
+
+def apply_spatial_transform(coords, transform):
+    """Apply a 3x3 homogeneous transform to finite 2D coordinates."""
+    coords = np.asarray(coords, dtype=np.float64)
+    transform = np.asarray(transform, dtype=np.float64)
+    if coords.ndim != 2 or coords.shape[1] != 2:
+        raise ValueError("coords must have shape (n_spots, 2)")
+    if transform.shape != (3, 3):
+        raise ValueError("transform must have shape (3, 3)")
+    if not np.isfinite(coords).all() or not np.isfinite(transform).all():
+        raise ValueError("coordinates and transform must be finite")
+
+    homogeneous = np.column_stack([coords, np.ones(coords.shape[0])])
+    transformed = homogeneous @ transform.T
+    if not np.allclose(transformed[:, 2], 1.0, rtol=0.0, atol=1e-12):
+        raise ValueError("transform produced invalid homogeneous coordinates")
+    return transformed[:, :2]
+
+
+def rotate_spatial(
+    adata,
+    angle_degrees,
+    *,
+    center=None,
+    plate_bounds=None,
+    spatial_key="spatial",
+    original_key="spatial_original",
+):
+    """Rotate an AnnData slice, optionally cropping to a fixed plate.
+
+    The transformation is centered on the coordinate centroid unless an
+    explicit center is supplied.  By default it never changes spot support.
+    Pass ``plate_bounds`` as ``[[x_min, y_min], [x_max, y_max]]`` to retain
+    only rotated spots inside that inclusive rectangle.  It never snaps,
+    deduplicates, or reorders spots.  Transform and crop metadata are recorded
+    in ``.uns``.
+    """
+    if spatial_key not in adata.obsm:
+        raise ValueError(f"obsm[{spatial_key!r}] is required")
+    if not adata.obs_names.is_unique:
+        raise ValueError("stable observation identifiers must be unique")
+
+    spatial = np.asarray(adata.obsm[spatial_key], dtype=np.float64)
+    if spatial.ndim != 2 or spatial.shape[1] != 2:
+        raise ValueError(f"obsm[{spatial_key!r}] must have shape (n_spots, 2)")
+    if spatial.shape[0] != adata.n_obs or not np.isfinite(spatial).all():
+        raise ValueError("spatial coordinates must be finite and match n_obs")
+
+    validated_bounds = None
+    if plate_bounds is not None:
+        try:
+            validated_bounds = np.asarray(plate_bounds, dtype=np.float64)
+        except (TypeError, ValueError) as error:
+            raise ValueError(
+                "plate_bounds must be finite [[x_min, y_min], [x_max, y_max]]"
+            ) from error
+        if (
+            validated_bounds.shape != (2, 2)
+            or not np.isfinite(validated_bounds).all()
+        ):
+            raise ValueError(
+                "plate_bounds must be finite [[x_min, y_min], [x_max, y_max]]"
+            )
+        if not np.all(validated_bounds[0] < validated_bounds[1]):
+            raise ValueError(
+                "plate_bounds lower coordinates must be less than upper coordinates"
+            )
+
+    rotation_center = spatial.mean(axis=0) if center is None else np.asarray(center)
+    forward, inverse = rigid_rotation_transform(angle_degrees, rotation_center)
+    rotated = apply_spatial_transform(spatial, forward)
+
+    retained_mask = np.ones(adata.n_obs, dtype=bool)
+    if validated_bounds is not None:
+        retained_mask = np.all(
+            (rotated >= validated_bounds[0]) & (rotated <= validated_bounds[1]),
+            axis=1,
+        )
+    result = (
+        adata[retained_mask].copy()
+        if validated_bounds is not None
+        else adata.copy()
+    )
+    result.obsm[original_key] = spatial[retained_mask].copy()
+    result.obsm[spatial_key] = rotated[retained_mask].copy()
+
+    retained_n_spots = int(retained_mask.sum())
+    transform_metadata = {
+        "schema_version": 1,
+        "method": "centered_rigid_rotation",
+        "angle_degrees": float(angle_degrees),
+        "center": rotation_center.astype(float),
+        "forward_matrix": forward,
+        "inverse_matrix": inverse,
+        "spatial_key": spatial_key,
+        "original_key": original_key,
+        "preserve_spot_identity": True,
+        "preserve_spot_count": retained_n_spots == adata.n_obs,
+        "plate_bounds_applied": validated_bounds is not None,
+        "input_n_spots": int(adata.n_obs),
+        "retained_n_spots": retained_n_spots,
+        "dropped_n_spots": int(adata.n_obs - retained_n_spots),
+        "retained_fraction": float(retained_n_spots / adata.n_obs)
+        if adata.n_obs
+        else 1.0,
+        "n_spots": int(adata.n_obs),
+    }
+    if validated_bounds is not None:
+        transform_metadata["plate_bounds"] = validated_bounds.copy()
+    result.uns["feast_alignment_transform"] = transform_metadata
+
+    expected_names = adata.obs_names[retained_mask]
+    if result.n_obs != retained_n_spots or not result.obs_names.equals(expected_names):
+        raise RuntimeError("rotation changed expected spot support or ordering")
+    return result
+
 class SpatialTransformer:
     """Base class for spatial transcriptomics data transformations with ground truth tracking."""
     
@@ -65,6 +206,14 @@ class RotationTransformer:
         rotated_coords -= center_correction
 
         return rotated_coords
+
+    def transform_rigid(self, rotation_angle=0, center=None):
+        """Apply the publication-safe centered continuous rotation."""
+        return rotate_spatial(
+            self.adata,
+            rotation_angle,
+            center=center,
+        )
     
     def _generate_offset_grid(self, rows, cols, spacing, offset, x_range, y_range):
         """
@@ -167,7 +316,7 @@ class RotationTransformer:
         return in_bounds
     
     def transform_sequencing(self, rotation_angle=0, center_correction=0, 
-                             min_space=None, max_grid_size=10000):
+                             min_space=None):
         """
         Transform sequencing-based spatial data with rotation and grid alignment.
         

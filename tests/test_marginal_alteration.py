@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from FEAST.FEAST_core.count_decoding import decode_counts_by_rank, decode_counts_by_spatial_intensity
 from FEAST.FEAST_core.parameter_cloud import GeneParameterSimulator
 from FEAST.modeling.StudentT_mixture_model import StudentTMixtureMarginalModeler
 from FEAST.modeling.marginal_alteration import AlterationConfig, alter_marginal_model
@@ -100,3 +101,58 @@ def test_deprecated_sparsity_fold_change_maps_to_logit_shift():
     assert increased.sparsity_logit_shift > 0
     np.testing.assert_allclose(decreased.sparsity_logit_shift, np.log(0.5))
     np.testing.assert_allclose(increased.sparsity_logit_shift, np.log(2.0))
+
+
+def test_spatial_intensity_decoder_preserves_high_contrast_range():
+    rng = np.random.default_rng(0)
+    reference = np.r_[np.full(5, 2.0), rng.normal(130.0, 12.0, 95).clip(1.0)]
+    mean = float(reference.mean())
+    variance = float(reference.var())
+    r = mean**2 / (variance - mean)
+    params = {
+        "model_selected": ["NB"],
+        "marginal_param1": [[0.0, r, mean]],
+    }
+
+    iid = decode_counts_by_rank(reference[:, None], params, reference_X=reference[:, None], random_seed=7)[:, 0]
+    spatial = decode_counts_by_spatial_intensity(
+        reference[:, None],
+        params,
+        reference_X=reference[:, None],
+        random_seed=7,
+    )[:, 0]
+
+    def nonzero_range(values):
+        positive = values[values > 0]
+        return float(positive.max() / positive.min())
+
+    assert nonzero_range(iid) < 10.0
+    assert nonzero_range(spatial) > 15.0
+    assert nonzero_range(spatial) > 3.0 * nonzero_range(iid)
+
+
+def test_spatial_intensity_decoder_preserves_mean_only_alteration_contrast():
+    rng = np.random.default_rng(1)
+    reference = np.r_[np.full(5, 2.0), rng.normal(130.0, 12.0, 95).clip(1.0)]
+    mean = float(reference.mean())
+    params = {
+        "model_selected": ["NB"],
+        "marginal_param1": [[0.0, 50.0, mean * 1.25]],
+        "target_stats": pd.DataFrame(
+            {"mean": [mean * 1.25], "variance": [mean * 1.25], "zero_prop": [0.25]}
+        ),
+        "parameter_diagnostics": {
+            "requested_config": AlterationConfig.mean_only(1.25).to_dict(),
+        },
+    }
+
+    spatial = decode_counts_by_spatial_intensity(
+        reference[:, None],
+        params,
+        reference_X=reference[:, None],
+        random_seed=7,
+    )[:, 0]
+
+    positive = spatial[spatial > 0]
+    assert float(positive.max() / positive.min()) > 15.0
+    assert np.mean(spatial == 0) < 0.05

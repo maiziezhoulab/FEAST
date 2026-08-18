@@ -21,7 +21,6 @@ class DeconvolutionSimulator:
                                    alpha: float = 0.01,
                                    cell_type_key: Optional[str] = None,
                                    visualize_fits: bool = False,
-                                   use_heuristic_search: bool = False,
                                    alteration_config: Optional[Any] = None,
                                    boundary_multiplier: float = 1.1,
                                    **simulation_kwargs) -> ad.AnnData:
@@ -43,8 +42,6 @@ class DeconvolutionSimulator:
         
         visualize_fits : bool, default=False
             Whether to show parameter fitting visualizations
-        use_heuristic_search : bool, default=False
-            Whether to use heuristic parameter assignment
         alteration_config : AlterationConfig, optional
             Configuration for marginal distribution alterations
         boundary_multiplier : float, default=1.1
@@ -66,7 +63,6 @@ class DeconvolutionSimulator:
         simulated_slice = simulate_single_slice(
             adata=reference_adata,
             visualize_fits=visualize_fits,
-            use_heuristic_search=use_heuristic_search,
             alteration_config=alteration_config,
             boundary_multiplier=boundary_multiplier,
             verbose=self.verbose,
@@ -302,7 +298,7 @@ def simulate_deconvolution_from_single_cells(reference_adata: ad.AnnData,
     reference_adata : AnnData
         Reference spatial transcriptomics data
     cell_type_key : str, optional
-        Key for cell type annotations (ground truth)
+        Key for cell type annotations used to derive known simulated composition
     downsampling_factor : float, default=0.25
         Factor to reduce spatial resolution
     grid_type : str, default='hexagonal'
@@ -311,7 +307,7 @@ def simulate_deconvolution_from_single_cells(reference_adata: ad.AnnData,
         Alpha parameter for tissue boundary detection
     verbose : bool, default=True
         Whether to print progress messages
-    **kwargs
+    kwargs
         Additional parameters for single slice simulation
         
     Returns:

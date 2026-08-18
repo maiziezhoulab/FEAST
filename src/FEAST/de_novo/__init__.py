@@ -25,6 +25,7 @@ from .pattern import (
 )
 from .quantile_field import QuantileFieldConfig
 from .stack import simulate_stack
+from .transport import TransportConfig
 from .z_regularize import (
     calibrate_counts_to_regularized_means,
     class_anchor_weight,
@@ -46,6 +47,7 @@ __all__ = [
     "ReferenceFitConfig",
     "SimulationReference",
     "SimulationConfig",
+    "TransportConfig",
     "QuantileFieldConfig",
     "calibrate_counts_to_regularized_means",
     "class_anchor_weight",

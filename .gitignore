@@ -91,4 +91,3 @@ docs/_build/
 # Non-core directories
 benchmark_scripts/
 reproduction/
-tests/
