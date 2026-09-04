@@ -387,6 +387,34 @@ def test_pot_torch_and_numpy_stabilized_backends_agree_on_latent_field():
     np.testing.assert_allclose(torch_result.latent_scores, numpy_result.latent_scores, rtol=1e-6, atol=1e-6)
 
 
+def test_pot_translation_invariant_backends_agree_on_latent_field():
+    from FEAST.de_novo.transport import TransportConfig, transport_reference_field
+
+    source_coordinates = np.array([[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]])
+    target_coordinates = np.array([[0.1, 0.1], [0.8, 0.1]])
+    source_quantiles = np.array([[0.2, 0.8], [0.5, 0.5], [0.8, 0.2]])
+    common = dict(
+        epsilon=0.5,
+        unbalanced_transport=True,
+        sinkhorn_method="sinkhorn_translation_invariant",
+        transport_dtype="float64",
+    )
+    numpy_result = transport_reference_field(
+        source_coordinates,
+        target_coordinates,
+        source_quantiles,
+        config=TransportConfig(**common, transport_backend="numpy"),
+    )
+    torch_result = transport_reference_field(
+        source_coordinates,
+        target_coordinates,
+        source_quantiles,
+        config=TransportConfig(**common, transport_backend="torch", transport_device="cpu"),
+    )
+
+    np.testing.assert_allclose(torch_result.latent_scores, numpy_result.latent_scores, rtol=1e-6, atol=1e-6)
+
+
 def test_transport_rejects_unavailable_cuda_without_cpu_fallback(monkeypatch):
     import torch
     from FEAST.de_novo.transport import TransportConfig, transport_reference_field

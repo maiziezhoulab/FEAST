@@ -202,8 +202,8 @@ def _validate_config(config: TransportConfig) -> None:
         raise ValueError("gene_chunk_size must be a positive integer.")
     if config.max_transport_pairs is not None and int(config.max_transport_pairs) < 1:
         raise ValueError("max_transport_pairs must be a positive integer or None.")
-    if str(config.sinkhorn_method) not in {"sinkhorn", "sinkhorn_stabilized"}:
-        raise ValueError("sinkhorn_method must be 'sinkhorn' or 'sinkhorn_stabilized'.")
+    if str(config.sinkhorn_method) not in {"sinkhorn", "sinkhorn_stabilized", "sinkhorn_translation_invariant"}:
+        raise ValueError("sinkhorn_method must be 'sinkhorn', 'sinkhorn_stabilized', or 'sinkhorn_translation_invariant'.")
     if str(config.transport_backend) not in {"numpy", "torch"}:
         raise ValueError("transport_backend must be 'numpy' or 'torch'.")
     if str(config.transport_dtype) not in {"float32", "float64"}:
