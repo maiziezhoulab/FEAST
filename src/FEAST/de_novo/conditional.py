@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field, fields as dataclass_fields
+from dataclasses import dataclass, field, fields as dataclass_fields, replace
 from pathlib import Path
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
 
@@ -329,6 +329,10 @@ def simulate_from_reference(
                     ),
                     "transport_blocked": bool(solve_diagnostics["blocked"]),
                     "transport_blocks": int(solve_diagnostics["n_blocks"]),
+                    "transport_solver_method": str(solve_diagnostics["solver_method"]),
+                    "transport_backend": str(solve_diagnostics["transport_backend"]),
+                    "transport_device": str(solve_diagnostics["transport_device"]),
+                    "transport_dtype": str(solve_diagnostics["transport_dtype"]),
                 }
             )
         transport_diagnostics[label] = label_diags
@@ -1040,6 +1044,7 @@ def estimate_assignment_randomness(
     max_ar: float = 0.5,
     n_neighbors: int = 6,
     random_seed: int | None = None,
+    transport: TransportConfig | None = None,
 ) -> float:
     """Estimate assignment_randomness via a quick mini-sweep on the reference.
 
@@ -1075,6 +1080,8 @@ def estimate_assignment_randomness(
         Number of spatial neighbors for Moran's-I computation.
     random_seed:
         Seed for reproducible results.
+    transport:
+        Optional transport configuration used for every mini-sweep candidate.
 
     Returns
     -------
@@ -1200,8 +1207,9 @@ def estimate_assignment_randomness(
     best_corr = -np.inf
     correlations = []
 
+    base_gen_cfg = _simulation_config(transport)
     for ar in ar_candidates:
-        gen_cfg = SimulationConfig(assignment_randomness=float(ar), verbose=False)
+        gen_cfg = replace(base_gen_cfg, assignment_randomness=float(ar), verbose=False)
         generated = simulate_from_reference(
             model, blueprint, config=gen_cfg, random_seed=random_seed or 0,
         )

@@ -30,6 +30,25 @@ def _is_solver_failure_warning(warning: warnings.WarningMessage) -> bool:
     )
 
 
+def _is_torch_tensor(value) -> bool:
+    return type(value).__module__.split(".", 1)[0] == "torch"
+
+
+def _to_numpy(value) -> np.ndarray:
+    if _is_torch_tensor(value):
+        return value.detach().cpu().numpy()
+    if isinstance(value, (list, tuple)) and any(_is_torch_tensor(item) for item in value):
+        return np.asarray([float(item.detach().cpu().item()) if _is_torch_tensor(item) else item for item in value])
+    return np.asarray(value)
+
+
+def _backend_metadata(value) -> tuple[str, str, str]:
+    if _is_torch_tensor(value):
+        return ("torch", str(value.device), str(value.dtype).removeprefix("torch."))
+    array = np.asarray(value)
+    return ("numpy", "cpu", str(array.dtype))
+
+
 def sinkhorn_transport(
     M: np.ndarray,
     a: np.ndarray,
@@ -39,6 +58,7 @@ def sinkhorn_transport(
     stopThr: float = 1e-5,
     unbalanced: bool = False,
     reg_m: float = 5.0,
+    method: str = "sinkhorn",
     nonconvergence: str = "raise",
     return_diagnostics: bool = False,
 ) -> np.ndarray | tuple[np.ndarray, dict[str, float | int | bool | None]]:
@@ -50,9 +70,8 @@ def sinkhorn_transport(
     """
     if nonconvergence not in {"raise", "warn"}:
         raise ValueError("nonconvergence must be 'raise' or 'warn'.")
-    a = np.asarray(a, dtype=np.float64)
-    b = np.asarray(b, dtype=np.float64)
-    M = np.asarray(M, dtype=np.float64)
+    expected_shape = tuple(M.shape)
+    backend, device, dtype = _backend_metadata(M)
     a = a / a.sum()
     b = b / b.sum()
 
@@ -65,6 +84,7 @@ def sinkhorn_transport(
                 M,
                 reg,
                 reg_m,
+                method=method,
                 numItermax=numItermax,
                 stopThr=stopThr,
                 log=True,
@@ -75,6 +95,7 @@ def sinkhorn_transport(
                 b,
                 M,
                 reg,
+                method=method,
                 numItermax=numItermax,
                 stopThr=stopThr,
                 log=True,
@@ -102,10 +123,7 @@ def sinkhorn_transport(
 
     if not hasattr(solver_log, "get"):
         solver_log = {}
-    error_history = np.asarray(
-        solver_log.get("err", []),
-        dtype=np.float64,
-    ).reshape(-1)
+    error_history = _to_numpy(solver_log.get("err", [])).astype(np.float64, copy=False).reshape(-1)
     final_error = float(error_history[-1]) if error_history.size else None
     logged_iterations = solver_log.get("niter")
     iterations = (
@@ -129,10 +147,10 @@ def sinkhorn_transport(
             raise OptimalTransportError(message)
         warnings.warn(message, OptimalTransportConvergenceWarning, stacklevel=2)
 
-    plan = np.asarray(plan, dtype=np.float32)
-    if plan.shape != M.shape:
+    plan = _to_numpy(plan).astype(np.float32, copy=False)
+    if plan.shape != expected_shape:
         raise OptimalTransportError(
-            f"OT solver returned shape {plan.shape}; expected {M.shape}."
+            f"OT solver returned shape {plan.shape}; expected {expected_shape}."
         )
     if not np.all(np.isfinite(plan)):
         raise OptimalTransportError("OT solver returned non-finite transport mass.")
@@ -148,5 +166,9 @@ def sinkhorn_transport(
             "stop_threshold": float(stopThr),
             "max_iterations": int(numItermax),
             "unbalanced": bool(unbalanced),
+            "solver_method": str(method),
+            "transport_backend": backend,
+            "transport_device": device,
+            "transport_dtype": dtype,
         }
     return plan

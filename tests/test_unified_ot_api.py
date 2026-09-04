@@ -317,6 +317,10 @@ def test_global_ot_diagnostics_roundtrip_through_h5ad(tmp_path):
         "source_spots",
         "target_spots",
         "transport_mass",
+        "solver_method",
+        "transport_backend",
+        "transport_device",
+        "transport_dtype",
     }
     assert list(blocks["converged"]) == ["True", "True", "True"]
     assert list(blocks["unbalanced"]) == ["False", "False", "False"]
@@ -325,6 +329,79 @@ def test_global_ot_diagnostics_roundtrip_through_h5ad(tmp_path):
         float(value) < transport["stop_threshold"]
         for value in blocks["final_error"]
     )
+
+
+def test_pot_torch_backend_preserves_device_dtype_and_solver_diagnostics():
+    from FEAST.de_novo.transport import TransportConfig, transport_reference_field
+
+    source_coordinates = np.array([[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]])
+    target_coordinates = np.array([[0.1, 0.1], [0.8, 0.1]])
+    source_quantiles = np.array([[0.2, 0.8], [0.5, 0.5], [0.8, 0.2]])
+    result = transport_reference_field(
+        source_coordinates,
+        target_coordinates,
+        source_quantiles,
+        config=TransportConfig(
+            epsilon=0.5,
+            unbalanced_transport=True,
+            sinkhorn_method="sinkhorn_stabilized",
+            transport_backend="torch",
+            transport_device="cpu",
+            transport_dtype="float64",
+        ),
+    )
+
+    assert isinstance(result.latent_scores, np.ndarray)
+    assert result.diagnostics["converged"] is True
+    assert result.diagnostics["solver_method"] == "sinkhorn_stabilized"
+    assert result.diagnostics["transport_backend"] == "torch"
+    assert result.diagnostics["transport_device"] == "cpu"
+    assert result.diagnostics["transport_dtype"] == "float64"
+
+
+def test_pot_torch_and_numpy_stabilized_backends_agree_on_latent_field():
+    from FEAST.de_novo.transport import TransportConfig, transport_reference_field
+
+    source_coordinates = np.array([[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]])
+    target_coordinates = np.array([[0.1, 0.1], [0.8, 0.1]])
+    source_quantiles = np.array([[0.2, 0.8], [0.5, 0.5], [0.8, 0.2]])
+    common = dict(
+        epsilon=0.5,
+        unbalanced_transport=True,
+        sinkhorn_method="sinkhorn_stabilized",
+        transport_dtype="float64",
+    )
+    numpy_result = transport_reference_field(
+        source_coordinates,
+        target_coordinates,
+        source_quantiles,
+        config=TransportConfig(**common, transport_backend="numpy"),
+    )
+    torch_result = transport_reference_field(
+        source_coordinates,
+        target_coordinates,
+        source_quantiles,
+        config=TransportConfig(**common, transport_backend="torch", transport_device="cpu"),
+    )
+
+    np.testing.assert_allclose(torch_result.latent_scores, numpy_result.latent_scores, rtol=1e-6, atol=1e-6)
+
+
+def test_transport_rejects_unavailable_cuda_without_cpu_fallback(monkeypatch):
+    import torch
+    from FEAST.de_novo.transport import TransportConfig, transport_reference_field
+
+    monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
+    with pytest.raises(RuntimeError, match="requested POT transport device 'cuda:0' is unavailable"):
+        transport_reference_field(
+            np.array([[0.0, 0.0], [1.0, 1.0]]),
+            np.array([[0.5, 0.5]]),
+            np.array([[0.2], [0.8]]),
+            config=TransportConfig(
+                transport_backend="torch",
+                transport_device="cuda:0",
+            ),
+        )
 
 
 def test_legacy_adata_keyword_is_a_deprecated_compatibility_alias():
