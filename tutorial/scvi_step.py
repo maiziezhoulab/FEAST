@@ -1,7 +1,11 @@
 """Run same-slice batch correction in an existing scvi-tools environment."""
 
 import argparse
+import os
 from pathlib import Path
+
+# The worker does not use the parent notebook's inline plotting backend.
+os.environ["MPLBACKEND"] = "Agg"
 
 import anndata as ad
 import scvi

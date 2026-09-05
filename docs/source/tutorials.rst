@@ -11,14 +11,14 @@ The ``tutorial/`` directory contains six concise notebooks using real data:
 - :download:`07: conditional expression on 3D atlas sections <../../tutorial/07_3d_transfer.ipynb>`
 
 Use the complete ``tutorial/`` folder from a repository checkout: the notebooks
-share input/plotting helpers, two external-method scripts and small preview
-images. Read ``tutorial/README.md`` for file names, environment setup and pending
+share input/plotting helpers and two external-method scripts.
+Read ``tutorial/README.md`` for file names, environment setup and pending
 prepared-data download links. Case 07 needs prepared region annotations and
 atlas labels in addition to the public GEO and DevCCF downloads.
 
-The saved previews come from existing reproduction artifacts and are explicitly
-distinguished from fresh notebook execution. Tutorial data and generated outputs
-are ignored by Git; notebook source and preview images are included.
+Run the notebooks from top to bottom to generate their results and plots.
+Input data and generated data files are ignored by Git; the notebooks and
+their displayed plots are included.
 
 Single-slice simulation
 -----------------------

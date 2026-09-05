@@ -6,6 +6,8 @@ from pathlib import Path
 import sys
 
 os.environ.setdefault("R_HOME", str(Path(sys.prefix) / "lib" / "R"))
+# This worker runs outside Jupyter and may use an older Matplotlib environment.
+os.environ["MPLBACKEND"] = "Agg"
 
 import anndata as ad
 import pandas as pd

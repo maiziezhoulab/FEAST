@@ -50,7 +50,7 @@ pip install --no-deps -e .
 
 ## Tutorial notebooks
 
-Start with the [six real-data tutorials](tutorial/README.md): single-slice simulation with GraphST, alignment, deconvolution, same-slice batch correction, 2D conditional transfer, and 3D atlas transfer. Each notebook explains the main FEAST calls; available result previews are clearly labeled with their reproduction sources. Notebooks 00, 02 and 04 share the same 151675 input. See [data and environment setup](tutorial/README.md#setup) for required inputs and pending download links.
+Start with the [six real-data tutorials](tutorial/README.md): single-slice simulation with GraphST, alignment, deconvolution, same-slice batch correction, 2D conditional transfer, and 3D atlas transfer. Each notebook explains the main FEAST calls and how to interpret the resulting plots. Notebooks 00, 02 and 04 share the same 151675 input. See [data and environment setup](tutorial/README.md#setup) for required inputs and pending download links.
 
 ## Quick Start
 
