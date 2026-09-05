@@ -370,6 +370,7 @@ def decode_counts_by_spatial_intensity(
     reference_X=None,
     random_seed: Optional[int] = None,
     show_progress: bool = False,
+    diagnostics: Optional[dict] = None,
 ) -> np.ndarray:
     """Decode counts from spot-specific reference intensity fields.
 
@@ -400,6 +401,8 @@ def decode_counts_by_spatial_intensity(
 
         iterator = tqdm(iterator)
 
+    if diagnostics is not None:
+        diagnostics.update(intensity_variance_ratio=[], clipped_positions=[], generated_mean=[], generated_variance=[], generated_zero_prop=[])
     for gene_idx in iterator:
         model_type, pi0, r, mu = _model_type_and_params(model_params, gene_idx)
         target_mean, target_var, target_zero = _target_gene_stats(
@@ -453,6 +456,7 @@ def decode_counts_by_spatial_intensity(
             model_type, effective_pi0, effective_r, mu_values, rng
         ).astype(np.float32)
         gene_boundary = boundary[gene_idx]
+        clipped_positions = int(np.sum(gene_bag > gene_boundary))
         if np.isfinite(gene_boundary):
             gene_bag = np.minimum(gene_bag, gene_boundary)
         gene_bag.sort()
@@ -461,6 +465,16 @@ def decode_counts_by_spatial_intensity(
             gene_bag = np.minimum(gene_bag, gene_boundary)
             gene_bag.sort()
 
+        if diagnostics is not None:
+            raw = np.maximum(ref_values / max(float(ref_values.mean()), 1e-12), SPATIAL_INTENSITY_FLOOR)
+            raw /= max(float(raw.mean()), 1e-12)
+            raw_var = float(np.var(raw))
+            diagnostics['intensity_variance_ratio'].append(float(np.var(spatial_intensity)) / raw_var if raw_var > 0 else 1.0)
+            diagnostics['clipped_positions'].append(clipped_positions)
+            realized = np.rint(gene_bag)
+            diagnostics['generated_mean'].append(float(realized.mean()))
+            diagnostics['generated_variance'].append(float(realized.var()))
+            diagnostics['generated_zero_prop'].append(float(np.mean(realized == 0)))
         spot_rank_order = np.argsort(ref_values, kind="mergesort")
         final_counts[spot_rank_order, gene_idx] = gene_bag
 

@@ -20,7 +20,7 @@ from importlib import import_module as _import_module
 from importlib.util import find_spec as _find_spec
 import warnings as _warnings
 
-__version__ = "1.0.5"
+__version__ = "1.0.5+local3d1"
 
 # ---------------------------------------------------------------------------
 # Primary verbs — thin wrappers that delegate to existing implementations
@@ -40,6 +40,8 @@ from .de_novo.conditional import (
     SimulationReference,
     estimate_assignment_randomness,
 )
+from .de_novo.local import simulate_local_references, calibrate_local_references
+from .de_novo.stack import simulate_stack
 from .de_novo.core import SliceBlueprint
 from .de_novo.transport import TransportConfig
 
@@ -420,6 +422,9 @@ __all__ = [
     "generate_from",
     "fit",
     # Batch effect
+    "simulate_local_references",
+    "simulate_stack",
+    "calibrate_local_references",
     "simulate_batch_effect",
     "characterize_batch",
     "BatchDeformation",

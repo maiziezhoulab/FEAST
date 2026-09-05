@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field, fields as dataclass_fields, replace
 from pathlib import Path
+import time
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
 
 import anndata as ad
@@ -207,14 +208,18 @@ def simulate_from_reference(
     random_seed: int = 0,
     reference_weights: Optional[Mapping[str, float]] = None,
     marginal_model: Optional[str] = None,
+    *,
+    count_model_params: Optional[Mapping[str, dict]] = None,
+    group_reference_weights: Optional[Mapping[str, Mapping[str, float]]] = None,
+    count_seed: Optional[int] = None,
 ) -> ad.AnnData:
     gen_cfg = _simulation_config(config)
     resolved_marginal_model = (
         str(marginal_model)
         if marginal_model is not None
-        else ("parameter_cloud" if parameter_cloud is not None else "empirical_reference")
+        else ("core" if count_model_params is not None else "parameter_cloud" if parameter_cloud is not None else "empirical_reference")
     )
-    if resolved_marginal_model not in {"empirical_reference", "parameter_cloud"}:
+    if resolved_marginal_model not in {"empirical_reference", "parameter_cloud", "core"}:
         raise ValueError(
             "marginal_model must be 'empirical_reference' or 'parameter_cloud'."
         )
@@ -222,6 +227,10 @@ def simulate_from_reference(
         raise ValueError(
             "parameter_cloud cannot be supplied when marginal_model='empirical_reference'."
         )
+    if resolved_marginal_model == "core" and count_model_params is None:
+        raise ValueError("core generation requires group-indexed count_model_params")
+    if count_model_params is not None and resolved_marginal_model != "core":
+        raise ValueError("count_model_params requires marginal_model='core'")
     q_cfg = _quantile_field_config(gen_cfg)
     if q_cfg.mode == "auto":
         quantile_field_mode = "latent_reference"
@@ -263,6 +272,22 @@ def simulate_from_reference(
     latent_scores_store = np.zeros((n_spots, n_genes), dtype=np.float32) if q_cfg.store_latent_scores else None
 
     unique_labels = sorted(set(target_labels.tolist()))
+    aligned_count_models = {}
+    if count_model_params is not None:
+        for label in unique_labels:
+            params = count_model_params[label]
+            if list(params['genes'].values()) != list(model.gene_names):
+                raise ValueError('precomputed count-model gene order differs from reference genes')
+            # Keep caller-owned parameters unchanged. Both metadata and decoding
+            # consume this same gene-aligned table, without changing its values.
+            stats = params['target_stats']
+            if 'gene_id' in stats.columns:
+                stats = stats.set_index('gene_id')
+            aligned_count_models[label] = {
+                **params, 'target_stats': _align_stats_frame(stats, model.gene_names)}
+    transport_seconds = 0.0
+    decode_seconds = 0.0
+    count_diagnostics = {}
     transport_index = 0
     for label in unique_labels:
         target_mask = target_labels == label
@@ -275,7 +300,12 @@ def simulate_from_reference(
         if not eligible_refs:
             raise ValueError(f"No reference slice contains target label '{label}'.")
 
-        if reference_weights is None:
+        applicable_weights = (group_reference_weights[label]
+                              if group_reference_weights is not None else reference_weights)
+        if applicable_weights is not None:
+            eligible_refs = [ref for ref in eligible_refs
+                             if applicable_weights.get(ref.reference_name, 0.0) > 0]
+        if applicable_weights is None:
             ref_weights = _reference_weights_for_label(
                 eligible_refs,
                 label,
@@ -284,7 +314,7 @@ def simulate_from_reference(
                 gen_cfg.reference_weight_eta,
             )
         else:
-            ref_weights = _fixed_reference_weights_for_label(eligible_refs, reference_weights)
+            ref_weights = _fixed_reference_weights_for_label(eligible_refs, applicable_weights)
         label_weights_out[label] = ref_weights
 
         transported_parts = []
@@ -292,6 +322,7 @@ def simulate_from_reference(
         part_weights: list[float] = []
         for ref in eligible_refs:
             ref_label = ref.labels[label]
+            transport_started = time.perf_counter()
             transport_result = transport_reference_field(
                 source_coordinates=ref_label.normalized_coordinates,
                 target_coordinates=target_coords_norm,
@@ -301,6 +332,7 @@ def simulate_from_reference(
                 config=gen_cfg,
                 random_seed=int(random_seed) + transport_index,
             )
+            transport_seconds += time.perf_counter() - transport_started
             transport_index += 1
             part = transport_result.latent_scores
             solve_diagnostics = transport_result.diagnostics
@@ -350,14 +382,17 @@ def simulate_from_reference(
         }
         quantile_field_labels[label] = q_meta
 
-        label_cloud = _resolve_parameter_cloud(
-            parameter_cloud=parameter_cloud,
-            label=label,
-            gene_names=model.gene_names,
-            eligible_refs=eligible_refs,
-            reference_weights=ref_weights,
-            target_parameter_mode=str(q_cfg.target_parameter_mode),
-        )
+        if count_model_params is not None:
+            label_cloud = aligned_count_models[label]['target_stats']
+        else:
+            label_cloud = _resolve_parameter_cloud(
+                parameter_cloud=parameter_cloud,
+                label=label,
+                gene_names=model.gene_names,
+                eligible_refs=eligible_refs,
+                reference_weights=ref_weights,
+                target_parameter_mode=str(q_cfg.target_parameter_mode),
+            )
         label_clouds[label] = label_cloud
         label_cloud_out[label] = {
             "mean_mean": float(label_cloud["mean"].mean()),
@@ -395,7 +430,8 @@ def simulate_from_reference(
     for label_index, label in enumerate(unique_labels):
         target_mask = target_labels == label
         label_q = quantiles[target_mask, :]
-        eligible_refs = [ref for ref in model.references if label in ref.labels]
+        eligible_refs = [ref for ref in model.references if label in ref.labels and label_weights_out[label].get(ref.reference_name, 0.0) > 0]
+        decode_started = time.perf_counter()
         if resolved_marginal_model == "empirical_reference":
             decoded = _decode_label_aware_rank_counts(
                 quantiles=label_q,
@@ -406,7 +442,9 @@ def simulate_from_reference(
                 reference_weights=label_weights_out[label],
             )
         else:
-            model_params = _stats_frame_to_model_params(label_clouds[label])
+            model_params = (aligned_count_models[label] if count_model_params is not None
+                            else _stats_frame_to_model_params(label_clouds[label]))
+            count_diagnostics[label] = {}
             decoded = decode_counts_by_spatial_intensity(
                 label_q,
                 model_params,
@@ -416,9 +454,11 @@ def simulate_from_reference(
                     label,
                     model.label_key,
                 ),
-                random_seed=int(random_seed) + label_index,
+                random_seed=int(random_seed if count_seed is None else count_seed) + label_index,
                 show_progress=bool(gen_cfg.verbose),
+                diagnostics=count_diagnostics[label] if count_model_params is not None else None,
             )
+        decode_seconds += time.perf_counter() - decode_started
         counts[target_mask, :] = np.asarray(decoded, dtype=np.int32)
 
     obs = blueprint.obs.copy()
@@ -448,6 +488,8 @@ def simulate_from_reference(
         result.layers["latent_scores"] = latent_scores_store.astype(np.float32, copy=False)
     result.uns["de_novo"] = encode_feast_h5ad_metadata({
         "conditional_generation": True,
+        "timings": {"ot": transport_seconds, "decoding": decode_seconds},
+        "count_diagnostics": count_diagnostics,
         "label_key": model.label_key,
         "reference_metadata": dict(model.reference_metadata),
         "transport_weights": label_weights_out,
@@ -730,6 +772,10 @@ def _reference_weights_for_label(
                 target_boundary_scores,
             )
         )
+    return _weights_from_geometry_distances(names, scores, eta)
+
+
+def _weights_from_geometry_distances(names, scores, eta) -> Dict[str, float]:
     scores_arr = np.asarray(scores, dtype=float)
     shifted = scores_arr - np.min(scores_arr)
     weights = np.exp(-float(eta) * shifted)
@@ -974,17 +1020,24 @@ def _aggregate_label_parameter_clouds(
     )
 
 
-def _normalize_stats_frame(frame: pd.DataFrame, gene_names: Sequence[str]) -> pd.DataFrame:
+def _align_stats_frame(frame: pd.DataFrame, gene_names: Sequence[str]) -> pd.DataFrame:
     required = {"mean", "variance", "zero_prop"}
     missing = required - set(frame.columns)
     if missing:
         raise ValueError(f"parameter cloud is missing required columns: {sorted(missing)}")
     aligned = frame.copy()
     aligned.index = aligned.index.astype(str)
+    if not aligned.index.is_unique:
+        duplicates = aligned.index[aligned.index.duplicated()].unique().tolist()
+        raise ValueError(f'parameter cloud has duplicate genes: {duplicates}')
     missing_genes = [gene for gene in gene_names if gene not in aligned.index]
     if missing_genes:
         raise ValueError(f"parameter cloud is missing genes: {missing_genes}")
-    aligned = aligned.loc[list(gene_names), ["mean", "variance", "zero_prop"]].copy()
+    return aligned.loc[list(gene_names), ["mean", "variance", "zero_prop"]].copy()
+
+
+def _normalize_stats_frame(frame: pd.DataFrame, gene_names: Sequence[str]) -> pd.DataFrame:
+    aligned = _align_stats_frame(frame, gene_names)
     aligned["mean"] = np.clip(aligned["mean"].astype(float), 1e-8, None)
     aligned["variance"] = np.clip(aligned["variance"].astype(float), 1e-8, None)
     aligned["zero_prop"] = np.clip(aligned["zero_prop"].astype(float), 0.0, 0.99)
