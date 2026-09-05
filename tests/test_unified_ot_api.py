@@ -415,7 +415,8 @@ def test_pot_translation_invariant_backends_agree_on_latent_field():
     np.testing.assert_allclose(torch_result.latent_scores, numpy_result.latent_scores, rtol=1e-6, atol=1e-6)
 
 
-def test_transport_rejects_unavailable_cuda_without_cpu_fallback(monkeypatch):
+@pytest.mark.parametrize("method", ["sinkhorn", "sinkhorn_log"])
+def test_transport_rejects_unavailable_cuda_without_cpu_fallback(monkeypatch, method):
     import torch
     from FEAST.de_novo.transport import TransportConfig, transport_reference_field
 
@@ -426,6 +427,7 @@ def test_transport_rejects_unavailable_cuda_without_cpu_fallback(monkeypatch):
             np.array([[0.5, 0.5]]),
             np.array([[0.2], [0.8]]),
             config=TransportConfig(
+                sinkhorn_method=method,
                 transport_backend="torch",
                 transport_device="cuda:0",
             ),
@@ -457,3 +459,90 @@ def test_transport_config_without_target_uses_reference_as_ot_target():
 
     np.testing.assert_array_equal(result.obsm["spatial"], reference.obsm["spatial"])
     assert result.uns["simulation_diagnostics"]["spatial_mode"] == "ot_spatial"
+
+
+def test_log_unbalanced_matches_pot_kl_objective_and_stopping_error():
+    import ot
+    from FEAST.de_novo._ot_transport import _sinkhorn_log_unbalanced
+
+    cost = np.array([[0.01, 0.08, 0.2], [0.15, 0.04, 0.09]])
+    a, b = np.array([0.3, 0.7]), np.array([0.2, 0.3, 0.5])
+    expected, pot_log = ot.sinkhorn_unbalanced(
+        a, b, cost, 0.05, 5.0, reg_type="kl", c=a[:, None] * b[None, :],
+        numItermax=1000, stopThr=1e-5, log=True,
+    )
+    actual, solver_log = _sinkhorn_log_unbalanced(
+        cost, a, b, reg=0.05, reg_m=5.0, numItermax=1000, stopThr=1e-5,
+    )
+    assert np.abs(actual - expected).sum() / np.abs(expected).sum() <= 1e-10
+    assert np.max(np.abs(actual - expected)) <= 1e-12
+    assert actual.sum() == pytest.approx(expected.sum(), rel=1e-10, abs=0.0)
+    assert solver_log["niter"] == len(pot_log["err"])
+    np.testing.assert_allclose(solver_log["err"], pot_log["err"], rtol=1e-9, atol=1e-14)
+    assert solver_log["err"][-1] < 1e-5
+
+
+@pytest.mark.parametrize("offset", [0.0, 1000.0])
+def test_log_scaling_change_is_stable_for_large_potentials(offset):
+    from FEAST.de_novo._ot_transport import _stable_relative_change
+
+    current, previous = np.array([0.2, 0.5]), np.array([0.1, 0.4])
+    expected = np.max(np.abs(np.exp(current) - np.exp(previous))) / np.exp(0.5)
+    assert _stable_relative_change(current + offset, previous + offset) == pytest.approx(expected)
+
+
+@pytest.mark.parametrize("device", ["cpu", "cuda:0"])
+def test_log_unbalanced_torch_agrees_and_retains_device(device):
+    import torch
+    from FEAST.de_novo._ot_transport import _sinkhorn_log_unbalanced
+
+    if device.startswith("cuda") and not torch.cuda.is_available():
+        pytest.skip("CUDA unavailable; required CUDA check must run on a GPU host")
+    cost = np.array([[0.0, 100.0], [100.0, 0.0]])
+    a, b = np.array([0.4, 0.6]), np.array([0.5, 0.5])
+    settings = dict(reg=0.05, reg_m=5.0, numItermax=1000, stopThr=1e-5)
+    expected, expected_log = _sinkhorn_log_unbalanced(cost, a, b, **settings)
+    actual, solver_log = _sinkhorn_log_unbalanced(
+        *[torch.as_tensor(value, dtype=torch.float64, device=device) for value in (cost, a, b)],
+        **settings,
+    )
+    assert str(actual.device) == device
+    assert actual.dtype == torch.float64
+    values = actual.cpu().numpy()
+    assert np.all(np.isfinite(values)) and np.all(values >= 0) and values.sum() > 0
+    assert np.any(values == 0)  # Final exponentiation can legitimately underflow.
+    assert np.abs(values - expected).sum() / np.abs(expected).sum() <= 1e-10
+    assert np.max(np.abs(values - expected)) <= 1e-12
+    assert values.sum() == pytest.approx(expected.sum(), rel=1e-10, abs=0.0)
+    assert solver_log["err"][-1] < 1e-5
+    assert expected_log["err"][-1] < 1e-5
+
+
+def test_log_unbalanced_nonconvergence_raises():
+    from FEAST.de_novo._ot_transport import OptimalTransportError, sinkhorn_transport
+
+    with pytest.raises(OptimalTransportError, match="Unbalanced OT did not converge"):
+        sinkhorn_transport(
+            np.array([[0.0, 1.0], [2.0, 0.0]]), np.array([3.0, 7.0]), np.ones(2),
+            unbalanced=True, method="sinkhorn_log", numItermax=1,
+        )
+
+
+def test_log_unbalanced_diagnostics_roundtrip(tmp_path):
+    result = FEAST.simulate(
+        _reference(), _target(_reference(), fill_value=999), condition_on="domain",
+        marginal_model="empirical_reference", fit_config=_fit_config(),
+        transport=TransportConfig(sinkhorn_method="sinkhorn_log", transport_backend="torch",
+                                  transport_device="cpu", transport_dtype="float64"),
+        seed=13, verbose=False,
+    )
+    output = tmp_path / "log_ot.h5ad"
+    result.write_h5ad(output)
+    restored = ad.read_h5ad(output)
+    for records in restored.uns["de_novo"]["transport_diagnostics"].values():
+        assert set(records["transport_solver_method"]) == {"sinkhorn_log"}
+        assert set(records["transport_backend"]) == {"torch"}
+        assert set(records["transport_device"]) == {"cpu"}
+        assert set(records["transport_dtype"]) == {"float64"}
+        assert set(records["transport_converged"]) == {"True"}
+        assert all(float(value) < 1e-5 for value in records["transport_final_error"])

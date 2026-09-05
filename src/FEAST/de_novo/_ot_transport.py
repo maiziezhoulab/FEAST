@@ -1,4 +1,4 @@
-"""Sinkhorn transport wrapper using POT (Python Optimal Transport)."""
+"""POT transport and full log-domain KL-unbalanced Sinkhorn."""
 
 from __future__ import annotations
 
@@ -6,6 +6,7 @@ import warnings
 
 import numpy as np
 import ot
+from scipy.special import logsumexp
 
 
 class OptimalTransportError(RuntimeError):
@@ -49,6 +50,68 @@ def _backend_metadata(value) -> tuple[str, str, str]:
     return ("numpy", "cpu", str(array.dtype))
 
 
+def _stable_relative_change(current_log, previous_log) -> float:
+    """POT's relative scaling change, without exponentiating large scalings."""
+    if _is_torch_tensor(current_log):
+        import torch
+
+        scale = torch.maximum(
+            torch.maximum(current_log.max(), previous_log.max()),
+            current_log.new_tensor(0.0),
+        )
+        return float(torch.max(torch.abs(
+            torch.exp(current_log - scale) - torch.exp(previous_log - scale)
+        )).item())
+    scale = max(float(current_log.max()), float(previous_log.max()), 0.0)
+    return float(np.max(np.abs(
+        np.exp(current_log - scale) - np.exp(previous_log - scale)
+    )))
+
+
+def _sinkhorn_log_unbalanced(M, a, b, *, reg, reg_m, numItermax, stopThr):
+    """Generalized Sinkhorn for KL(P, a outer b) and KL marginal penalties.
+
+    The kernel and scalings remain logarithmic until the final plan is formed.
+    Histograms are normalized by the caller, as for the existing POT methods.
+    """
+    if _is_torch_tensor(M):
+        import torch
+
+        log, exp, zeros_like = torch.log, torch.exp, torch.zeros_like
+        reduce_logsumexp = lambda value, axis: torch.logsumexp(value, dim=axis)
+        all_finite = lambda value: bool(torch.isfinite(value).all().item())
+    else:
+        log, exp, zeros_like = np.log, np.exp, np.zeros_like
+        reduce_logsumexp = logsumexp
+        all_finite = lambda value: bool(np.isfinite(value).all())
+    if float(a.min()) <= 0.0 or float(b.min()) <= 0.0:
+        raise ValueError("sinkhorn_log requires strictly positive histogram entries.")
+    log_a, log_b = log(a), log(b)
+    log_kernel = -M / float(reg) + log_a[:, None] + log_b[None, :]
+    exponent = float(reg_m) / (float(reg_m) + float(reg))
+    log_u, log_v = zeros_like(a), zeros_like(b)
+    errors = []
+    for _ in range(int(numItermax)):
+        previous_u, previous_v = log_u, log_v
+        log_u = exponent * (
+            log_a - reduce_logsumexp(log_kernel + log_v[None, :], axis=1)
+        )
+        log_v = exponent * (
+            log_b - reduce_logsumexp(log_kernel + log_u[:, None], axis=0)
+        )
+        if not all_finite(log_u) or not all_finite(log_v):
+            raise OptimalTransportError("Log-domain OT produced non-finite scaling potentials.")
+        error = 0.5 * (
+            _stable_relative_change(log_u, previous_u)
+            + _stable_relative_change(log_v, previous_v)
+        )
+        errors.append(error)
+        if error < float(stopThr):
+            break
+    plan = exp(log_u[:, None] + log_kernel + log_v[None, :])
+    return plan, {"err": errors, "niter": len(errors)}
+
+
 def sinkhorn_transport(
     M: np.ndarray,
     a: np.ndarray,
@@ -77,7 +140,12 @@ def sinkhorn_transport(
 
     with warnings.catch_warnings(record=True) as caught_warnings:
         warnings.simplefilter("always")
-        if unbalanced:
+        if unbalanced and method == "sinkhorn_log":
+            plan, solver_log = _sinkhorn_log_unbalanced(
+                M, a, b, reg=reg, reg_m=reg_m,
+                numItermax=numItermax, stopThr=stopThr,
+            )
+        elif unbalanced:
             plan, solver_log = ot.sinkhorn_unbalanced(
                 a,
                 b,
