@@ -91,3 +91,15 @@ docs/_build/
 # Non-core directories
 benchmark_scripts/
 reproduction/
+
+# Local research archives and validation runs (not package source or tests)
+/_archive/
+/ablation_ppf/
+/validation/
+
+# Machine-local assistant settings
+/.claude/settings.local.json
+
+# Tutorial inputs and generated results; keep notebooks and small previews
+/tutorial/data/
+/tutorial/outputs/

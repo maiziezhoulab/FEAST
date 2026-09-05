@@ -31,6 +31,10 @@ class TransportConfig:
     latent_clip_eps: float = 1e-6
     gene_chunk_size: int = 512
     max_transport_pairs: Optional[int] = DEFAULT_MAX_TRANSPORT_PAIRS
+    sinkhorn_method: str = "sinkhorn"
+    transport_backend: str = "numpy"
+    transport_device: Optional[str] = None
+    transport_dtype: str = "float64"
 
 
 @dataclass
@@ -198,6 +202,14 @@ def _validate_config(config: TransportConfig) -> None:
         raise ValueError("gene_chunk_size must be a positive integer.")
     if config.max_transport_pairs is not None and int(config.max_transport_pairs) < 1:
         raise ValueError("max_transport_pairs must be a positive integer or None.")
+    if str(config.sinkhorn_method) not in {"sinkhorn", "sinkhorn_log", "sinkhorn_stabilized", "sinkhorn_translation_invariant"}:
+        raise ValueError("sinkhorn_method must be 'sinkhorn', 'sinkhorn_log', 'sinkhorn_stabilized', or 'sinkhorn_translation_invariant'.")
+    if str(config.transport_backend) not in {"numpy", "torch"}:
+        raise ValueError("transport_backend must be 'numpy' or 'torch'.")
+    if str(config.transport_dtype) not in {"float32", "float64"}:
+        raise ValueError("transport_dtype must be 'float32' or 'float64'.")
+    if str(config.transport_backend) == "numpy" and config.transport_device not in {None, "cpu"}:
+        raise ValueError("transport_device must be None or 'cpu' for the NumPy backend.")
 
 
 def _boundary_array(values: Optional[np.ndarray], size: int, name: str) -> np.ndarray:
@@ -261,15 +273,33 @@ def _solve_transport_plan(
         1.0 / target_coordinates.shape[0],
         dtype=np.float32,
     )
+    if str(config.transport_backend) == "torch":
+        try:
+            import torch
+        except ImportError as exc:  # pragma: no cover - torch is a package dependency
+            raise ImportError("transport_backend='torch' requires PyTorch.") from exc
+        device = "cpu" if config.transport_device is None else str(config.transport_device)
+        if device.startswith("cuda") and not torch.cuda.is_available():
+            raise RuntimeError(f"requested POT transport device {device!r} is unavailable")
+        dtype = torch.float32 if str(config.transport_dtype) == "float32" else torch.float64
+        cost_input = torch.as_tensor(cost, dtype=dtype, device=device)
+        source_mass_input = torch.as_tensor(source_mass, dtype=dtype, device=device)
+        target_mass_input = torch.as_tensor(target_mass, dtype=dtype, device=device)
+    else:
+        dtype = np.float32 if str(config.transport_dtype) == "float32" else np.float64
+        cost_input = np.asarray(cost, dtype=dtype)
+        source_mass_input = np.asarray(source_mass, dtype=dtype)
+        target_mass_input = np.asarray(target_mass, dtype=dtype)
     return sinkhorn_transport(
-        M=cost,
-        a=source_mass,
-        b=target_mass,
+        M=cost_input,
+        a=source_mass_input,
+        b=target_mass_input,
         reg=float(config.epsilon),
         numItermax=int(config.sinkhorn_iter),
         stopThr=float(config.sinkhorn_tol),
         unbalanced=bool(config.unbalanced_transport),
         reg_m=float(config.reg_m),
+        method=str(config.sinkhorn_method),
         nonconvergence=str(config.transport_nonconvergence),
         return_diagnostics=True,
     )
@@ -315,5 +345,9 @@ def _aggregate_diagnostics(
         "transport_mass": float(
             sum(float(block.get("transport_mass", 0.0)) for block in blocks)
         ),
+        "solver_method": str(config.sinkhorn_method),
+        "transport_backend": str(config.transport_backend),
+        "transport_device": "cpu" if config.transport_device is None else str(config.transport_device),
+        "transport_dtype": str(config.transport_dtype),
         "blocks": blocks,
     }

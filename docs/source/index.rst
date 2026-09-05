@@ -20,3 +20,15 @@ Key capabilities:
    installation
    tutorials
    api
+
+Repository scope
+----------------
+
+The FEAST repository contains the installable Python tool, a compact test
+suite, documentation source, and a tutorial notebook. Article reproduction
+code is maintained separately in ``FEAST_reproduce``.
+
+Local ``validation/`` runs, ``_archive/`` material, datasets, and generated
+outputs are excluded through ``.gitignore``. They are not included in a fresh
+Git clone. The tracked ``tests/`` directory contains the tool's automated
+checks; it is separate from local research validation.

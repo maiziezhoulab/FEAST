@@ -20,7 +20,7 @@ from importlib import import_module as _import_module
 from importlib.util import find_spec as _find_spec
 import warnings as _warnings
 
-__version__ = "1.0.2"
+__version__ = "1.0.5"
 
 # ---------------------------------------------------------------------------
 # Primary verbs — thin wrappers that delegate to existing implementations

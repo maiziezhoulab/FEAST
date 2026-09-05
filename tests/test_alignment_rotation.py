@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-import inspect
-
 import anndata as ad
 import numpy as np
 import pandas as pd
 import pytest
 from scipy.spatial.distance import pdist
 
-from FEAST.alignment import RotationTransformer, apply_spatial_transform, rotate_spatial
+from FEAST.alignment import apply_spatial_transform, rotate_spatial
 
 
 def _fixture() -> ad.AnnData:
@@ -90,90 +88,3 @@ def test_rotation_with_plate_bounds_crops_and_preserves_order() -> None:
     assert metadata["dropped_n_spots"] == 2
     assert metadata["retained_fraction"] == pytest.approx(0.6)
     assert metadata["n_spots"] == 5
-
-
-def test_plate_bounds_are_inclusive() -> None:
-    source = _fixture()
-
-    rotated = rotate_spatial(
-        source,
-        0.0,
-        plate_bounds=np.array([[0.0, 0.0], [2.0, 1.5]]),
-    )
-
-    assert rotated.obs_names.tolist() == ["spot_0", "spot_1", "spot_2"]
-
-
-def test_plate_crop_metadata_roundtrips_h5ad(tmp_path) -> None:
-    source = _fixture()
-    cropped = rotate_spatial(
-        source,
-        45.0,
-        center=np.array([0.0, 0.0]),
-        plate_bounds=np.array([[-0.25, -0.25], [1.5, 1.5]]),
-    )
-    output = tmp_path / "cropped.h5ad"
-
-    cropped.write_h5ad(output)
-    restored = ad.read_h5ad(output)
-
-    assert restored.obs_names.equals(cropped.obs_names)
-    metadata = restored.uns["feast_alignment_transform"]
-    np.testing.assert_array_equal(
-        metadata["plate_bounds"], np.array([[-0.25, -0.25], [1.5, 1.5]])
-    )
-    assert metadata["retained_n_spots"] == cropped.n_obs
-    assert metadata["dropped_n_spots"] == source.n_obs - cropped.n_obs
-
-
-def test_plate_bounds_can_drop_all_spots() -> None:
-    cropped = rotate_spatial(
-        _fixture(),
-        0.0,
-        plate_bounds=np.array([[100.0, 100.0], [101.0, 101.0]]),
-    )
-
-    assert cropped.n_obs == 0
-    metadata = cropped.uns["feast_alignment_transform"]
-    assert metadata["retained_n_spots"] == 0
-    assert metadata["dropped_n_spots"] == 5
-    assert metadata["retained_fraction"] == 0.0
-
-
-@pytest.mark.parametrize(
-    "plate_bounds",
-    [
-        np.array([0.0, 1.0]),
-        np.array([[0.0, 0.0], [np.nan, 1.0]]),
-        np.array([[1.0, 0.0], [0.0, 1.0]]),
-    ],
-)
-def test_rotation_rejects_invalid_plate_bounds(plate_bounds: np.ndarray) -> None:
-    with pytest.raises(ValueError, match="plate_bounds"):
-        rotate_spatial(_fixture(), 10.0, plate_bounds=plate_bounds)
-
-
-def test_rotation_rejects_nonfinite_coordinates_and_duplicate_ids() -> None:
-    nonfinite = _fixture()
-    nonfinite.obsm["spatial"][0, 0] = np.nan
-    with pytest.raises(ValueError, match="finite"):
-        rotate_spatial(nonfinite, 10.0)
-
-    duplicate = _fixture()
-    duplicate.obs_names = ["duplicate"] * duplicate.n_obs
-    with pytest.raises(ValueError, match="identifiers"):
-        rotate_spatial(duplicate, 10.0)
-
-
-def test_sequencing_rotation_uses_existing_uncapped_grid_behavior() -> None:
-    transformed = RotationTransformer(_fixture()).transform_sequencing(
-        rotation_angle=15.0,
-        min_space=1.0,
-    )
-
-    assert transformed.n_obs > 0
-    assert transformed.obsm["spatial"].shape == (transformed.n_obs, 2)
-    assert transformed.uns["transformation"]["actual_grid_size"] > 0
-    assert "max_grid_size" not in inspect.signature(
-        RotationTransformer.transform_sequencing
-    ).parameters

@@ -1,0 +1,4 @@
+interface:
+  display_name: "FEAST"
+  short_description: "Use FEAST for spatial transcriptomics simulation"
+  default_prompt: "Use $feast to help me prepare my data, run a suitable simulation, and interpret the results."
