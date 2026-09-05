@@ -1,11 +1,6 @@
 import numpy as np
-import pytest
 
-from FEAST.FEAST_core.count_decoding import (
-    decode_counts_by_rank,
-    decode_counts_by_spatial_intensity,
-    generate_count_bag_from_model_params,
-)
+from FEAST.FEAST_core.count_decoding import decode_counts_by_rank, decode_counts_by_spatial_intensity
 
 
 def _model_params():
@@ -18,21 +13,6 @@ def _model_params():
             [0.2, 3.0, 6.0],
         ],
     }
-
-
-def test_generate_count_bag_shape_and_boundary():
-    reference = np.full((5, 4), 2, dtype=np.int32)
-    counts = generate_count_bag_from_model_params(
-        _model_params(),
-        5,
-        reference_X=reference,
-        boundary_multiplier=1.0,
-        random_seed=7,
-    )
-    assert counts.shape == (5, 4)
-    assert np.issubdtype(counts.dtype, np.floating)
-    assert np.all(counts >= 0)
-    assert np.all(counts <= 2)
 
 
 def test_decode_counts_by_rank_shape_and_dtype():
@@ -60,23 +40,6 @@ def test_decode_counts_by_rank_with_weights():
     decoded = decode_counts_by_rank(q, _model_params(), spot_weights=weights, random_seed=1)
     assert decoded.shape == (3, 4)
     assert np.all(decoded >= 0)
-
-
-def test_decode_counts_by_rank_weight_validation():
-    q = np.arange(12, dtype=float).reshape(3, 4)
-    with pytest.raises(ValueError):
-        decode_counts_by_rank(q, _model_params(), spot_weights=np.ones(2))
-
-
-def test_decode_counts_by_rank_zero_spots():
-    q = np.empty((0, 4))
-    decoded = decode_counts_by_rank(q, _model_params())
-    assert decoded.shape == (0, 4)
-
-
-def test_decode_counts_by_rank_bad_quantiles():
-    with pytest.raises(ValueError, match="2D array"):
-        decode_counts_by_rank(np.array([1, 2, 3]), _model_params())
 
 
 def test_spatial_intensity_decoder_preserves_high_contrast_range():

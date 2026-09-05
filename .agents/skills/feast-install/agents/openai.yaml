@@ -1,0 +1,4 @@
+interface:
+  display_name: "FEAST Installation"
+  short_description: "Install FEAST and verify its analysis environment"
+  default_prompt: "Use $feast-install to set up FEAST in a suitable Python environment and verify that I can run a simulation."

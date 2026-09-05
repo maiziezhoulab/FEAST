@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+import tomllib
 from pathlib import Path
 
 # Project root (where setup.py/pyproject.toml lives)
@@ -11,7 +12,8 @@ sys.path.insert(0, str(_src))
 project = "FEAST"
 copyright = "2025, Yiru CHEN & Maizie Zhou Lab"
 author = "Yiru CHEN"
-release = "1.0.2"
+with (_project_root / "pyproject.toml").open("rb") as _metadata_file:
+    release = tomllib.load(_metadata_file)["project"]["version"]
 
 extensions = [
     "sphinx.ext.autodoc",
@@ -21,18 +23,14 @@ extensions = [
     "sphinx.ext.intersphinx",
 ]
 
-# Napoleon settings (Google-style docstrings)
+# FEAST uses both Google- and NumPy-style docstrings.
 napoleon_google_docstring = True
-napoleon_numpy_docstring = False
+napoleon_numpy_docstring = True
 napoleon_include_init_with_doc = True
 
-# Autodoc defaults
-autodoc_default_options = {
-    "members": True,
-    "undoc-members": False,
-    "show-inheritance": True,
-    "imported-members": False,
-}
+# Select public objects and members explicitly in api.rst. Autodoc flag
+# options are enabled by their presence, even when their value is False.
+autodoc_default_options = {}
 autodoc_typehints = "description"
 autosummary_generate = True
 

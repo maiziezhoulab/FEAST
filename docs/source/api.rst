@@ -1,108 +1,84 @@
 API Reference
 =============
 
-Public API
-----------
+This page documents the main public entry points and the builders used in
+the tutorials. Start with :func:`FEAST.simulate` for reference-based data
+and :func:`FEAST.generate` for a slice designed from a blueprint.
 
-.. automodule:: FEAST
-   :members: simulate, generate, generate_from, fit, decode, Alteration
-   :imported-members: false
+Simulation and fitting
+----------------------
 
-Classes
--------
+.. autofunction:: FEAST.simulate
+
+.. autofunction:: FEAST.generate
+
+.. autofunction:: FEAST.fit
 
 .. autoclass:: FEAST.GeneParameterSimulator
-   :members:
 
-.. autoclass:: FEAST.SliceBlueprint
-   :members:
+Configuration
+-------------
+
+.. autoclass:: FEAST.Alteration
+   :members: mean_only, variance_only, sparsity_only
+
+.. autoclass:: FEAST.TransportConfig
+
+The transport defaults use the NumPy backend on CPU, unbalanced Sinkhorn
+transport, ``epsilon=0.05``, ``sinkhorn_iter=1000``, and
+``sinkhorn_tol=1e-5``. Nonconvergence raises an error by default.
+``sinkhorn_method`` also accepts ``"sinkhorn_log"``,
+``"sinkhorn_stabilized"``, and ``"sinkhorn_translation_invariant"``.
+To select PyTorch, set ``transport_backend="torch"`` and an explicit
+``transport_device`` such as ``"cpu"`` or ``"cuda:0"``; CUDA requires
+an available compatible GPU.
 
 .. autoclass:: FEAST.ReferenceFitConfig
-   :members:
 
 .. autoclass:: FEAST.SimulationConfig
-   :members:
 
-Utility functions
------------------
+.. autoclass:: FEAST.SimulationReference
 
-.. autofunction:: FEAST.stats_to_theta
-.. autofunction:: FEAST.theta_to_stats
-
-Spatial transforms
-------------------
-
-.. automodule:: FEAST.spatial_transform
-   :members:
-
-Alignment subpackage
---------------------
-
-.. automodule:: FEAST.alignment
-   :members:
-
-.. automodule:: FEAST.alignment.alignment_simulator
-   :members:
-
-.. automodule:: FEAST.alignment.spatial_align_alter
-   :members:
-
-Deconvolution subpackage
-------------------------
-
-.. automodule:: FEAST.deconvolution
-   :members:
-
-.. automodule:: FEAST.deconvolution.deconvolution_simulator
-   :members:
-
-.. automodule:: FEAST.deconvolution.generate_deconvolution
-   :members:
-
-De novo generation subpackage
------------------------------
-
-.. automodule:: FEAST.de_novo
-   :members:
-
-.. automodule:: FEAST.de_novo.builder
-   :members:
-
-.. automodule:: FEAST.de_novo.conditional
-   :members:
-
-.. automodule:: FEAST.de_novo.core
-   :members:
-
-.. automodule:: FEAST.de_novo.pattern
-   :members:
-
-.. automodule:: FEAST.de_novo.quantile_field
-   :members:
-
-.. automodule:: FEAST.de_novo.stack
-   :members:
-
-Internal modules
+De novo builders
 ----------------
 
-.. automodule:: FEAST.FEAST_core.simulator
-   :members:
+.. autoclass:: FEAST.SliceBlueprint
 
-.. automodule:: FEAST.FEAST_core.parameter_cloud
-   :members:
+.. autoclass:: FEAST.de_novo.SimulationBlueprintBuilder
+   :members: rectangular_grid, set_domains, build
+   :undoc-members:
 
-.. automodule:: FEAST.FEAST_core.count_decoding
-   :members:
+.. autoclass:: FEAST.de_novo.SimulationParameterBuilder
+   :members: from_gene_names, set_all, set_gene, build
+   :undoc-members:
 
-.. automodule:: FEAST.FEAST_core.theta_transform
-   :members:
+.. autoclass:: FEAST.de_novo.SimulationPatternBuilder
+   :members: from_gene_names, gradient, hotspot, build
+   :undoc-members:
 
-.. automodule:: FEAST.modeling.StudentT_mixture_model
-   :members:
+Alignment and deconvolution
+---------------------------
 
-.. automodule:: FEAST.modeling.Beta_mixture_model
-   :members:
+.. autofunction:: FEAST.alignment.rotate_spatial
 
-.. automodule:: FEAST.modeling.marginal_alteration
-   :members:
+.. autofunction:: FEAST.alignment.apply_spatial_transform
+
+.. autofunction:: FEAST.alignment.simulate_alignment_rotation
+
+.. autofunction:: FEAST.alignment.simulate_alignment_warp
+
+.. autofunction:: FEAST.deconvolution.create_deconvolution_benchmark_data
+
+Parameter utilities
+-------------------
+
+.. autofunction:: FEAST.stats_to_theta
+
+.. autofunction:: FEAST.theta_to_stats
+
+Compatibility
+-------------
+
+``generate_from`` is a deprecated compatibility alias. Use
+``simulate(reference, target=blueprint, condition_on="domain",
+marginal_model="empirical_reference", seed=42)`` for conditional generation.

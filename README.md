@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/)
 
-**FEAST** (Feature-space-based modeling of Spatial Transcriptomics) is a computational framework for simulating spatial transcriptomics (ST) data. By modeling gene expression through a parameter cloud capturing mean, variance, and sparsity, FEAST generates high-fidelity synthetic ST slices with controllable biological and technical variations.
+**FEAST** (FEAture-space based modeling for Spatial Transcriptomics) is a computational framework for simulating spatial transcriptomics (ST) data. By modeling gene expression through a parameter cloud capturing mean, variance, and sparsity, FEAST generates high-fidelity synthetic ST slices with controllable biological and technical variations.
 
 ## Key Features
 
@@ -47,6 +47,10 @@ pip install --no-deps -e .
 - pyvinecopulib
 - POT (Python Optimal Transport)
 - tps (Thin Plate Spline)
+
+## Tutorial notebooks
+
+Start with the [six real-data tutorials](tutorial/README.md): single-slice simulation with GraphST, alignment, deconvolution, same-slice batch correction, 2D conditional transfer, and 3D atlas transfer. Each notebook explains the main FEAST calls; available result previews are clearly labeled with their reproduction sources. Notebooks 00, 02 and 04 share the same 151675 input. See [data and environment setup](tutorial/README.md#setup) for required inputs and pending download links.
 
 ## Quick Start
 
@@ -141,80 +145,40 @@ rank-normalizes that field into `feast_quantiles`, and decodes counts with the
 target parameter cloud. Reference-conditioned virtual slices use the same
 latent H-to-Q path after transporting reference rank evidence.
 
-##  Tutorials
+## Agent Skill for FEAST Users
 
-Try FEAST with notebook! Comprehensive Jupyter notebooks are provided in the repository:
+The repository includes a [FEAST agent skill](.agents/skills/feast/SKILL.md)
+to help an AI assistant guide you through preparing inputs, choosing a simulation
+workflow, running FEAST, troubleshooting, and interpreting results.
 
-- **[example_single_sim.ipynb](example_single_sim.ipynb)**: Basic single-slice simulation for both sequencing-based and imaging-based ST data
+Ask your assistant to read `.agents/skills/feast/SKILL.md` from this repository
+and describe your data and goal. For example:
 
+> Read `.agents/skills/feast/SKILL.md` and help me simulate a spatial
+> transcriptomics dataset from my reference `.h5ad`, preserving its spatial
+> layout and reducing mean expression by 20%.
 
+You can also explore the guides directly:
 
+- [Installation skill](.agents/skills/feast-install/SKILL.md): agent instructions
+  for choosing an environment, installing FEAST, resolving setup problems, and
+  checking the installation with a small simulation. Ask your assistant to read
+  this skill when setting up FEAST.
+- [Worked examples](.agents/skills/feast/references/examples.md): six examples
+  using synthetic data, covering reference simulation, expression alterations,
+  designed and conditional slices, alignment, and deconvolution.
+- [Further applications](.agents/skills/feast/references/applications.md): ways
+  to use existing FEAST APIs for robustness studies, spatial pattern detection,
+  batch-effect experiments, and virtual slice generation.
 
+## Article Reproduction
 
-## Architecture
+This repository contains the FEAST computational tool. Code for reproducing
+the article's analyses belongs in the separate `FEAST_reproduce` repository.
+Historical local `reproduction/` and `benchmark_scripts/` folders are archived
+under `_archive/2026-09-04/` and are not included in a Git clone or the package.
 
-```
-FEAST/
-├── FEAST_core/          # Core simulation engine
-│   ├── simulator.py     # Main deterministic simulation logic
-│   ├── count_decoding.py # Shared rank and quantile count decoding
-│   ├── parameter_cloud.py  # Parameter cloud modeling
-│   └── APIs.py          # Unified FEAST API
-├── alignment/           # Alignment simulation
-│   ├── alignment_simulator.py
-│   └── spatial_align_alter.py  # Rotation & warping transformations
-├── deconvolution/       # Deconvolution simulation
-│   ├── deconvolution_simulator.py
-│   └── generate_deconvolution.py
-├── de_novo/             # Blueprint and conditional virtual-slice generation
-│   ├── builder.py
-│   ├── conditional.py
-│   ├── quantile_field.py
-│   └── pattern.py
-└── modeling/            # Statistical models
-    ├── StudentT_mixture_model.py
-    ├── Beta_mixture_model.py
-    └── marginal_alteration.py
-```
-
-## Reproduction Scripts
-
-The `reproduction/` folder contains scripts to reproduce all benchmarking results from the paper. Each subdirectory corresponds to a specific analysis:
-
-```
-reproduction/
-├── 1_Simulator_benchmark/     # Figure 2: Simulation fidelity evaluation
-├── 2_Clustering_simulation/   # Figure 3: Clustering robustness testing
-├── 3_Alignment_simulation/    # Figure 4: Alignment algorithm benchmarking
-└── 4_Deconvolution_simulation/# Supp Fig: Deconvolution ground truth generation
-```
-
-Interpolation APIs and external reconstruction wrappers are intentionally excluded from this version.
-
-### Dataset Organization
-
-All scripts expect datasets in a `data/` directory with the following naming convention:
-
-```
-data/
-├── DLPFC_{sample_id}.h5ad          # Human DLPFC sections
-├── MERFISH_{slice_id}.h5ad         # Mouse brain MERFISH slices
-├── OpenST_{slice_id}.h5ad          # Lymph node OpenST slices
-├── Stereoseq_{sample_id}.h5ad      # Mouse embryo Stereo-seq slices
-├── Slideseq_{sample_id}.h5ad       # Slide-seqV2 slices
-└── Xenium_{sample_id}.h5ad         # Xenium tissue slices
-```
-
-### Required Datasets
-
-| Dataset | Technology | Source | Usage | Files |
-|---------|-----------|---------|--------|-------|
-| **DLPFC** | 10X Visium | [spatialLIBD](http://research.libd.org/spatialLIBD/) | Simulation, Clustering, Alignment | `DLPFC_151670.h5ad`<br>`DLPFC_151676.h5ad`<br>`DLPFC_151675.h5ad` |
-| **MERFISH** | MERFISH | [Allen Brain Atlas](https://alleninstitute.github.io/abc_atlas_access/descriptions/Zhuang-ABCA-1.html) | Simulation, Deconvolution | `MERFISH_006.h5ad`<br>`MERFISH_007.h5ad` |
-| **OpenST** | OpenST | [GEO: GSE251926](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE251926) | Simulation | `OpenST_005.h5ad`<br>`OpenST_006.h5ad` |
-| **Stereo-seq** | Stereo-seq | [MOSTA](https://www.sciencedirect.com/science/article/pii/S0092867422003993) | Simulation | `Stereoseq_E14_5_E2S2.h5ad` |
-| **Slide-seq** | Slide-seqV2 | [SODB](https://gene.ai.tencent.com/SpatialOmics/dataset?datasetID=119) | Simulation | `Slideseq_001.h5ad` |
-| **Xenium** | Xenium | [10X Genomics](https://www.10xgenomics.com/datasets/human-lymph-node-preview-data-xenium-human-multi-tissue-and-cancer-panel-1-standard) | Simulation | `Xenium_LymphNode.h5ad` |
-
+Interpolation APIs and external reconstruction wrappers are intentionally
+excluded from this version.
 
 **Note**: FEAST is actively maintained. If you have any question, please let me know!
