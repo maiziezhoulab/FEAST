@@ -24,6 +24,7 @@ from .pattern import (
     plot_pattern_panel,
 )
 from .quantile_field import QuantileFieldConfig
+from .local import simulate_local_references, select_z_references, calibrate_local_references
 from .stack import simulate_stack
 from .transport import TransportConfig
 from .z_regularize import (
@@ -64,6 +65,9 @@ __all__ = [
     "simulate_from_design",
     "simulate_from_reference",
     "simulate_stack",
+    "simulate_local_references",
+    "select_z_references",
+    "calibrate_local_references",
     "smooth_cross_z_spots",
     "summarize_z_coherence_frame",
     "z_penalty_matrix",

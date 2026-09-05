@@ -82,3 +82,48 @@ Compatibility
 ``generate_from`` is a deprecated compatibility alias. Use
 ``simulate(reference, target=blueprint, condition_on="domain",
 marginal_model="empirical_reference", seed=42)`` for conditional generation.
+
+Local multi-reference 3D generation
+-----------------------------------
+
+.. autofunction:: FEAST.simulate_local_references
+
+.. autofunction:: FEAST.simulate_stack
+
+.. autofunction:: FEAST.calibrate_local_references
+
+The conditional decoder also accepts keyword-only ``count_model_params``, a
+mapping from modeling group to full core converter output. Each entry must
+include gene-indexed ``target_stats`` and explicit preservation-policy metadata.
+``target_stats`` may identify genes through its index or a ``gene_id`` column.
+FEAST rejects missing or duplicate genes and aligns a copy to the model's gene
+order. The same aligned table supplies metadata and count decoding; the caller's
+table is not modified.
+``group_reference_weights`` selects the same applicable references for OT and
+count decoding; ``count_seed`` separates count randomness from the spatial seed.
+
+Each reference passed to ``simulate_local_references`` must define a unique
+``uns["reference_name"]``. Keep cache paths scoped to the same unchanged source
+references and generation configuration.
+
+``simulate_local_references`` fits and caches generated reference parameter
+tables, merges locally sparse labels (positive reference populations below 50),
+fuses gene statistics in log/logit space, applies a per-target batch draw, and
+converts at the target group population. It keeps original labels in output and
+records local memberships, donors, weights, requested statistics and timings in
+``uns['local_generation_json']``. ``uns['de_novo']['count_diagnostics']`` records
+realized statistics, intensity attenuation and clipping.
+
+The keyword-only ``n_references`` defaults to 5. In stack reconstruction,
+references always bracket the target in actual z; the remaining references are
+nearest by distance with reference-ID tie breaks. ``None`` uses the full pool.
+The bandwidth remains the median adjacent actual-z spacing of that pool.
+External transfer uses existing per-group geometry weights and permits ``None``
+to retain the full cohort. For finite counts, geometry selection and local
+merging are resolved together before fitting: only selected reference/group
+support can trigger a merge. If a merge changes which references rank highest,
+the mapping is rebuilt from original labels on the new selection. OT and count
+parameter fitting consume that same final mapping and reference weights. If
+selection and merging cycle without a consistent mapping, generation reports
+the failure instead of retaining an excluded reference's influence. No whole-stack statistical model or z smoothing is
+used. Existing two-dimensional empirical conditional callers remain supported.

@@ -17,9 +17,9 @@ Numbers follow the article studies. Notebook 00 combines the single-slice and cl
 
 Open the notebooks from `FEAST/` or `FEAST/tutorial/` with a FEAST Python 3.11 kernel. Each can be run independently after its inputs are supplied. GraphST and scVI run through two short scripts in their own environments; their core calls are visible in the notebooks and linked scripts. `_utils.py` contains only shared input and plotting helpers.
 
-Notebooks 00 and 04 await fresh results for their shared 151675 input. The other saved images are previews drawn from existing reproduction results, with source notes in each notebook. They are not outputs of a fresh execution of these notebooks. Code cells start unexecuted. Full simulation, GPU training and atlas generation can be substantial; this collection selects one condition per task, without replacing the article's full benchmark workflows.
+Run each notebook from top to bottom to generate its results and plots. Full simulation, GPU training and atlas generation can take time; these tutorials focus on one example per task. The article's full benchmark workflows are in `FEAST_reproduce`.
 
-Notebook code, explanations and preview images belong in Git. `data/`, `outputs/` and Jupyter checkpoints stay local. Public download links for the author's prepared inputs remain pending; case 07 additionally needs the region-annotation and atlas-label preparation described in [case 07 setup](#case-07-public-sources-and-prepared-inputs).
+Notebooks, explanations and displayed plots belong in Git. Input data, generated data files and Jupyter checkpoints stay local. Public download links for the author's prepared inputs remain pending; case 07 additionally needs the region-annotation and atlas-label preparation described in [case 07 setup](#case-07-public-sources-and-prepared-inputs).
 
 ## Setup
 

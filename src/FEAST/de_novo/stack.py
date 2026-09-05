@@ -8,10 +8,7 @@ import numpy as np
 import pandas as pd
 
 from .conditional import (
-    ReferenceFitConfig,
     SimulationConfig,
-    fit_reference,
-    simulate_from_reference,
 )
 from .core import SliceBlueprint, assign_generated_coordinates, load_blueprint
 
@@ -26,7 +23,8 @@ def simulate_stack(
     target_blueprints: Mapping[Any, BlueprintInput],
     *,
     label_key: str = "domain",
-    parameter_cloud: Optional[Union[pd.DataFrame, Mapping[str, Any]]] = None,
+    n_references: int | None = 5,
+    cache_path=None,
     config: Optional[SimulationConfig] = None,
     random_seed: int = 0,
 ) -> Dict[float, ad.AnnData]:
@@ -51,76 +49,21 @@ def simulate_stack(
     min_ref_z = float(reference_z_sorted[0])
     max_ref_z = float(reference_z_sorted[-1])
 
-    output: Dict[float, ad.AnnData] = {}
-    model_cache: Dict[tuple[int, int], Any] = {}
-    for target_idx, z in enumerate(sorted(float(value) for value in target_z)):
-        if not (min_ref_z < z < max_ref_z):
-            raise ValueError(
-                f"target z value {z} must lie strictly within the reference z range "
-                f"({min_ref_z}, {max_ref_z})."
-            )
-        if np.any(np.isclose(reference_z_sorted, z, rtol=0.0, atol=1e-12)):
-            raise ValueError(f"target z value {z} must not equal a reference z value.")
-
-        upper_idx = int(np.searchsorted(reference_z_sorted, z, side="right"))
-        lower_idx = upper_idx - 1
-        if lower_idx < 0 or upper_idx >= len(reference_z_sorted):
-            raise ValueError(f"Could not locate bracketing references for target z value {z}.")
-
-        z0 = float(reference_z_sorted[lower_idx])
-        z1 = float(reference_z_sorted[upper_idx])
-        tau = (z - z0) / (z1 - z0)
-
-        blueprint_source = _lookup_target_blueprint(target_blueprints, z)
-        target_blueprint = _target_blueprint_with_z(blueprint_source, z)
-
-        cache_key = (lower_idx, upper_idx)
-        if cache_key not in model_cache:
-            lower_ref = _reference_with_explicit_z(references_sorted[lower_idx], z0, lower_idx)
-            upper_ref = _reference_with_explicit_z(references_sorted[upper_idx], z1, upper_idx)
-            fit_cfg = ReferenceFitConfig(
-                min_gene_spots=1,
-                min_gene_mean=0.0,
-                max_gene_zero_prop=1.0,
-                coordinate_scale=gen_cfg.coordinate_scale,
-            )
-            model_cache[cache_key] = fit_reference(
-                [lower_ref, upper_ref],
-                label_key,
-                fit_cfg,
-            )
-        model = model_cache[cache_key]
-        reference_weights = {
-            model.references[0].reference_name: float(1.0 - tau),
-            model.references[1].reference_name: float(tau),
-        }
-
-        result = simulate_from_reference(
-            model,
-            target_blueprint,
-            parameter_cloud=parameter_cloud,
-            config=gen_cfg,
-            random_seed=int(random_seed) + target_idx,
-            reference_weights=reference_weights,
-        )
-        active_xyz = target_blueprint.active_subset().coordinates
-        assign_generated_coordinates(result, active_xyz, z_value=z)
-        result.uns.setdefault("de_novo", {})["stack"] = {
-            "target_z": float(z),
-            "z0": z0,
-            "z1": z1,
-            "tau": float(tau),
-            "reference_z_values": [z0, z1],
-            "reference_names": [ref.reference_name for ref in model.references],
-            "reference_weights": dict(reference_weights),
-            "target_blueprint": {
-                "coordinate_dim": int(load_blueprint(blueprint_source).coordinate_dim),
-                "grid_type": str(target_blueprint.grid_type),
-                "coordinate_mode": str(target_blueprint.coordinate_mode),
-                "metadata": dict(target_blueprint.metadata),
-            },
-        }
-        output[float(z)] = result
+    from .local import simulate_local_references, local_seed
+    references_sorted = [_reference_with_explicit_z(ref, z, idx)
+                         for idx, (ref, z) in enumerate(zip(references_sorted, reference_z_sorted))]
+    z_by_name = {ref.uns['reference_name']: float(z)
+                 for ref, z in zip(references_sorted, reference_z_sorted)}
+    output = {}
+    fit_cache = {}
+    for z in sorted(float(value) for value in target_z):
+        blueprint = _target_blueprint_with_z(_lookup_target_blueprint(target_blueprints, z), z)
+        result = simulate_local_references(references_sorted, blueprint, label_key=label_key,
+            n_references=n_references, reference_z=z_by_name, target_z=z,
+            config=gen_cfg, random_seed=local_seed(random_seed, 'target', str(z)),
+            parameter_seed=random_seed, cache_path=cache_path, fit_cache=fit_cache)
+        assign_generated_coordinates(result, blueprint.active_subset().coordinates, z_value=z)
+        output[z] = result
 
     return output
 

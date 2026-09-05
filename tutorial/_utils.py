@@ -40,6 +40,14 @@ def gene_summary(data):
     }, index=data.var_names)
 
 
+def cache_reference_counts(data):
+    """Prepare once the float32 count array used by FEAST's empirical decoder."""
+    counts = data.layers["counts"] if "counts" in data.layers else data.X
+    if sparse.issparse(counts):
+        counts = counts.toarray()
+    data.layers["counts"] = np.asarray(counts, dtype=np.float32)
+
+
 def spatial_panel(ax, xy, values, title, categorical=False, vmax=None):
     xy = np.asarray(xy)
     if categorical:
