@@ -145,6 +145,33 @@ rank-normalizes that field into `feast_quantiles`, and decodes counts with the
 target parameter cloud. Reference-conditioned virtual slices use the same
 latent H-to-Q path after transporting reference rank evidence.
 
+### Local reference selection and solver precision
+
+```python
+from FEAST import SimulationConfig, simulate_local_references
+
+config = SimulationConfig(transport_dtype="float64")  # default; or "float32"
+result = simulate_local_references(
+    references, target_blueprint, label_key="region",
+    n_references=2, config=config,
+)
+# Use n_references=None for all eligible references in each modeling region.
+```
+
+Geometry-based selection applies separately to each modeling region. Two
+references per region can mean more than two distinct references across a
+slice. The reference-count default remains 5, and other supported finite counts
+remain available. Selection retains every active target position, all shared
+genes and complete source support for the selected groups, without reference
+point subsampling. Changing reference count changes the modeling policy.
+
+Both precisions preserve the requested tolerance, iteration limit and
+nonconvergence policy. `transport_dtype` controls solver arithmetic; existing
+coordinate/cost preparation, returned plans and latent fields remain float32.
+The existing float32 comparison covers only four small two-reference Study 07
+targets, not full-reference or full-axis production. See the
+[API documentation](docs/source/api.rst) for selection semantics and limitations.
+
 ## Agent Skill for FEAST Users
 
 The repository includes a [FEAST agent skill](.agents/skills/feast/SKILL.md)

@@ -245,6 +245,19 @@ def simulate_local_references(
     With reference_z, selection is bracketed distance weighting (Study 06).
     Otherwise use the existing group geometry weights (Study 07). Donor slices
     remain distinct, and their OT/count contribution is limited to missing groups.
+
+    ``n_references`` defaults to 5. Without ``reference_z``, a finite count
+    selects up to that many eligible references separately per modeling group,
+    with existing geometry ranking, reference-name tie breaks, normalized
+    weights and local merging. ``None`` uses all eligible references per group.
+    Thus ``n_references=2`` may select more than two distinct references across
+    the target slice. Changing this count changes the modeling policy.
+
+    Every active target position, all shared genes, and the complete source
+    support of each selected group are retained; source points are not sampled.
+    Set ``config=SimulationConfig(transport_dtype="float32")`` to opt into
+    float32 solver arithmetic. Float64 remains the default; convergence
+    requirements and precision diagnostics are preserved.
     """
     started = time.perf_counter()
     cfg = config or SimulationConfig()

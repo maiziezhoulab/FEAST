@@ -17,7 +17,13 @@ TRANSPORT_MEMORY_BYTES_PER_PAIR = 64
 
 @dataclass
 class TransportConfig:
-    """Configuration for the shared reference-to-target OT field transport."""
+    """Configuration for the shared reference-to-target OT field transport.
+
+    ``transport_dtype`` selects ``"float64"`` (default) or ``"float32"`` solver
+    arithmetic on either backend. Coordinate/cost preparation, returned plans
+    and latent fields retain their existing float32 representation. Precision
+    does not change the iteration limit, tolerance or nonconvergence policy.
+    """
 
     epsilon: float = 0.05
     sinkhorn_iter: int = 1000

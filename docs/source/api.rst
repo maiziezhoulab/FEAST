@@ -33,6 +33,16 @@ To select PyTorch, set ``transport_backend="torch"`` and an explicit
 ``transport_device`` such as ``"cpu"`` or ``"cuda:0"``; CUDA requires
 an available compatible GPU.
 
+``transport_dtype="float64"`` is the default on both backends; ``"float32"``
+is an explicit alternative. Pass a ``TransportConfig`` or ``SimulationConfig``
+to ``FEAST.simulate(..., transport=config)`` for conditional generation, or
+``SimulationConfig`` to ``simulate_local_references(..., config=config)``.
+The solver diagnostics report the actual backend, device, dtype, iterations,
+error and convergence. Selecting precision does not change the tolerance,
+iteration limit or nonconvergence policy. Existing coordinate/cost preparation,
+returned transport plans and latent fields remain float32; this setting controls
+solver arithmetic rather than end-to-end simulation precision.
+
 .. autoclass:: FEAST.ReferenceFitConfig
 
 .. autoclass:: FEAST.SimulationConfig
@@ -118,12 +128,40 @@ The keyword-only ``n_references`` defaults to 5. In stack reconstruction,
 references always bracket the target in actual z; the remaining references are
 nearest by distance with reference-ID tie breaks. ``None`` uses the full pool.
 The bandwidth remains the median adjacent actual-z spacing of that pool.
-External transfer uses existing per-group geometry weights and permits ``None``
-to retain the full cohort. For finite counts, geometry selection and local
-merging are resolved together before fitting: only selected reference/group
+For geometry-based external transfer, each modeling region independently ranks
+its eligible references using the existing geometry scores and weights, with
+reference-name tie breaks. ``n_references=2`` keeps up to two per region and
+renormalizes their weights. Different regions can choose different pairs, so
+the union over one target slice can contain more than two references. ``None``
+uses all eligible references separately in each region. Finite counts from 1
+through the supplied pool size remain supported; the default remains 5.
+For finite counts, geometry selection and local merging are resolved together before fitting: only selected reference/group
 support can trigger a merge. If a merge changes which references rank highest,
 the mapping is rebuilt from original labels on the new selection. OT and count
 parameter fitting consume that same final mapping and reference weights. If
 selection and merging cycle without a consistent mapping, generation reports
 the failure instead of retaining an excluded reference's influence. No whole-stack statistical model or z smoothing is
 used. Existing two-dimensional empirical conditional callers remain supported.
+
+
+Reference count is a modeling choice
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Finite-reference selection changes the reference evidence and fused count
+parameters; it is not an approximation guaranteed to reproduce all-reference
+output. It preserves all active target positions, all shared genes and complete
+source support within each selected modeling group. The pair cap partitions
+target columns for transport; it does not subsample reference points.
+
+For the next Study 07 run, two references per modeling region are a deliberate
+scientific choice. The approved AR estimates remain E15.5=0.30 and E18.5=0.50;
+no new calibration is implied. Seeds, batch SD .005, 550 genes, the complete
+360-level blueprint scope and strict convergence settings remain unchanged.
+This documentation does not launch or change the reproduction workflow.
+
+The existing float32 comparison covers only four completed targets in a small
+two-reference sample: E15.5 z011–012 and E18.5 z002–003. All solves converged;
+three count matrices were identical to float64, and the fourth differed at 22
+entries by one count. Those observations do not establish full-reference or
+full-axis precision equivalence. Timing measurements used a shared GPU and
+are not a controlled whole-study speedup estimate.
