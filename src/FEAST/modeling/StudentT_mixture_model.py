@@ -234,8 +234,8 @@ class StudentTMixtureMarginalModeler:
         interpolate with a monotone cubic spline.
 
         Uses 400 precomputed inverse-CDF evaluations distributed with extra
-        density at the tails, then PchipInterpolator for fast vectorised
-        PPF.
+        density at the tails. Upper-tail queries use direct inversion because
+        original-space interpolation can greatly overestimate heavy tails.
         """
         from scipy.interpolate import PchipInterpolator
 
@@ -260,7 +260,13 @@ class StudentTMixtureMarginalModeler:
         )
         x_knots = np.maximum(x_knots, self.data_range[0])
         x_knots = np.maximum.accumulate(x_knots)
-        self._ppf_interp = PchipInterpolator(q_knots, x_knots, extrapolate=True)
+        # Leave room for spline slopes and cubic coefficients when finite
+        # back-transformed tail knots approach the float64 limit. A power-of-two
+        # rescaling preserves the original-space PCHIP without clipping tails.
+        exponent = int(np.frexp(np.max(np.abs(x_knots)))[1])
+        self._ppf_scale = np.ldexp(1.0, max(0, exponent - 512))
+        self._ppf_interp = PchipInterpolator(
+            q_knots, x_knots / self._ppf_scale, extrapolate=True)
 
     def ppf(self, q):
         if not self._is_fitted:
@@ -272,7 +278,21 @@ class StudentTMixtureMarginalModeler:
             if not hasattr(self, '_ppf_interp'):
                 self._build_ppf_interpolator()
             q_clipped = np.clip(q, 1e-10, 1.0 - 1e-10)
-            out = self._ppf_interp(q_clipped)
+            upper_tail = q_clipped >= 0.995
+            out = np.empty_like(q_clipped)
+            with np.errstate(over='ignore', invalid='ignore'):
+                out[~upper_tail] = self._ppf_interp(q_clipped[~upper_tail]) * self._ppf_scale
+            if np.any(upper_tail):
+                model_values = np.array([
+                    self._ppf_model_space_scalar(quantile)
+                    for quantile in q_clipped[upper_tail]
+                ])
+                tail_values = self._from_model_space(model_values)
+                if not np.all(np.isfinite(tail_values)):
+                    raise FloatingPointError(
+                        "Student-t upper-tail inverse CDF is not finite in parameter space"
+                    )
+                out[upper_tail] = tail_values
             out = np.nan_to_num(
                 out,
                 nan=self.data_range[0],
