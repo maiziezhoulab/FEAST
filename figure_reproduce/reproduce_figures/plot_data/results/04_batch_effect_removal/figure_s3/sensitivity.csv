@@ -1,0 +1,46 @@
+panel_id,mode,alpha,support_variant,excluded_pair_count,excluded_pair_ids,n_pairs,metric,pca20,pca10,difference
+a,shift_only,0.25,all_spots_primary,0,[],3611,batch_mixing_entropy_k30,0.9352060636411496,0.9172223529933214,-0.01798371064782811
+a,shift_only,0.25,all_spots_primary,0,[],3611,domain_purity_k30,0.6755007846395275,0.7297286070340626,0.05422782239453516
+a,shift_only,0.25,all_spots_primary,0,[],3611,paired_retrieval_top1,0.7787316532816394,0.5879257823317641,-0.19080587094987533
+a,shift_only,0.5,all_spots_primary,0,[],3611,batch_mixing_entropy_k30,0.8136869765990153,0.7711236690586564,-0.042563307540358974
+a,shift_only,0.5,all_spots_primary,0,[],3611,domain_purity_k30,0.675168466722053,0.7259900304624758,0.05082156374042279
+a,shift_only,0.5,all_spots_primary,0,[],3611,paired_retrieval_top1,0.5790639711991138,0.3112711160343395,-0.2677928551647743
+a,shift_only,0.75,all_spots_primary,0,[],3611,batch_mixing_entropy_k30,0.6814309801519757,0.60558769618432,-0.07584328396765572
+a,shift_only,0.75,all_spots_primary,0,[],3611,domain_purity_k30,0.6673543801347733,0.7123603803193945,0.0450060001846212
+a,shift_only,0.75,all_spots_primary,0,[],3611,paired_retrieval_top1,0.3846579894765993,0.1174189975076156,-0.2672389919689837
+a,shift_only,1.0,all_spots_primary,0,[],3611,batch_mixing_entropy_k30,0.5484610373528926,0.423894215490315,-0.12456682186257767
+a,shift_only,1.0,all_spots_primary,0,[],3611,domain_purity_k30,0.6630665558940275,0.7018554417058986,0.03878888581187112
+a,shift_only,1.0,all_spots_primary,0,[],3611,paired_retrieval_top1,0.232068679036278,0.0396012184990307,-0.1924674605372473
+a,shift_only,1.25,all_spots_primary,0,[],3611,batch_mixing_entropy_k30,0.437659043858531,0.2503463545393286,-0.18731268931920242
+a,shift_only,1.25,all_spots_primary,0,[],3611,domain_purity_k30,0.659692605926336,0.6887381150189237,0.02904550909258763
+a,shift_only,1.25,all_spots_primary,0,[],3611,paired_retrieval_top1,0.1404043201329271,0.0171697590695098,-0.12323456106341732
+a,shift_only,1.5,all_spots_primary,0,[],3611,batch_mixing_entropy_k30,0.3581654580072728,0.173360707025191,-0.1848047509820818
+a,shift_only,1.5,all_spots_primary,0,[],3611,domain_purity_k30,0.6666528200867718,0.6921212960398782,0.025468475953106307
+a,shift_only,1.5,all_spots_primary,0,[],3611,paired_retrieval_top1,0.0706175574633065,0.0077540847410689,-0.0628634727222376
+a,shift_only,1.5,paired_zero_panel_spots_excluded_sensitivity,2,"[""AGAAGAGCGCCGTTCC-1"", ""GAGGAGATCCTCATGC-1""]",3609,batch_mixing_entropy_k30,0.3579174715607977,0.1732872197092932,-0.18463025185150447
+a,shift_only,1.5,paired_zero_panel_spots_excluded_sensitivity,2,"[""AGAAGAGCGCCGTTCC-1"", ""GAGGAGATCCTCATGC-1""]",3609,domain_purity_k30,0.6663295465041101,0.692033804377944,0.025704257873833902
+a,shift_only,1.5,paired_zero_panel_spots_excluded_sensitivity,2,"[""AGAAGAGCGCCGTTCC-1"", ""GAGGAGATCCTCATGC-1""]",3609,paired_retrieval_top1,0.0717650318647824,0.0085896370185646,-0.0631753948462178
+a,diagonal_affine,0.25,all_spots_primary,0,[],3611,batch_mixing_entropy_k30,0.9496887372061548,0.937240273551627,-0.012448463654527786
+a,diagonal_affine,0.25,all_spots_primary,0,[],3611,domain_purity_k30,0.6770285239545832,0.7297932244069049,0.05276470045232162
+a,diagonal_affine,0.25,all_spots_primary,0,[],3611,paired_retrieval_top1,0.8194405981722515,0.6422043755192467,-0.17723622265300476
+a,diagonal_affine,0.5,all_spots_primary,0,[],3611,batch_mixing_entropy_k30,0.8420410688374137,0.8120467404685097,-0.029994328368904033
+a,diagonal_affine,0.5,all_spots_primary,0,[],3611,domain_purity_k30,0.675348472260685,0.7298209175666943,0.054472445306009365
+a,diagonal_affine,0.5,all_spots_primary,0,[],3611,paired_retrieval_top1,0.6208806424813071,0.3450567709775685,-0.27582387150373866
+a,diagonal_affine,0.75,all_spots_primary,0,[],3611,batch_mixing_entropy_k30,0.7193877564520594,0.6276648881505125,-0.09172286830154697
+a,diagonal_affine,0.75,all_spots_primary,0,[],3611,domain_purity_k30,0.6707606387888858,0.7095264469675991,0.038765808178713335
+a,diagonal_affine,0.75,all_spots_primary,0,[],3611,paired_retrieval_top1,0.4453060094156743,0.1215729714760454,-0.3237330379396289
+a,diagonal_affine,1.0,all_spots_primary,0,[],3611,batch_mixing_entropy_k30,0.5824433382956028,0.4495943834147239,-0.1328489548808789
+a,diagonal_affine,1.0,all_spots_primary,0,[],3611,domain_purity_k30,0.6708437182682545,0.707620234468753,0.03677651620049849
+a,diagonal_affine,1.0,all_spots_primary,0,[],3611,paired_retrieval_top1,0.3043478260869565,0.0512323456106341,-0.2531154804763224
+a,diagonal_affine,1.25,all_spots_primary,0,[],3611,batch_mixing_entropy_k30,0.4675510949426379,0.3107355070510588,-0.15681558789157912
+a,diagonal_affine,1.25,all_spots_primary,0,[],3611,domain_purity_k30,0.667155912489615,0.6936074956152497,0.02645158312563467
+a,diagonal_affine,1.25,all_spots_primary,0,[],3611,paired_retrieval_top1,0.2027139296593741,0.0224314594295209,-0.1802824702298532
+a,diagonal_affine,1.25,paired_zero_panel_spots_excluded_sensitivity,1,"[""AGAAGAGCGCCGTTCC-1""]",3610,batch_mixing_entropy_k30,0.4680657786285023,0.310460943898267,-0.1576048347302353
+a,diagonal_affine,1.25,paired_zero_panel_spots_excluded_sensitivity,1,"[""AGAAGAGCGCCGTTCC-1""]",3610,domain_purity_k30,0.6669298245614036,0.6936472760849492,0.026717451523545654
+a,diagonal_affine,1.25,paired_zero_panel_spots_excluded_sensitivity,1,"[""AGAAGAGCGCCGTTCC-1""]",3610,paired_retrieval_top1,0.2030470914127423,0.0224376731301939,-0.1806094182825484
+a,diagonal_affine,1.5,all_spots_primary,0,[],3611,batch_mixing_entropy_k30,0.3830091273442044,0.2194899488326563,-0.1635191785115481
+a,diagonal_affine,1.5,all_spots_primary,0,[],3611,domain_purity_k30,0.6683697959937228,0.6944475214621989,0.026077725468476087
+a,diagonal_affine,1.5,all_spots_primary,0,[],3611,paired_retrieval_top1,0.1260038770423705,0.0171697590695098,-0.10883411797286072
+a,diagonal_affine,1.5,paired_zero_panel_spots_excluded_sensitivity,3,"[""AGAAGAGCGCCGTTCC-1"", ""GAGGAGATCCTCATGC-1"", ""GGTCCTTCATACGACT-1""]",3608,batch_mixing_entropy_k30,0.381782930137459,0.2193475465175653,-0.1624353836198937
+a,diagonal_affine,1.5,paired_zero_panel_spots_excluded_sensitivity,3,"[""AGAAGAGCGCCGTTCC-1"", ""GAGGAGATCCTCATGC-1"", ""GGTCCTTCATACGACT-1""]",3608,domain_purity_k30,0.6686853288987434,0.6945352919438286,0.025849963045085134
+a,diagonal_affine,1.5,paired_zero_panel_spots_excluded_sensitivity,3,"[""AGAAGAGCGCCGTTCC-1"", ""GAGGAGATCCTCATGC-1"", ""GGTCCTTCATACGACT-1""]",3608,paired_retrieval_top1,0.1297117516629711,0.0182926829268292,-0.11141906873614191

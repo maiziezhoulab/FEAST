@@ -1,0 +1,201 @@
+condition,condition_role,alpha,x_position,method,method_seed,representation,analysis_role,metric,metric_label,preferred_direction,value,raw_anchor_connected_to_simulation_ladder,cross_section_exact_spot_pairing_used,composite_score_used,winner_ranking_authorized
+raw,natural_data_anchor,,-0.55,GraphST,42,pca10_randomized_seed42,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0118047132715653,False,False,False,False
+raw,natural_data_anchor,,-0.55,GraphST,43,pca10_randomized_seed42,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0127197673317653,False,False,False,False
+raw,natural_data_anchor,,-0.55,GraphST,44,pca10_randomized_seed42,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0130600637821821,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,GraphST,42,pca10_randomized_seed42,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0160648848793949,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,GraphST,43,pca10_randomized_seed42,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0174123245745277,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,GraphST,44,pca10_randomized_seed42,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0171633983646862,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,GraphST,42,pca10_randomized_seed42,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0261975444465354,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,GraphST,43,pca10_randomized_seed42,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0301750869725707,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,GraphST,44,pca10_randomized_seed42,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0326842540688231,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,GraphST,42,pca10_randomized_seed42,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0839918131996242,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,GraphST,43,pca10_randomized_seed42,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0863477918758258,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,GraphST,44,pca10_randomized_seed42,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0818489839933088,False,False,False,False
+raw,natural_data_anchor,,-0.55,STAMP,42,native_10d_topics,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0069233433951077,False,False,False,False
+raw,natural_data_anchor,,-0.55,STAMP,43,native_10d_topics,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0068589946207016,False,False,False,False
+raw,natural_data_anchor,,-0.55,STAMP,44,native_10d_topics,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0073624529060947,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,STAMP,42,native_10d_topics,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0190745122857246,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,STAMP,43,native_10d_topics,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0183620230330931,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,STAMP,44,native_10d_topics,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0214516327483474,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,STAMP,42,native_10d_topics,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0738708406922186,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,STAMP,43,native_10d_topics,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0921637762802085,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,STAMP,44,native_10d_topics,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0737010783752206,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,STAMP,42,native_10d_topics,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.1222506534914019,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,STAMP,43,native_10d_topics,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0608491669640396,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,STAMP,44,native_10d_topics,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0472602103519563,False,False,False,False
+raw,natural_data_anchor,,-0.55,Uncorrected,-1,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0088134240839474,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,Uncorrected,-1,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0158891315636256,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,Uncorrected,-1,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0215162585257426,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,Uncorrected,-1,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0696474423502977,False,False,False,False
+raw,natural_data_anchor,,-0.55,scVI,42,native_10d_latent,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0026525151969764,False,False,False,False
+raw,natural_data_anchor,,-0.55,scVI,43,native_10d_latent,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0038826118908289,False,False,False,False
+raw,natural_data_anchor,,-0.55,scVI,44,native_10d_latent,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.003943112511609,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,scVI,42,native_10d_latent,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0054277306246868,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,scVI,43,native_10d_latent,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.005780449366602,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,scVI,44,native_10d_latent,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0057033347357266,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,scVI,42,native_10d_latent,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0111800601555913,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,scVI,43,native_10d_latent,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0095499741959475,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,scVI,44,native_10d_latent,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0123080410146573,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,scVI,42,native_10d_latent,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0228522581892836,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,scVI,43,native_10d_latent,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.025531590826111,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,scVI,44,native_10d_latent,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0213806878857599,False,False,False,False
+raw,natural_data_anchor,,-0.55,GraphST,42,pca10_randomized_seed42,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.9263932333853516,False,False,False,False
+raw,natural_data_anchor,,-0.55,GraphST,43,pca10_randomized_seed42,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.9177240082959806,False,False,False,False
+raw,natural_data_anchor,,-0.55,GraphST,44,pca10_randomized_seed42,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.9165645357028758,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,GraphST,42,pca10_randomized_seed42,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.9150459755754452,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,GraphST,43,pca10_randomized_seed42,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.9047755760049108,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,GraphST,44,pca10_randomized_seed42,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.9063083050353278,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,GraphST,42,pca10_randomized_seed42,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.8450120354571629,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,GraphST,43,pca10_randomized_seed42,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.8292071964670844,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,GraphST,44,pca10_randomized_seed42,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.8210155437881134,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,GraphST,42,pca10_randomized_seed42,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.5509674062427373,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,GraphST,43,pca10_randomized_seed42,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.5481953329918209,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,GraphST,44,pca10_randomized_seed42,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.5555613727878198,False,False,False,False
+raw,natural_data_anchor,,-0.55,STAMP,42,native_10d_topics,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.9322073462605664,False,False,False,False
+raw,natural_data_anchor,,-0.55,STAMP,43,native_10d_topics,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.9370437088847988,False,False,False,False
+raw,natural_data_anchor,,-0.55,STAMP,44,native_10d_topics,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.9352716031329348,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,STAMP,42,native_10d_topics,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.8981699945216438,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,STAMP,43,native_10d_topics,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.8833821742435385,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,STAMP,44,native_10d_topics,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.8949528127861873,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,STAMP,42,native_10d_topics,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.6752456765435294,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,STAMP,43,native_10d_topics,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.6744431057380769,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,STAMP,44,native_10d_topics,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.6235170606013278,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,STAMP,42,native_10d_topics,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.4368811306620594,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,STAMP,43,native_10d_topics,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.6118290004445114,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,STAMP,44,native_10d_topics,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.6731214938023335,False,False,False,False
+raw,natural_data_anchor,,-0.55,Uncorrected,-1,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.944756392656278,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,Uncorrected,-1,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.9249317962134224,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,Uncorrected,-1,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.8377454901527502,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,Uncorrected,-1,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.5651114589096166,False,False,False,False
+raw,natural_data_anchor,,-0.55,scVI,42,native_10d_latent,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.962081477869294,False,False,False,False
+raw,natural_data_anchor,,-0.55,scVI,43,native_10d_latent,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.9570118485903184,False,False,False,False
+raw,natural_data_anchor,,-0.55,scVI,44,native_10d_latent,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.9580546176400938,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,scVI,42,native_10d_latent,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.9522597830882414,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,scVI,43,native_10d_latent,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.947831897797079,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,scVI,44,native_10d_latent,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.952881871894831,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,scVI,42,native_10d_latent,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.8897842455279574,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,scVI,43,native_10d_latent,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.9024336563734278,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,scVI,44,native_10d_latent,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.8863248184802239,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,scVI,42,native_10d_latent,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.8259895930127606,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,scVI,43,native_10d_latent,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.7921210033733157,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,scVI,44,native_10d_latent,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.8318565210849852,False,False,False,False
+raw,natural_data_anchor,,-0.55,GraphST,42,pca10_randomized_seed42,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0169740020707701,False,False,False,False
+raw,natural_data_anchor,,-0.55,GraphST,43,pca10_randomized_seed42,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0177707763270295,False,False,False,False
+raw,natural_data_anchor,,-0.55,GraphST,44,pca10_randomized_seed42,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0186823327560314,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,GraphST,42,pca10_randomized_seed42,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0222952190794595,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,GraphST,43,pca10_randomized_seed42,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0237022221453363,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,GraphST,44,pca10_randomized_seed42,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0239578642898446,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,GraphST,42,pca10_randomized_seed42,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0349924819095822,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,GraphST,43,pca10_randomized_seed42,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0394624100796597,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,GraphST,44,pca10_randomized_seed42,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.043000065523365,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,GraphST,42,pca10_randomized_seed42,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.1075672838564549,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,GraphST,43,pca10_randomized_seed42,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.1109846974621096,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,GraphST,44,pca10_randomized_seed42,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.1052718018486184,False,False,False,False
+raw,natural_data_anchor,,-0.55,STAMP,42,native_10d_topics,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0119131642753375,False,False,False,False
+raw,natural_data_anchor,,-0.55,STAMP,43,native_10d_topics,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0122319495025736,False,False,False,False
+raw,natural_data_anchor,,-0.55,STAMP,44,native_10d_topics,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0124432253474677,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,STAMP,42,native_10d_topics,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0289010008778012,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,STAMP,43,native_10d_topics,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.026651139373089,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,STAMP,44,native_10d_topics,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0313235586044658,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,STAMP,42,native_10d_topics,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0983856081853978,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,STAMP,43,native_10d_topics,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.1232997177505862,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,STAMP,44,native_10d_topics,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0985974533081524,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,STAMP,42,native_10d_topics,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.1470323091743476,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,STAMP,43,native_10d_topics,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0698636453808187,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,STAMP,44,native_10d_topics,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0534108001927489,False,False,False,False
+raw,natural_data_anchor,,-0.55,Uncorrected,-1,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0135426860184573,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,Uncorrected,-1,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0222812141979593,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,Uncorrected,-1,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0247253656477246,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,Uncorrected,-1,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0805402758740659,False,False,False,False
+raw,natural_data_anchor,,-0.55,scVI,42,native_10d_latent,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0057591371199617,False,False,False,False
+raw,natural_data_anchor,,-0.55,scVI,43,native_10d_latent,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0067889457664189,False,False,False,False
+raw,natural_data_anchor,,-0.55,scVI,44,native_10d_latent,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0072155357134227,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,scVI,42,native_10d_latent,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0094851947703833,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,scVI,43,native_10d_latent,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.009767482109671,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,scVI,44,native_10d_latent,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0096521543762276,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,scVI,42,native_10d_latent,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0164344272632847,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,scVI,43,native_10d_latent,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0142397343837728,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,scVI,44,native_10d_latent,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0179221413025405,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,scVI,42,native_10d_latent,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0285152841395171,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,scVI,43,native_10d_latent,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.031151917468367,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,scVI,44,native_10d_latent,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0272954913604472,False,False,False,False
+raw,natural_data_anchor,,-0.55,GraphST,42,pca10_randomized_seed42,primary,layer_asw,Layer separation ASW,↑,0.073773757736482,False,False,False,False
+raw,natural_data_anchor,,-0.55,GraphST,43,pca10_randomized_seed42,primary,layer_asw,Layer separation ASW,↑,0.0736876828615139,False,False,False,False
+raw,natural_data_anchor,,-0.55,GraphST,44,pca10_randomized_seed42,primary,layer_asw,Layer separation ASW,↑,0.0781975138269683,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,GraphST,42,pca10_randomized_seed42,primary,layer_asw,Layer separation ASW,↑,0.0714959882889672,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,GraphST,43,pca10_randomized_seed42,primary,layer_asw,Layer separation ASW,↑,0.0714318559244608,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,GraphST,44,pca10_randomized_seed42,primary,layer_asw,Layer separation ASW,↑,0.0757690644213661,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,GraphST,42,pca10_randomized_seed42,primary,layer_asw,Layer separation ASW,↑,0.0612230512918583,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,GraphST,43,pca10_randomized_seed42,primary,layer_asw,Layer separation ASW,↑,0.0645151444190812,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,GraphST,44,pca10_randomized_seed42,primary,layer_asw,Layer separation ASW,↑,0.0620811313924893,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,GraphST,42,pca10_randomized_seed42,primary,layer_asw,Layer separation ASW,↑,0.0498255613971134,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,GraphST,43,pca10_randomized_seed42,primary,layer_asw,Layer separation ASW,↑,0.0503821902984864,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,GraphST,44,pca10_randomized_seed42,primary,layer_asw,Layer separation ASW,↑,0.0537804857066706,False,False,False,False
+raw,natural_data_anchor,,-0.55,STAMP,42,native_10d_topics,primary,layer_asw,Layer separation ASW,↑,0.1748086187138211,False,False,False,False
+raw,natural_data_anchor,,-0.55,STAMP,43,native_10d_topics,primary,layer_asw,Layer separation ASW,↑,0.1736119770674644,False,False,False,False
+raw,natural_data_anchor,,-0.55,STAMP,44,native_10d_topics,primary,layer_asw,Layer separation ASW,↑,0.1711877825502332,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,STAMP,42,native_10d_topics,primary,layer_asw,Layer separation ASW,↑,0.164977706975884,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,STAMP,43,native_10d_topics,primary,layer_asw,Layer separation ASW,↑,0.1489570647367389,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,STAMP,44,native_10d_topics,primary,layer_asw,Layer separation ASW,↑,0.1763082749257059,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,STAMP,42,native_10d_topics,primary,layer_asw,Layer separation ASW,↑,0.1094045734172484,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,STAMP,43,native_10d_topics,primary,layer_asw,Layer separation ASW,↑,0.1261075904611325,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,STAMP,44,native_10d_topics,primary,layer_asw,Layer separation ASW,↑,0.1161949355866788,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,STAMP,42,native_10d_topics,primary,layer_asw,Layer separation ASW,↑,0.1115094329060713,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,STAMP,43,native_10d_topics,primary,layer_asw,Layer separation ASW,↑,0.1238845742602832,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,STAMP,44,native_10d_topics,primary,layer_asw,Layer separation ASW,↑,0.1324097533983108,False,False,False,False
+raw,natural_data_anchor,,-0.55,Uncorrected,-1,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,layer_asw,Layer separation ASW,↑,0.0419041986612781,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,Uncorrected,-1,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,layer_asw,Layer separation ASW,↑,0.0392895432675868,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,Uncorrected,-1,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,layer_asw,Layer separation ASW,↑,0.0283650885229797,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,Uncorrected,-1,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,layer_asw,Layer separation ASW,↑,0.0340761070048063,False,False,False,False
+raw,natural_data_anchor,,-0.55,scVI,42,native_10d_latent,primary,layer_asw,Layer separation ASW,↑,0.0395660792078976,False,False,False,False
+raw,natural_data_anchor,,-0.55,scVI,43,native_10d_latent,primary,layer_asw,Layer separation ASW,↑,0.0460885729234383,False,False,False,False
+raw,natural_data_anchor,,-0.55,scVI,44,native_10d_latent,primary,layer_asw,Layer separation ASW,↑,0.0468331186287254,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,scVI,42,native_10d_latent,primary,layer_asw,Layer separation ASW,↑,0.0376913443953341,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,scVI,43,native_10d_latent,primary,layer_asw,Layer separation ASW,↑,0.0432843972341533,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,scVI,44,native_10d_latent,primary,layer_asw,Layer separation ASW,↑,0.0435667588134002,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,scVI,42,native_10d_latent,primary,layer_asw,Layer separation ASW,↑,0.0298942417801027,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,scVI,43,native_10d_latent,primary,layer_asw,Layer separation ASW,↑,0.028626991071473,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,scVI,44,native_10d_latent,primary,layer_asw,Layer separation ASW,↑,0.0329928652775909,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,scVI,42,native_10d_latent,primary,layer_asw,Layer separation ASW,↑,0.0248496079018497,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,scVI,43,native_10d_latent,primary,layer_asw,Layer separation ASW,↑,0.0285309488859264,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,scVI,44,native_10d_latent,primary,layer_asw,Layer separation ASW,↑,0.0308921730177929,False,False,False,False
+raw,natural_data_anchor,,-0.55,GraphST,42,pca10_randomized_seed42,primary,layer_purity_k,Layer purity (k=30),↑,0.6843577282256528,False,False,False,False
+raw,natural_data_anchor,,-0.55,GraphST,43,pca10_randomized_seed42,primary,layer_purity_k,Layer purity (k=30),↑,0.6914760815704212,False,False,False,False
+raw,natural_data_anchor,,-0.55,GraphST,44,pca10_randomized_seed42,primary,layer_purity_k,Layer purity (k=30),↑,0.6960548885077187,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,GraphST,42,pca10_randomized_seed42,primary,layer_purity_k,Layer purity (k=30),↑,0.6808986087287974,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,GraphST,43,pca10_randomized_seed42,primary,layer_purity_k,Layer purity (k=30),↑,0.6887650085763294,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,GraphST,44,pca10_randomized_seed42,primary,layer_purity_k,Layer purity (k=30),↑,0.6929245283018868,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,GraphST,42,pca10_randomized_seed42,primary,layer_purity_k,Layer purity (k=30),↑,0.6618448637316562,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,GraphST,43,pca10_randomized_seed42,primary,layer_purity_k,Layer purity (k=30),↑,0.672770154373928,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,GraphST,44,pca10_randomized_seed42,primary,layer_purity_k,Layer purity (k=30),↑,0.6716742900705165,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,GraphST,42,pca10_randomized_seed42,primary,layer_purity_k,Layer purity (k=30),↑,0.659853249475891,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,GraphST,43,pca10_randomized_seed42,primary,layer_purity_k,Layer purity (k=30),↑,0.663717362302268,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,GraphST,44,pca10_randomized_seed42,primary,layer_purity_k,Layer purity (k=30),↑,0.665075281113017,False,False,False,False
+raw,natural_data_anchor,,-0.55,STAMP,42,native_10d_topics,primary,layer_purity_k,Layer purity (k=30),↑,0.7085525061940157,False,False,False,False
+raw,natural_data_anchor,,-0.55,STAMP,43,native_10d_topics,primary,layer_purity_k,Layer purity (k=30),↑,0.716538021726701,False,False,False,False
+raw,natural_data_anchor,,-0.55,STAMP,44,native_10d_topics,primary,layer_purity_k,Layer purity (k=30),↑,0.710725176291214,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,STAMP,42,native_10d_topics,primary,layer_purity_k,Layer purity (k=30),↑,0.6949066133028398,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,STAMP,43,native_10d_topics,primary,layer_purity_k,Layer purity (k=30),↑,0.6850485991995426,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,STAMP,44,native_10d_topics,primary,layer_purity_k,Layer purity (k=30),↑,0.7119687440442157,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,STAMP,42,native_10d_topics,primary,layer_purity_k,Layer purity (k=30),↑,0.6384171907756814,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,STAMP,43,native_10d_topics,primary,layer_purity_k,Layer purity (k=30),↑,0.6660806174957118,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,STAMP,44,native_10d_topics,primary,layer_purity_k,Layer purity (k=30),↑,0.6661949685534592,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,STAMP,42,native_10d_topics,primary,layer_purity_k,Layer purity (k=30),↑,0.6341528492471888,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,STAMP,43,native_10d_topics,primary,layer_purity_k,Layer purity (k=30),↑,0.6563464837049743,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,STAMP,44,native_10d_topics,primary,layer_purity_k,Layer purity (k=30),↑,0.6525204878978463,False,False,False,False
+raw,natural_data_anchor,,-0.55,Uncorrected,-1,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,layer_purity_k,Layer purity (k=30),↑,0.5731322660567943,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,Uncorrected,-1,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,layer_purity_k,Layer purity (k=30),↑,0.5675767105012388,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,Uncorrected,-1,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,layer_purity_k,Layer purity (k=30),↑,0.5498332380407852,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,Uncorrected,-1,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,layer_purity_k,Layer purity (k=30),↑,0.5523966075852869,False,False,False,False
+raw,natural_data_anchor,,-0.55,scVI,42,native_10d_latent,primary,layer_purity_k,Layer purity (k=30),↑,0.5633790737564323,False,False,False,False
+raw,natural_data_anchor,,-0.55,scVI,43,native_10d_latent,primary,layer_purity_k,Layer purity (k=30),↑,0.5909853249475892,False,False,False,False
+raw,natural_data_anchor,,-0.55,scVI,44,native_10d_latent,primary,layer_purity_k,Layer purity (k=30),↑,0.57994568324757,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,scVI,42,native_10d_latent,primary,layer_purity_k,Layer purity (k=30),↑,0.5624737945492663,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,scVI,43,native_10d_latent,primary,layer_purity_k,Layer purity (k=30),↑,0.578935582237469,False,False,False,False
+sim_0.00,resampling_control,0.0,0.0,scVI,44,native_10d_latent,primary,layer_purity_k,Layer purity (k=30),↑,0.5680674671240709,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,scVI,42,native_10d_latent,primary,layer_purity_k,Layer purity (k=30),↑,0.5388269487326091,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,scVI,43,native_10d_latent,primary,layer_purity_k,Layer purity (k=30),↑,0.5375881456070135,False,False,False,False
+sim_0.50,interpolation,0.5,0.5,scVI,44,native_10d_latent,primary,layer_purity_k,Layer purity (k=30),↑,0.5458690680388794,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,scVI,42,native_10d_latent,primary,layer_purity_k,Layer purity (k=30),↑,0.5228082713931771,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,scVI,43,native_10d_latent,primary,layer_purity_k,Layer purity (k=30),↑,0.5342719649323423,False,False,False,False
+sim_1.00,primary_endpoint,1.0,1.0,scVI,44,native_10d_latent,primary,layer_purity_k,Layer purity (k=30),↑,0.5386983037926434,False,False,False,False

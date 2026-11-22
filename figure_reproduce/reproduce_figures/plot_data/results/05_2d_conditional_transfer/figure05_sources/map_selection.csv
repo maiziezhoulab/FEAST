@@ -1,0 +1,5 @@
+column,gene,dataset,mode,direction,source,target,pearson,source_support,target_support,split,draw_0_library_w1
+A,GFAP,dlpfc,cross_slice,151676_to_151675,151676,151675,0.7437206369676451,3431,3565,,305.5088359046282
+B,MBP,dlpfc,mask_half,151676_low_x_to_high_x,151676,151676,0.2835874802936128,1716,1715,7121.0,1796.5498542274051
+C,Frzb,merfish,cross_slice,Zhuang-ABCA-1.006_to_Zhuang-ABCA-1.007,Zhuang-ABCA-1.006,Zhuang-ABCA-1.007,0.6144135961589016,10409,9660,,70.46614906832296
+D,Igfbp4,merfish,mask_half,Zhuang-ABCA-1.007_low_x_to_high_x,Zhuang-ABCA-1.007,Zhuang-ABCA-1.007,0.3994832543464592,4839,4821,5.502942937215106,17.60651317154118

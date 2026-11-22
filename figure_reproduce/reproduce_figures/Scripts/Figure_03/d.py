@@ -91,7 +91,7 @@ def main():
     retained = retained_lists[0]
     palette = {label: spatial.FULL_CELL_TYPE_COLORS[label] for label in retained}
     palette.update([spatial.OTHER_CELL_CLASS])
-    tables = study / "figure3"
+    tables = args.tables_dir or study / "figure3"
     tables.mkdir(parents=True, exist_ok=True)
     if args.plot_data:
         measured, data = read_plot_data(args.plot_data, palette)

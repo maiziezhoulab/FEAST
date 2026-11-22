@@ -1,0 +1,331 @@
+{
+  "sample_order": [
+    "DLPFC_151670",
+    "DLPFC_151675",
+    "DLPFC_151676",
+    "MERFISH_006",
+    "MERFISH_007",
+    "MERFISH_120",
+    "OpenST_005",
+    "OpenST_006",
+    "Slideseq_001",
+    "Stereoseq_E10_5_E2S1",
+    "Stereoseq_E12_5_E2S1",
+    "Xenium_LymphNode"
+  ],
+  "score_rows": 60,
+  "heatmap_values": 480,
+  "cloud_rows": 116688,
+  "metric_scales": {
+    "input_mean_corr": {
+      "kind": "correlation",
+      "direction": "higher",
+      "limits": [
+        -1,
+        1
+      ]
+    },
+    "input_variance_corr": {
+      "kind": "correlation",
+      "direction": "higher",
+      "limits": [
+        -1,
+        1
+      ]
+    },
+    "relative_error_mean": {
+      "kind": "log",
+      "direction": "lower",
+      "limits": [
+        0.001,
+        100000000.0
+      ]
+    },
+    "moran_i_correlation": {
+      "kind": "correlation",
+      "direction": "higher",
+      "limits": [
+        -1,
+        1
+      ]
+    },
+    "gene_zero_fraction_wasserstein": {
+      "kind": "log",
+      "direction": "lower",
+      "limits": [
+        1e-18,
+        1.0
+      ]
+    },
+    "zero_mask_jaccard": {
+      "kind": "unit",
+      "direction": "higher",
+      "limits": [
+        0,
+        1
+      ]
+    },
+    "cosine_divergence": {
+      "kind": "unit",
+      "direction": "lower",
+      "limits": [
+        0,
+        1
+      ]
+    },
+    "library_size_wasserstein": {
+      "kind": "log",
+      "direction": "lower",
+      "limits": [
+        0.1,
+        100000.0
+      ]
+    }
+  },
+  "cloud_limits": {
+    "DLPFC_151670": {
+      "log1p_mean": [
+        -0.13024747610404727,
+        5.418295005928366
+      ],
+      "log1p_variance": [
+        -0.2014523663750697,
+        8.380418441202899
+      ]
+    },
+    "MERFISH_120": {
+      "log1p_mean": [
+        -0.18106870982151888,
+        7.532458328575185
+      ],
+      "log1p_variance": [
+        -0.29115060257563535,
+        12.11186506714643
+      ]
+    }
+  },
+  "zero_fraction_color_limits": [
+    0,
+    1
+  ],
+  "cloud_sources": [
+    {
+      "panel_id": "b",
+      "sample": "DLPFC_151670",
+      "source": "Reference",
+      "spots": 3480,
+      "genes": 18326,
+      "zero_mean_genes": 0,
+      "archived_zero_mean_genes": 0,
+      "same_spot_order_as_reference": true,
+      "maximum_absolute_statistic_delta": {
+        "mean": 0.0,
+        "variance": 0.0,
+        "zero_fraction": 0.0,
+        "log1p_mean": 0.0,
+        "log1p_variance": 0.0
+      },
+      "h5ad": "inputs/00_simulator_benchmark/reference/DLPFC_151670.h5ad"
+    },
+    {
+      "panel_id": "b",
+      "sample": "DLPFC_151670",
+      "source": "FEAST",
+      "spots": 3480,
+      "genes": 18326,
+      "zero_mean_genes": 0,
+      "archived_zero_mean_genes": 0,
+      "same_spot_order_as_reference": true,
+      "maximum_absolute_statistic_delta": {
+        "mean": 0.005747126436787653,
+        "variance": 27.3555357378782,
+        "zero_fraction": 0.0,
+        "log1p_mean": 0.0005569479397656632,
+        "log1p_variance": 0.0767886921499612
+      },
+      "h5ad": "results/00_simulator_benchmark/run/simulations/DLPFC_151670.h5ad"
+    },
+    {
+      "panel_id": "b",
+      "sample": "DLPFC_151670",
+      "source": "SRTsim",
+      "spots": 3480,
+      "genes": 18326,
+      "zero_mean_genes": 0,
+      "archived_zero_mean_genes": 0,
+      "same_spot_order_as_reference": true,
+      "maximum_absolute_statistic_delta": {
+        "mean": 0.0,
+        "variance": 0.0,
+        "zero_fraction": 0.0,
+        "log1p_mean": 0.0,
+        "log1p_variance": 0.0
+      },
+      "h5ad": "inputs/00_simulator_benchmark/external/SRTsim/DLPFC_151670.h5ad"
+    },
+    {
+      "panel_id": "b",
+      "sample": "DLPFC_151670",
+      "source": "Splatter",
+      "spots": 3480,
+      "genes": 18326,
+      "zero_mean_genes": 827,
+      "archived_zero_mean_genes": 827,
+      "same_spot_order_as_reference": true,
+      "maximum_absolute_statistic_delta": {
+        "mean": 0.0,
+        "variance": 0.0,
+        "zero_fraction": 0.0,
+        "log1p_mean": 0.0,
+        "log1p_variance": 0.0
+      },
+      "h5ad": "inputs/00_simulator_benchmark/external/Splatter/DLPFC_151670.h5ad"
+    },
+    {
+      "panel_id": "b",
+      "sample": "DLPFC_151670",
+      "source": "Splatter Simple",
+      "spots": 3480,
+      "genes": 18326,
+      "zero_mean_genes": 125,
+      "archived_zero_mean_genes": 125,
+      "same_spot_order_as_reference": true,
+      "maximum_absolute_statistic_delta": {
+        "mean": 0.0,
+        "variance": 0.0,
+        "zero_fraction": 0.0,
+        "log1p_mean": 0.0,
+        "log1p_variance": 0.0
+      },
+      "h5ad": "inputs/00_simulator_benchmark/external/Splatter_Simple/DLPFC_151670.h5ad"
+    },
+    {
+      "panel_id": "b",
+      "sample": "DLPFC_151670",
+      "source": "scCube",
+      "spots": 3480,
+      "genes": 18326,
+      "zero_mean_genes": 17587,
+      "archived_zero_mean_genes": 17587,
+      "same_spot_order_as_reference": false,
+      "maximum_absolute_statistic_delta": {
+        "mean": 0.0,
+        "variance": 0.0,
+        "zero_fraction": 0.0,
+        "log1p_mean": 0.0,
+        "log1p_variance": 0.0
+      },
+      "h5ad": "inputs/00_simulator_benchmark/external/scCube/DLPFC_151670.h5ad"
+    },
+    {
+      "panel_id": "c",
+      "sample": "MERFISH_120",
+      "source": "Reference",
+      "spots": 22270,
+      "genes": 1122,
+      "zero_mean_genes": 0,
+      "archived_zero_mean_genes": 0,
+      "same_spot_order_as_reference": true,
+      "maximum_absolute_statistic_delta": {
+        "mean": 0.0,
+        "variance": 0.0,
+        "zero_fraction": 0.0,
+        "log1p_mean": 0.0,
+        "log1p_variance": 0.0
+      },
+      "h5ad": "inputs/00_simulator_benchmark/reference/MERFISH_120.h5ad"
+    },
+    {
+      "panel_id": "c",
+      "sample": "MERFISH_120",
+      "source": "FEAST",
+      "spots": 22270,
+      "genes": 1122,
+      "zero_mean_genes": 0,
+      "archived_zero_mean_genes": 0,
+      "same_spot_order_as_reference": true,
+      "maximum_absolute_statistic_delta": {
+        "mean": 0.0,
+        "variance": 0.015177368657390389,
+        "zero_fraction": 0.0,
+        "log1p_mean": 0.0,
+        "log1p_variance": 0.0010589991472609306
+      },
+      "h5ad": "results/00_simulator_benchmark/run/simulations/MERFISH_120.h5ad"
+    },
+    {
+      "panel_id": "c",
+      "sample": "MERFISH_120",
+      "source": "SRTsim",
+      "spots": 22270,
+      "genes": 1122,
+      "zero_mean_genes": 0,
+      "archived_zero_mean_genes": 0,
+      "same_spot_order_as_reference": false,
+      "maximum_absolute_statistic_delta": {
+        "mean": 0.0,
+        "variance": 0.0,
+        "zero_fraction": 0.0,
+        "log1p_mean": 0.0,
+        "log1p_variance": 0.0
+      },
+      "h5ad": "inputs/00_simulator_benchmark/external/SRTsim/MERFISH_120.h5ad"
+    },
+    {
+      "panel_id": "c",
+      "sample": "MERFISH_120",
+      "source": "Splatter",
+      "spots": 22270,
+      "genes": 1122,
+      "zero_mean_genes": 2,
+      "archived_zero_mean_genes": 2,
+      "same_spot_order_as_reference": false,
+      "maximum_absolute_statistic_delta": {
+        "mean": 0.0,
+        "variance": 0.0,
+        "zero_fraction": 0.0,
+        "log1p_mean": 0.0,
+        "log1p_variance": 0.0
+      },
+      "h5ad": "inputs/00_simulator_benchmark/external/Splatter/MERFISH_120.h5ad"
+    },
+    {
+      "panel_id": "c",
+      "sample": "MERFISH_120",
+      "source": "Splatter Simple",
+      "spots": 22270,
+      "genes": 1122,
+      "zero_mean_genes": 0,
+      "archived_zero_mean_genes": 0,
+      "same_spot_order_as_reference": false,
+      "maximum_absolute_statistic_delta": {
+        "mean": 0.0,
+        "variance": 0.0,
+        "zero_fraction": 0.0,
+        "log1p_mean": 0.0,
+        "log1p_variance": 0.0
+      },
+      "h5ad": "inputs/00_simulator_benchmark/external/Splatter_Simple/MERFISH_120.h5ad"
+    },
+    {
+      "panel_id": "c",
+      "sample": "MERFISH_120",
+      "source": "scCube",
+      "spots": 22270,
+      "genes": 1122,
+      "zero_mean_genes": 627,
+      "archived_zero_mean_genes": 627,
+      "same_spot_order_as_reference": false,
+      "maximum_absolute_statistic_delta": {
+        "mean": 0.0,
+        "variance": 0.0,
+        "zero_fraction": 0.0,
+        "log1p_mean": 0.0,
+        "log1p_variance": 0.0
+      },
+      "h5ad": "inputs/00_simulator_benchmark/external/scCube/MERFISH_120.h5ad"
+    }
+  ],
+  "archived_comparator_values_verified": 384,
+  "corrected_scCube_Slide_seq_Moran": 0.9877453635168736
+}

@@ -1,0 +1,81 @@
+condition,condition_role,alpha,x_position,method,representation,analysis_role,metric,metric_label,preferred_direction,seed_mean,seed_sd,seed_min,seed_max,seed_n
+raw,natural_data_anchor,,-0.55,GraphST,pca10_randomized_seed42,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.012528181461837568,0.0006492342299150906,0.0118047132715653,0.0130600637821821,3
+sim_0.00,resampling_control,0.0,0.0,GraphST,pca10_randomized_seed42,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.016880202606202932,0.0007169716251164178,0.0160648848793949,0.0174123245745277,3
+sim_0.50,interpolation,0.5,0.5,GraphST,pca10_randomized_seed42,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0296856284959764,0.0032709368124747497,0.0261975444465354,0.0326842540688231,3
+sim_1.00,primary_endpoint,1.0,1.0,GraphST,pca10_randomized_seed42,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0840628630229196,0.0022502453530653045,0.0818489839933088,0.0863477918758258,3
+raw,natural_data_anchor,,-0.55,STAMP,native_10d_topics,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.007048263640634667,0.00027399153652919354,0.0068589946207016,0.0073624529060947,3
+sim_0.00,resampling_control,0.0,0.0,STAMP,native_10d_topics,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0196293893557217,0.001617819047438515,0.0183620230330931,0.0214516327483474,3
+sim_0.50,interpolation,0.5,0.5,STAMP,native_10d_topics,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0799118984492159,0.010610776955541195,0.0737010783752206,0.0921637762802085,3
+sim_1.00,primary_endpoint,1.0,1.0,STAMP,native_10d_topics,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.07678667693579927,0.03995490969377306,0.0472602103519563,0.1222506534914019,3
+raw,natural_data_anchor,,-0.55,Uncorrected,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0088134240839474,,0.0088134240839474,0.0088134240839474,1
+sim_0.00,resampling_control,0.0,0.0,Uncorrected,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0158891315636256,,0.0158891315636256,0.0158891315636256,1
+sim_0.50,interpolation,0.5,0.5,Uncorrected,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0215162585257426,,0.0215162585257426,0.0215162585257426,1
+sim_1.00,primary_endpoint,1.0,1.0,Uncorrected,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0696474423502977,,0.0696474423502977,0.0696474423502977,1
+raw,natural_data_anchor,,-0.55,scVI,native_10d_latent,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.0034927465331380998,0.0007282901928350756,0.0026525151969764,0.003943112511609,3
+sim_0.00,resampling_control,0.0,0.0,scVI,native_10d_latent,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.005637171575671801,0.00018543408676909468,0.0054277306246868,0.005780449366602,3
+sim_0.50,interpolation,0.5,0.5,scVI,native_10d_latent,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.011012691788732034,0.0013866298250743972,0.0095499741959475,0.0123080410146573,3
+sim_1.00,primary_endpoint,1.0,1.0,scVI,native_10d_latent,primary,conditional_batch_asw_macro,Layer-conditioned batch ASW,↓,0.023254845633718168,0.0021045323216491874,0.0213806878857599,0.025531590826111,3
+raw,natural_data_anchor,,-0.55,GraphST,pca10_randomized_seed42,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.9202272591280694,0.005371268293395965,0.9165645357028758,0.9263932333853516,3
+sim_0.00,resampling_control,0.0,0.0,GraphST,pca10_randomized_seed42,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.9087099522052279,0.005540415930336408,0.9047755760049108,0.9150459755754452,3
+sim_0.50,interpolation,0.5,0.5,GraphST,pca10_randomized_seed42,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.8317449252374535,0.012197866763891962,0.8210155437881134,0.8450120354571629,3
+sim_1.00,primary_endpoint,1.0,1.0,GraphST,pca10_randomized_seed42,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.5515747040074593,0.0037203821712745097,0.5481953329918209,0.5555613727878198,3
+raw,natural_data_anchor,,-0.55,STAMP,native_10d_topics,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.9348408860927666,0.002446781300971988,0.9322073462605664,0.9370437088847988,3
+sim_0.00,resampling_control,0.0,0.0,STAMP,native_10d_topics,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.8921683271837898,0.007777205616212979,0.8833821742435385,0.8981699945216438,3
+sim_0.50,interpolation,0.5,0.5,STAMP,native_10d_topics,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.6577352809609781,0.02963656497319863,0.6235170606013278,0.6752456765435294,3
+sim_1.00,primary_endpoint,1.0,1.0,STAMP,native_10d_topics,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.5739438749696348,0.1225921667291492,0.4368811306620594,0.6731214938023335,3
+raw,natural_data_anchor,,-0.55,Uncorrected,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.944756392656278,,0.944756392656278,0.944756392656278,1
+sim_0.00,resampling_control,0.0,0.0,Uncorrected,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.9249317962134224,,0.9249317962134224,0.9249317962134224,1
+sim_0.50,interpolation,0.5,0.5,Uncorrected,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.8377454901527502,,0.8377454901527502,0.8377454901527502,1
+sim_1.00,primary_endpoint,1.0,1.0,Uncorrected,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.5651114589096166,,0.5651114589096166,0.5651114589096166,1
+raw,natural_data_anchor,,-0.55,scVI,native_10d_latent,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.9590493146999021,0.002677191053540076,0.9570118485903184,0.962081477869294,3
+sim_0.00,resampling_control,0.0,0.0,scVI,native_10d_latent,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.9509911842600505,0.002753646098749266,0.947831897797079,0.952881871894831,3
+sim_0.50,interpolation,0.5,0.5,scVI,native_10d_latent,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.8928475734605364,0.008480073589555027,0.8863248184802239,0.9024336563734278,3
+sim_1.00,primary_endpoint,1.0,1.0,scVI,native_10d_latent,primary,conditional_batch_entropy_macro,Layer-conditioned batch entropy,↑,0.8166557058236871,0.021449217456526518,0.7921210033733157,0.8318565210849852,3
+raw,natural_data_anchor,,-0.55,GraphST,pca10_randomized_seed42,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.017809037051277,0.0008548077823793439,0.0169740020707701,0.0186823327560314,3
+sim_0.00,resampling_control,0.0,0.0,GraphST,pca10_randomized_seed42,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0233184351715468,0.0008953025214093864,0.0222952190794595,0.0239578642898446,3
+sim_0.50,interpolation,0.5,0.5,GraphST,pca10_randomized_seed42,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0391516525042023,0.004012826502100335,0.0349924819095822,0.043000065523365,3
+sim_1.00,primary_endpoint,1.0,1.0,GraphST,pca10_randomized_seed42,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.10794126105572764,0.0028747501251141223,0.1052718018486184,0.1109846974621096,3
+raw,natural_data_anchor,,-0.55,STAMP,native_10d_topics,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.012196113041792933,0.000266841477263032,0.0119131642753375,0.0124432253474677,3
+sim_0.00,resampling_control,0.0,0.0,STAMP,native_10d_topics,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.028958566285118666,0.002336741470621997,0.026651139373089,0.0313235586044658,3
+sim_0.50,interpolation,0.5,0.5,STAMP,native_10d_topics,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.10676092641471213,0.014323405102408296,0.0983856081853978,0.1232997177505862,3
+sim_1.00,primary_endpoint,1.0,1.0,STAMP,native_10d_topics,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0901022515826384,0.049984473806794674,0.0534108001927489,0.1470323091743476,3
+raw,natural_data_anchor,,-0.55,Uncorrected,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0135426860184573,,0.0135426860184573,0.0135426860184573,1
+sim_0.00,resampling_control,0.0,0.0,Uncorrected,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0222812141979593,,0.0222812141979593,0.0222812141979593,1
+sim_0.50,interpolation,0.5,0.5,Uncorrected,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0247253656477246,,0.0247253656477246,0.0247253656477246,1
+sim_1.00,primary_endpoint,1.0,1.0,Uncorrected,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0805402758740659,,0.0805402758740659,0.0805402758740659,1
+raw,natural_data_anchor,,-0.55,scVI,native_10d_latent,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.006587872866601101,0.0007487302244731736,0.0057591371199617,0.0072155357134227,3
+sim_0.00,resampling_control,0.0,0.0,scVI,native_10d_latent,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.009634943752093967,0.0001419284667282584,0.0094851947703833,0.009767482109671,3
+sim_0.50,interpolation,0.5,0.5,scVI,native_10d_latent,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.016198767649866,0.0018524798970284513,0.0142397343837728,0.0179221413025405,3
+sim_1.00,primary_endpoint,1.0,1.0,scVI,native_10d_latent,primary,conditional_mmd2_macro,Layer-conditioned MMD²,↓,0.0289875643227771,0.0019711144081677335,0.0272954913604472,0.031151917468367,3
+raw,natural_data_anchor,,-0.55,GraphST,pca10_randomized_seed42,primary,layer_asw,Layer separation ASW,↑,0.07521965147498806,0.002579263530841919,0.0736876828615139,0.0781975138269683,3
+sim_0.00,resampling_control,0.0,0.0,GraphST,pca10_randomized_seed42,primary,layer_asw,Layer separation ASW,↑,0.07289896954493137,0.0024857819071364626,0.0714318559244608,0.0757690644213661,3
+sim_0.50,interpolation,0.5,0.5,GraphST,pca10_randomized_seed42,primary,layer_asw,Layer separation ASW,↑,0.0626064423678096,0.0017077567172085802,0.0612230512918583,0.0645151444190812,3
+sim_1.00,primary_endpoint,1.0,1.0,GraphST,pca10_randomized_seed42,primary,layer_asw,Layer separation ASW,↑,0.05132941246742347,0.00214085939556431,0.0498255613971134,0.0537804857066706,3
+raw,natural_data_anchor,,-0.55,STAMP,native_10d_topics,primary,layer_asw,Layer separation ASW,↑,0.1732027927771729,0.001844773012717959,0.1711877825502332,0.1748086187138211,3
+sim_0.00,resampling_control,0.0,0.0,STAMP,native_10d_topics,primary,layer_asw,Layer separation ASW,↑,0.16341434887944292,0.01374246124620855,0.1489570647367389,0.1763082749257059,3
+sim_0.50,interpolation,0.5,0.5,STAMP,native_10d_topics,primary,layer_asw,Layer separation ASW,↑,0.11723569982168658,0.008400005192660554,0.1094045734172484,0.1261075904611325,3
+sim_1.00,primary_endpoint,1.0,1.0,STAMP,native_10d_topics,primary,layer_asw,Layer separation ASW,↑,0.1226012535215551,0.010509092884660344,0.1115094329060713,0.1324097533983108,3
+raw,natural_data_anchor,,-0.55,Uncorrected,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,layer_asw,Layer separation ASW,↑,0.0419041986612781,,0.0419041986612781,0.0419041986612781,1
+sim_0.00,resampling_control,0.0,0.0,Uncorrected,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,layer_asw,Layer separation ASW,↑,0.0392895432675868,,0.0392895432675868,0.0392895432675868,1
+sim_0.50,interpolation,0.5,0.5,Uncorrected,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,layer_asw,Layer separation ASW,↑,0.0283650885229797,,0.0283650885229797,0.0283650885229797,1
+sim_1.00,primary_endpoint,1.0,1.0,Uncorrected,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,layer_asw,Layer separation ASW,↑,0.0340761070048063,,0.0340761070048063,0.0340761070048063,1
+raw,natural_data_anchor,,-0.55,scVI,native_10d_latent,primary,layer_asw,Layer separation ASW,↑,0.04416259025335376,0.003998064834399985,0.0395660792078976,0.0468331186287254,3
+sim_0.00,resampling_control,0.0,0.0,scVI,native_10d_latent,primary,layer_asw,Layer separation ASW,↑,0.041514166814295865,0.0033136702386547517,0.0376913443953341,0.0435667588134002,3
+sim_0.50,interpolation,0.5,0.5,scVI,native_10d_latent,primary,layer_asw,Layer separation ASW,↑,0.030504699376388864,0.0022460427986926283,0.028626991071473,0.0329928652775909,3
+sim_1.00,primary_endpoint,1.0,1.0,scVI,native_10d_latent,primary,layer_asw,Layer separation ASW,↑,0.028090909935189663,0.003045221503228876,0.0248496079018497,0.0308921730177929,3
+raw,natural_data_anchor,,-0.55,GraphST,pca10_randomized_seed42,primary,layer_purity_k,Layer purity (k=30),↑,0.6906295661012641,0.005894347376574207,0.6843577282256528,0.6960548885077187,3
+sim_0.00,resampling_control,0.0,0.0,GraphST,pca10_randomized_seed42,primary,layer_purity_k,Layer purity (k=30),↑,0.6875293818690045,0.006107435256676497,0.6808986087287974,0.6929245283018868,3
+sim_0.50,interpolation,0.5,0.5,GraphST,pca10_randomized_seed42,primary,layer_purity_k,Layer purity (k=30),↑,0.6687631027253668,0.006016373718731873,0.6618448637316562,0.672770154373928,3
+sim_1.00,primary_endpoint,1.0,1.0,GraphST,pca10_randomized_seed42,primary,layer_purity_k,Layer purity (k=30),↑,0.6628819642970586,0.0027093949463149565,0.659853249475891,0.665075281113017,3
+raw,natural_data_anchor,,-0.55,STAMP,native_10d_topics,primary,layer_purity_k,Layer purity (k=30),↑,0.7119385680706435,0.004128723082077574,0.7085525061940157,0.716538021726701,3
+sim_0.00,resampling_control,0.0,0.0,STAMP,native_10d_topics,primary,layer_purity_k,Layer purity (k=30),↑,0.6973079855155326,0.013619783074354184,0.6850485991995426,0.7119687440442157,3
+sim_0.50,interpolation,0.5,0.5,STAMP,native_10d_topics,primary,layer_purity_k,Layer purity (k=30),↑,0.6568975922749508,0.01600459929900623,0.6384171907756814,0.6661949685534592,3
+sim_1.00,primary_endpoint,1.0,1.0,STAMP,native_10d_topics,primary,layer_purity_k,Layer purity (k=30),↑,0.6476732736166698,0.011864272726432949,0.6341528492471888,0.6563464837049743,3
+raw,natural_data_anchor,,-0.55,Uncorrected,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,layer_purity_k,Layer purity (k=30),↑,0.5731322660567943,,0.5731322660567943,0.5731322660567943,1
+sim_0.00,resampling_control,0.0,0.0,Uncorrected,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,layer_purity_k,Layer purity (k=30),↑,0.5675767105012388,,0.5675767105012388,0.5675767105012388,1
+sim_0.50,interpolation,0.5,0.5,Uncorrected,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,layer_purity_k,Layer purity (k=30),↑,0.5498332380407852,,0.5498332380407852,0.5498332380407852,1
+sim_1.00,primary_endpoint,1.0,1.0,Uncorrected,fixed_panel_log1p_pca10_seed42,uncorrected_baseline,layer_purity_k,Layer purity (k=30),↑,0.5523966075852869,,0.5523966075852869,0.5523966075852869,1
+raw,natural_data_anchor,,-0.55,scVI,native_10d_latent,primary,layer_purity_k,Layer purity (k=30),↑,0.5781033606505305,0.013895031148615102,0.5633790737564323,0.5909853249475892,3
+sim_0.00,resampling_control,0.0,0.0,scVI,native_10d_latent,primary,layer_purity_k,Layer purity (k=30),↑,0.5698256146369354,0.008370539139183895,0.5624737945492663,0.578935582237469,3
+sim_0.50,interpolation,0.5,0.5,scVI,native_10d_latent,primary,layer_purity_k,Layer purity (k=30),↑,0.5407613874595006,0.0044665376939770785,0.5375881456070135,0.5458690680388794,3
+sim_1.00,primary_endpoint,1.0,1.0,scVI,native_10d_latent,primary,layer_purity_k,Layer purity (k=30),↑,0.5319261800393876,0.008200628786076884,0.5228082713931771,0.5386983037926434,3

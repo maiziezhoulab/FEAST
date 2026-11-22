@@ -1,0 +1,5 @@
+condition,gap,n_cells,n_sections,n_clusters
+Observed,0,91200,76,36
+FEAST_gap3,3,91200,76,26
+FEAST_gap5,5,91200,76,22
+FEAST_gap10,10,91200,76,22

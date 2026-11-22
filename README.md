@@ -37,8 +37,4 @@ The six notebooks cover single-slice simulation and GraphST clustering, alignmen
 
 ## Article Reproduction
 
-The article's analysis and plotting scripts are in [figure_reproduce](https://github.com/maiziezhoulab/FEAST/tree/v1.1.0/figure_reproduce).
-The `reproduce_code/` subdirectory contains the study and preprocessing scripts, and
-`reproduce_figures/Scripts/` contains the plotting scripts. To replay an article
-workflow, use the corresponding study configuration, inputs and results in the
-external reproduction workspace.
+To recreate the manuscript PDFs from a checkout, follow the [figure reproduction guide](figure_reproduce/reproduce_figures/README.md). The repository includes the plotting inputs for Figures 2–7 and S1–S5, plus the Figure 1 schematic. The [study analysis scripts](figure_reproduce/reproduce_code/) use the external study archive for simulations and method fitting.

@@ -1,0 +1,5 @@
+Setting,Same-slice,Two-slice
+Reference,151673 · simulated at α=0,151675 · raw section
+Query,151673 · FEAST generated,151676 · raw or FEAST generated
+Conditions shown,"α = 0.25, 0.5, 0.75, 1.0","Raw anchor; α = 0, 0.5, 1.0"
+Spot pairing,Known one-to-one pairs,No cross-section pairs

@@ -1,0 +1,11 @@
+region_id	region_label	hex_color	include_in_st_reference	include_in_devccf_target	include_in_final_generation	description	notes
+0	Background	#000000	False	False	False	Atlas background	atlas_only
+1	DorsalVZ	#cc4c02	True	True	True	Dorsal cortical ventricular/periventricular zone	
+2	IZ	#756bb1	True	True	True	Cortical intermediate zone	
+3	CP	#2b8cbe	True	True	True	Cortical plate / superficial cortical stratum	
+4	VentralVZ	#fd8d3c	True	True	True	Ventral ganglionic ventricular zone	
+5	GE	#31a354	True	True	True	Non-VZ ganglionic eminence	
+6	SeptalVZ	#e6550d	True	True	True	Septal ventricular zone	
+7	Septum	#636363	True	True	True	Non-VZ septal domain	
+8	BT	#de2d26	True	True	True	Basal/lateral telencephalon residual	
+9	Other	#d9d9d9	True	True	False	Non-target or unresolved annotated tissue	

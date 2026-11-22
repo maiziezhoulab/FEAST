@@ -41,6 +41,7 @@ CLUSTERING = {
 
 def panel_args(letter, description, *, plot_data_help=None):
     parser = argparse.ArgumentParser(description=description)
+    parser.add_argument("--tables-dir", type=Path, help="Directory for exported plotting tables.")
     parser.add_argument("--inputs", type=Path, default=INPUTS)
     parser.add_argument("--results", type=Path, default=RESULTS)
     parser.add_argument("--output", type=Path, default=OUTPUT / f"{letter}.pdf")

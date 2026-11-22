@@ -53,6 +53,8 @@ LAYER_COLORS = {
 
 def panel_args(letter, description):
     parser = argparse.ArgumentParser(description=description)
+    if letter == "c":
+        parser.add_argument("--tables-dir", type=Path, help="Directory for the primary metrics export.")
     parser.add_argument("--results", type=Path, default=RESULTS)
     parser.add_argument("--output", type=Path, default=OUTPUT / f"{letter}.pdf")
     return parser.parse_args()

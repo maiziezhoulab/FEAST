@@ -1,0 +1,40 @@
+slice_id,class_order,cell_class,display_label
+007,0,03 OB-CR Glut,OB-CR Glut
+007,1,05 OB-IMN GABA,OB-IMN GABA
+007,2,30 Astro-Epen,Astro-Epen
+007,3,31 OPC-Oligo,OPC-Oligo
+007,4,32 OEC,OEC
+007,5,33 Vascular,Vascular
+007,6,34 Immune,Immune
+007,7,Other,Other
+050,0,01 IT-ET Glut,IT-ET Glut
+050,1,02 NP-CT-L6b Glut,NP-CT-L6b Glut
+050,2,05 OB-IMN GABA,OB-IMN GABA
+050,3,06 CTX-CGE GABA,CTX-CGE GABA
+050,4,07 CTX-MGE GABA,CTX-MGE GABA
+050,5,08 CNU-MGE GABA,CNU-MGE GABA
+050,6,09 CNU-LGE GABA,CNU-LGE GABA
+050,7,10 LSX GABA,LSX GABA
+050,8,11 CNU-HYa GABA,CNU-HYa GABA
+050,9,13 CNU-HYa Glut,CNU-HYa Glut
+050,10,30 Astro-Epen,Astro-Epen
+050,11,31 OPC-Oligo,OPC-Oligo
+050,12,33 Vascular,Vascular
+050,13,34 Immune,Immune
+050,14,Other,Other
+100,0,01 IT-ET Glut,IT-ET Glut
+100,1,02 NP-CT-L6b Glut,NP-CT-L6b Glut
+100,2,03 OB-CR Glut,OB-CR Glut
+100,3,04 DG-IMN Glut,DG-IMN Glut
+100,4,06 CTX-CGE GABA,CTX-CGE GABA
+100,5,07 CTX-MGE GABA,CTX-MGE GABA
+100,6,19 MB Glut,MB Glut
+100,7,20 MB GABA,MB GABA
+100,8,21 MB Dopa,MB Dopa
+100,9,23 P Glut,P Glut
+100,10,26 P GABA,P GABA
+100,11,30 Astro-Epen,Astro-Epen
+100,12,31 OPC-Oligo,OPC-Oligo
+100,13,33 Vascular,Vascular
+100,14,34 Immune,Immune
+100,15,Other,Other

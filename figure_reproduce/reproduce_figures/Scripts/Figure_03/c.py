@@ -31,7 +31,7 @@ def main():
     counts = audit.groupby("slice_id").n_retained_cell_classes
     if len(audit) != 6 or not counts.nunique().eq(1).all():
         raise ValueError("Retained class count differs across displayed resolutions")
-    tables = study / "figure3"
+    tables = args.tables_dir or study / "figure3"
     tables.mkdir(parents=True, exist_ok=True)
     rows.to_csv(tables / "c_scores.csv", index=False)
     audit.to_csv(tables / "c_support.csv", index=False)

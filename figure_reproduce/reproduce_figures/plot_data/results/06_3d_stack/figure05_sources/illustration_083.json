@@ -1,0 +1,30 @@
+{
+  "measured_slices": [
+    80,
+    81,
+    82,
+    83,
+    84,
+    85,
+    86
+  ],
+  "target": 83,
+  "brackets": [
+    82,
+    84
+  ],
+  "target_spots": 30500,
+  "archive_FEAST": "1.1.0",
+  "archive_commit": "68816e5c1862a6fa2a49bc30609d617c7fa4b449",
+  "reference_weights": {
+    "Zhuang-ABCA-1.082": 0.49863314000902914,
+    "Zhuang-ABCA-1.084": 0.5013668599909709
+  },
+  "assignment_randomness": 0.35000000000000003,
+  "seed": 32052,
+  "display_quantiles": [
+    0.02,
+    0.98
+  ],
+  "source": "inputs/06_3d_stack/illustration_083/provenance.json"
+}

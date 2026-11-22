@@ -27,6 +27,7 @@ Repository scope
 The FEAST repository contains the installable Python tool, documentation,
 tutorial notebooks, and article reproduction scripts under ``figure_reproduce/``.
 
-The reproduction scripts use study configuration files, prepared data and
-intermediate results from the external reproduction workspace. See
+Run ``bash figure_reproduce/reproduce_figures/render_pdfs.sh`` from the checkout
+to render the manuscript PDFs with the included plotting inputs. Repeating the
+underlying analyses uses the full study archive. See
 :doc:`tutorials` for the inputs used by the six package notebooks.

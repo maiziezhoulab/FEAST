@@ -1,0 +1,543 @@
+{
+  "input": "top5_spatial",
+  "framing_lrs": [
+    "Wnt7a--Fzd2_Lrp5",
+    "Vegfb--Fzd2",
+    "Wnt7a--Fzd8_Lrp5",
+    "Wnt7a--Fzd8_Lrp6",
+    "Wnt7a--Fzd2_Lrp6"
+  ],
+  "voxel_mm": 0.02,
+  "routes": [
+    {
+      "LR": "Wnt7a--Fzd2_Lrp5",
+      "stage": "E15.5",
+      "mode": "forward",
+      "sender_region": "IZ",
+      "receiver_region": "DorsalVZ",
+      "source": "Wnt7a-Fzd2_Lrp5_E15.5_forward.png",
+      "render_pixels": [
+        2640,
+        2040
+      ],
+      "inter_region_mass": 4410.936183195008,
+      "view": [
+        0.5965499862718936,
+        -0.5965499862718936,
+        0.5368949876447042
+      ],
+      "up": [
+        -0.379642086548638,
+        0.379642086548638,
+        0.8436490812191957
+      ],
+      "parallel_scale_mm": 2.3316773077283837,
+      "midline_x_mm": 4.779999893158674,
+      "center_mm": [
+        5.839999869465828,
+        7.35999983549118,
+        -2.1799999999999997
+      ],
+      "world_bounds_before_projection": [
+        [
+          4.8799998909235,
+          5.879999868571758,
+          -3.26
+        ],
+        [
+          6.799999848008156,
+          8.839999802410603,
+          -1.1
+        ]
+      ],
+      "n_edges_drawn": 3221,
+      "right_hemisphere_W": 197.1935530237954,
+      "sender": {
+        "n_positive_positions_drawn": 1658,
+        "normalized_mass_pct_drawn": 4.470560099578694,
+        "display_percentile_min": 0.0018760269101550685,
+        "display_percentile_max": 0.9992888264000719
+      },
+      "receiver": {
+        "n_positive_positions_drawn": 2354,
+        "normalized_mass_pct_drawn": 4.4705600995786945,
+        "display_percentile_min": 0.00033515077697759396,
+        "display_percentile_max": 0.9927002525892441
+      },
+      "crop_pixels": [
+        705,
+        276,
+        1935,
+        1912
+      ],
+      "cropped_world_width_mm": 2.8117285181430507,
+      "display_width_pt": 45.86185819070904,
+      "scale_bar_pt": 16.310912627154195,
+      "scale_bar_mm": 1.0
+    },
+    {
+      "LR": "Wnt7a--Fzd2_Lrp5",
+      "stage": "E18.5",
+      "mode": "forward",
+      "sender_region": "IZ",
+      "receiver_region": "DorsalVZ",
+      "source": "Wnt7a-Fzd2_Lrp5_E18.5_forward.png",
+      "render_pixels": [
+        2640,
+        2040
+      ],
+      "inter_region_mass": 3547.3939120820664,
+      "view": [
+        0.5965499862718936,
+        -0.5965499862718936,
+        0.5368949876447042
+      ],
+      "up": [
+        -0.379642086548638,
+        0.379642086548638,
+        0.8436490812191957
+      ],
+      "parallel_scale_mm": 2.3316773077283837,
+      "midline_x_mm": 5.4199998788535595,
+      "center_mm": [
+        6.729999849572778,
+        7.689999828115106,
+        -3.1899999999999995
+      ],
+      "world_bounds_before_projection": [
+        [
+          5.579999875277281,
+          5.7799998708069324,
+          -4.579999999999999
+        ],
+        [
+          7.879999823868275,
+          9.599999785423279,
+          -1.8
+        ]
+      ],
+      "n_edges_drawn": 6813,
+      "right_hemisphere_W": 580.3574876313141,
+      "sender": {
+        "n_positive_positions_drawn": 3975,
+        "normalized_mass_pct_drawn": 16.360108350377303,
+        "display_percentile_min": 3.678484137558958e-05,
+        "display_percentile_max": 0.9996893724506062
+      },
+      "receiver": {
+        "n_positive_positions_drawn": 4482,
+        "normalized_mass_pct_drawn": 16.360108350377303,
+        "display_percentile_min": 3.678484137558958e-05,
+        "display_percentile_max": 0.9993787449012123
+      },
+      "crop_pixels": [
+        705,
+        276,
+        1935,
+        1912
+      ],
+      "cropped_world_width_mm": 2.8117285181430507,
+      "display_width_pt": 45.86185819070904,
+      "scale_bar_pt": 16.310912627154195,
+      "scale_bar_mm": 1.0
+    },
+    {
+      "LR": "Wnt7a--Fzd2_Lrp5",
+      "stage": "E15.5",
+      "mode": "reverse",
+      "sender_region": "DorsalVZ",
+      "receiver_region": "IZ",
+      "source": "Wnt7a-Fzd2_Lrp5_E15.5_reverse.png",
+      "render_pixels": [
+        2640,
+        2040
+      ],
+      "inter_region_mass": 4410.936183195008,
+      "view": [
+        0.5965499862718936,
+        -0.5965499862718936,
+        0.5368949876447042
+      ],
+      "up": [
+        -0.379642086548638,
+        0.379642086548638,
+        0.8436490812191957
+      ],
+      "parallel_scale_mm": 2.3316773077283837,
+      "midline_x_mm": 4.779999893158674,
+      "center_mm": [
+        5.839999869465828,
+        7.35999983549118,
+        -2.1799999999999997
+      ],
+      "world_bounds_before_projection": [
+        [
+          4.8799998909235,
+          5.879999868571758,
+          -3.26
+        ],
+        [
+          6.799999848008156,
+          8.839999802410603,
+          -1.1
+        ]
+      ],
+      "n_edges_drawn": 5451,
+      "right_hemisphere_W": 314.2975923206367,
+      "sender": {
+        "n_positive_positions_drawn": 4000,
+        "normalized_mass_pct_drawn": 7.125416901701332,
+        "display_percentile_min": 0.00014713936550235832,
+        "display_percentile_max": 0.9992683903770855
+      },
+      "receiver": {
+        "n_positive_positions_drawn": 2045,
+        "normalized_mass_pct_drawn": 7.125416901701332,
+        "display_percentile_min": 0.0006948247815389142,
+        "display_percentile_max": 0.9962561205888845
+      },
+      "crop_pixels": [
+        705,
+        276,
+        1935,
+        1912
+      ],
+      "cropped_world_width_mm": 2.8117285181430507,
+      "display_width_pt": 45.86185819070904,
+      "scale_bar_pt": 16.310912627154195,
+      "scale_bar_mm": 1.0
+    },
+    {
+      "LR": "Wnt7a--Fzd2_Lrp5",
+      "stage": "E18.5",
+      "mode": "reverse",
+      "sender_region": "DorsalVZ",
+      "receiver_region": "IZ",
+      "source": "Wnt7a-Fzd2_Lrp5_E18.5_reverse.png",
+      "render_pixels": [
+        2640,
+        2040
+      ],
+      "inter_region_mass": 3547.3939120820664,
+      "view": [
+        0.5965499862718936,
+        -0.5965499862718936,
+        0.5368949876447042
+      ],
+      "up": [
+        -0.379642086548638,
+        0.379642086548638,
+        0.8436490812191957
+      ],
+      "parallel_scale_mm": 2.3316773077283837,
+      "midline_x_mm": 5.4199998788535595,
+      "center_mm": [
+        6.729999849572778,
+        7.689999828115106,
+        -3.1899999999999995
+      ],
+      "world_bounds_before_projection": [
+        [
+          5.579999875277281,
+          5.7799998708069324,
+          -4.579999999999999
+        ],
+        [
+          7.879999823868275,
+          9.599999785423279,
+          -1.8
+        ]
+      ],
+      "n_edges_drawn": 2989,
+      "right_hemisphere_W": 164.5304513124037,
+      "sender": {
+        "n_positive_positions_drawn": 2569,
+        "normalized_mass_pct_drawn": 4.638065447201382,
+        "display_percentile_min": 0.0001307905471132074,
+        "display_percentile_max": 0.9989209779863161
+      },
+      "receiver": {
+        "n_positive_positions_drawn": 1534,
+        "normalized_mass_pct_drawn": 4.638065447201382,
+        "display_percentile_min": 0.0010667603998920979,
+        "display_percentile_max": 0.9988106234621893
+      },
+      "crop_pixels": [
+        705,
+        276,
+        1935,
+        1912
+      ],
+      "cropped_world_width_mm": 2.8117285181430507,
+      "display_width_pt": 45.86185819070904,
+      "scale_bar_pt": 16.310912627154195,
+      "scale_bar_mm": 1.0
+    },
+    {
+      "LR": "Wnt7a--Fzd8_Lrp6",
+      "stage": "E15.5",
+      "mode": "forward",
+      "sender_region": "GE",
+      "receiver_region": "VentralVZ",
+      "source": "Wnt7a-Fzd8_Lrp6_E15.5_forward.png",
+      "render_pixels": [
+        2640,
+        2040
+      ],
+      "inter_region_mass": 4391.566976911789,
+      "view": [
+        0.5965499862718936,
+        -0.5965499862718936,
+        0.5368949876447042
+      ],
+      "up": [
+        -0.379642086548638,
+        0.379642086548638,
+        0.8436490812191957
+      ],
+      "parallel_scale_mm": 1.2267079318750616,
+      "midline_x_mm": 4.779999893158674,
+      "center_mm": [
+        5.919999867677689,
+        7.389999834820628,
+        -2.6399999999999997
+      ],
+      "world_bounds_before_projection": [
+        [
+          5.159999884665012,
+          6.239999860525131,
+          -3.34
+        ],
+        [
+          6.679999850690365,
+          8.539999809116125,
+          -1.94
+        ]
+      ],
+      "n_edges_drawn": 5202,
+      "right_hemisphere_W": 598.3488808540146,
+      "sender": {
+        "n_positive_positions_drawn": 2338,
+        "normalized_mass_pct_drawn": 13.624951731347197,
+        "display_percentile_min": 0.006065555514310108,
+        "display_percentile_max": 1.0
+      },
+      "receiver": {
+        "n_positive_positions_drawn": 2226,
+        "normalized_mass_pct_drawn": 13.624951731347196,
+        "display_percentile_min": 0.0028731578751995247,
+        "display_percentile_max": 0.9996584876944208
+      },
+      "crop_pixels": [
+        461,
+        180,
+        2026,
+        2040
+      ],
+      "cropped_world_width_mm": 1.8821548170435993,
+      "display_width_pt": 51.325268817204304,
+      "scale_bar_pt": 27.269419259476027,
+      "scale_bar_mm": 1.0
+    },
+    {
+      "LR": "Wnt7a--Fzd8_Lrp6",
+      "stage": "E18.5",
+      "mode": "forward",
+      "sender_region": "GE",
+      "receiver_region": "VentralVZ",
+      "source": "Wnt7a-Fzd8_Lrp6_E18.5_forward.png",
+      "render_pixels": [
+        2640,
+        2040
+      ],
+      "inter_region_mass": 4354.793141178168,
+      "view": [
+        0.5965499862718936,
+        -0.5965499862718936,
+        0.5368949876447042
+      ],
+      "up": [
+        -0.379642086548638,
+        0.379642086548638,
+        0.8436490812191957
+      ],
+      "parallel_scale_mm": 1.2267079318750616,
+      "midline_x_mm": 5.4199998788535595,
+      "center_mm": [
+        6.759999896734953,
+        7.859999850019813,
+        -3.9800000000000004
+      ],
+      "world_bounds_before_projection": [
+        [
+          5.979999866336584,
+          6.719999849796295,
+          -4.9
+        ],
+        [
+          7.539999927133321,
+          8.99999985024333,
+          -3.06
+        ]
+      ],
+      "n_edges_drawn": 2754,
+      "right_hemisphere_W": 232.08648933286014,
+      "sender": {
+        "n_positive_positions_drawn": 1841,
+        "normalized_mass_pct_drawn": 5.329449225458967,
+        "display_percentile_min": 0.001959983666802777,
+        "display_percentile_max": 0.9988344036526968
+      },
+      "receiver": {
+        "n_positive_positions_drawn": 1095,
+        "normalized_mass_pct_drawn": 5.329449225458967,
+        "display_percentile_min": 0.002472252125171684,
+        "display_percentile_max": 0.9989828872638182
+      },
+      "crop_pixels": [
+        461,
+        180,
+        2026,
+        2040
+      ],
+      "cropped_world_width_mm": 1.8821548170435993,
+      "display_width_pt": 51.325268817204304,
+      "scale_bar_pt": 27.269419259476027,
+      "scale_bar_mm": 1.0
+    },
+    {
+      "LR": "Wnt7a--Fzd8_Lrp6",
+      "stage": "E15.5",
+      "mode": "reverse",
+      "sender_region": "VentralVZ",
+      "receiver_region": "GE",
+      "source": "Wnt7a-Fzd8_Lrp6_E15.5_reverse.png",
+      "render_pixels": [
+        2640,
+        2040
+      ],
+      "inter_region_mass": 4391.566976911789,
+      "view": [
+        0.5965499862718936,
+        -0.5965499862718936,
+        0.5368949876447042
+      ],
+      "up": [
+        -0.379642086548638,
+        0.379642086548638,
+        0.8436490812191957
+      ],
+      "parallel_scale_mm": 1.2267079318750616,
+      "midline_x_mm": 4.779999893158674,
+      "center_mm": [
+        5.919999867677689,
+        7.389999834820628,
+        -2.6399999999999997
+      ],
+      "world_bounds_before_projection": [
+        [
+          5.159999884665012,
+          6.239999860525131,
+          -3.34
+        ],
+        [
+          6.679999850690365,
+          8.539999809116125,
+          -1.94
+        ]
+      ],
+      "n_edges_drawn": 1531,
+      "right_hemisphere_W": 50.337288530121114,
+      "sender": {
+        "n_positive_positions_drawn": 1161,
+        "normalized_mass_pct_drawn": 1.1462261373847697,
+        "display_percentile_min": 0.0005976465347637255,
+        "display_percentile_max": 0.9974238093470433
+      },
+      "receiver": {
+        "n_positive_positions_drawn": 548,
+        "normalized_mass_pct_drawn": 1.14622613738477,
+        "display_percentile_min": 0.0005976465347637255,
+        "display_percentile_max": 0.9974646423401017
+      },
+      "crop_pixels": [
+        461,
+        180,
+        2026,
+        2040
+      ],
+      "cropped_world_width_mm": 1.8821548170435993,
+      "display_width_pt": 51.325268817204304,
+      "scale_bar_pt": 27.269419259476027,
+      "scale_bar_mm": 1.0
+    },
+    {
+      "LR": "Wnt7a--Fzd8_Lrp6",
+      "stage": "E18.5",
+      "mode": "reverse",
+      "sender_region": "VentralVZ",
+      "receiver_region": "GE",
+      "source": "Wnt7a-Fzd8_Lrp6_E18.5_reverse.png",
+      "render_pixels": [
+        2640,
+        2040
+      ],
+      "inter_region_mass": 4354.793141178168,
+      "view": [
+        0.5965499862718936,
+        -0.5965499862718936,
+        0.5368949876447042
+      ],
+      "up": [
+        -0.379642086548638,
+        0.379642086548638,
+        0.8436490812191957
+      ],
+      "parallel_scale_mm": 1.2267079318750616,
+      "midline_x_mm": 5.4199998788535595,
+      "center_mm": [
+        6.759999896734953,
+        7.859999850019813,
+        -3.9800000000000004
+      ],
+      "world_bounds_before_projection": [
+        [
+          5.979999866336584,
+          6.719999849796295,
+          -4.9
+        ],
+        [
+          7.539999927133321,
+          8.99999985024333,
+          -3.06
+        ]
+      ],
+      "n_edges_drawn": 611,
+      "right_hemisphere_W": 15.840002726360591,
+      "sender": {
+        "n_positive_positions_drawn": 525,
+        "normalized_mass_pct_drawn": 0.3637372020402134,
+        "display_percentile_min": 7.424180556071124e-06,
+        "display_percentile_max": 0.9480641449200045
+      },
+      "receiver": {
+        "n_positive_positions_drawn": 304,
+        "normalized_mass_pct_drawn": 0.3637372020402134,
+        "display_percentile_min": 0.0007906752292215747,
+        "display_percentile_max": 0.9480641449200045
+      },
+      "crop_pixels": [
+        461,
+        180,
+        2026,
+        2040
+      ],
+      "cropped_world_width_mm": 1.8821548170435993,
+      "display_width_pt": 51.325268817204304,
+      "scale_bar_pt": 27.269419259476027,
+      "scale_bar_mm": 1.0
+    }
+  ],
+  "denominator": "full atlas, all cross-region weights for the LR and stage",
+  "color_reference": "positive full-atlas sender and receiver marginals, pooled across stages per LR"
+}

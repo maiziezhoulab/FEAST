@@ -1,0 +1,9 @@
+panel_id,mode,method,n_pairs,macro_f1
+b,shift_only,Uncorrected,3611,0.5949159566510553
+b,shift_only,GraphST,3611,0.5526898644278917
+b,shift_only,STAMP,3611,0.6400909567989611
+b,shift_only,scVI,3611,0.6357112823926053
+c,diagonal_affine,Uncorrected,3611,0.6135179603686769
+c,diagonal_affine,GraphST,3611,0.5784069727889335
+c,diagonal_affine,STAMP,3611,0.6568123905357214
+c,diagonal_affine,scVI,3611,0.6287580884997528

@@ -1,0 +1,15 @@
+{
+  "display_cap": {
+    "Gad2": 3.258096538021482,
+    "Gfap": 3.5263605246161616
+  },
+  "sampled_positions_per_slice": 1200,
+  "seed": "2026 + numeric section ID",
+  "camera": {
+    "elevation": 25,
+    "azimuth": -55
+  },
+  "render_coordinates": "native mm",
+  "rows": 1209600,
+  "counts_data": "layers/counts"
+}

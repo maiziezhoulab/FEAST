@@ -56,7 +56,7 @@ def main():
     study = args.results / "01_clustering"
     rows = source_data(study, args.plot_data)
     means = rows.groupby(["method", "logit_shift"], as_index=False)[list(METRICS)].mean()
-    tables = study / "figure3"
+    tables = args.tables_dir or study / "figure3"
     tables.mkdir(parents=True, exist_ok=True)
     rows.sort_values(["slice_id", "method", "logit_shift"]).to_csv(tables / "a_scores.csv", index=False)
     means.to_csv(tables / "a_section_means.csv", index=False)

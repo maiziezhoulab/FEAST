@@ -25,7 +25,7 @@ def main():
     expected = set(product(list(METHODS)[:3], MODES, ALPHAS))
     if len(selected) != 24 or set(zip(selected.method, selected["mode"], selected.alpha)) != expected:
         raise ValueError("Expected 24 primary 04A interpolation rows")
-    table = args.results / "plot_data/same_slice/c_primary_metrics.csv"
+    table = (args.tables_dir or args.results / "plot_data/same_slice") / "c_primary_metrics.csv"
     table.parent.mkdir(parents=True, exist_ok=True)
     selected[["method", "mode", "alpha", "representation", "support_variant",
               *(key for key, _, _ in METRICS)]].to_csv(table, index=False)

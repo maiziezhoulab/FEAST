@@ -1,0 +1,5 @@
+mode,alpha,method,n_reference,n_query,k,macro_f1
+diagonal_affine,1.0,Uncorrected,3611,3611,30,0.6135179603686769
+diagonal_affine,1.0,GraphST,3611,3611,30,0.5784069727889335
+diagonal_affine,1.0,STAMP,3611,3611,30,0.6568123905357214
+diagonal_affine,1.0,scVI,3611,3611,30,0.6287580884997528

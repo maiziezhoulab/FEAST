@@ -1,6 +1,5 @@
 """Render the six clustering maps per method with ARIs from the drawn partitions."""
 
-import anndata as ad
 import numpy as np
 import pandas as pd
 from matplotlib.patches import FancyBboxPatch
@@ -26,6 +25,8 @@ ROW_CENTERS = (77.6, 174.3, 271.4)
 
 
 def read_spots(path, key):
+    import anndata as ad
+
     section = ad.read_h5ad(path, backed="r")
     try:
         xy = np.asarray(section.obsm["spatial"])
@@ -35,6 +36,27 @@ def read_spots(path, key):
                             index=section.obs_names.rename("spot_barcode"))
     finally:
         section.file.close()
+
+
+def load_partitions(args):
+    if args.plot_data:
+        table = pd.read_csv(args.plot_data, dtype=str).set_index("spot_barcode", verify_integrity=True)
+        table[["x", "y"]] = table[["x", "y"]].astype(float)
+        return table
+
+    table = read_spots(args.inputs / f"01_clustering/{SECTION}.h5ad", "ground_truth")
+    table = table.rename(columns={"label": "ground_truth"})
+    for method, key in LABEL_KEYS.items():
+        for simulation, _ in COLUMNS[1:]:
+            path = args.results / "01_clustering/methods" / method / SECTION / simulation / "result.h5ad"
+            spots = read_spots(path, key)
+            if set(spots.index) != set(table.index):
+                raise ValueError(f"Barcode support changed in {path}")
+            spots = spots.loc[table.index]
+            if not np.array_equal(spots[["x", "y"]], table[["x", "y"]]):
+                raise ValueError(f"Spot coordinates changed in {path}")
+            table[f"{method}__{simulation}"] = spots.label
+    return table
 
 
 def draw_map(axis, spots, limits):
@@ -48,12 +70,12 @@ def draw_map(axis, spots, limits):
 
 
 def main():
-    args = panel_args("b", __doc__)
+    args = panel_args("b", __doc__, plot_data_help="Read b_partitions.csv.gz instead of the section and method H5ADs.")
     study = args.results / "01_clustering"
-    measured = read_spots(args.inputs / f"01_clustering/{SECTION}.h5ad", "ground_truth")
-    limits = ((measured.x.min() - 80, measured.x.max() + 80),
-              (measured.y.max() + 80, measured.y.min() - 80))
-    tables = study / "figure3"
+    partitions = load_partitions(args)
+    limits = ((partitions.x.min() - 80, partitions.x.max() + 80),
+              (partitions.y.max() + 80, partitions.y.min() - 80))
+    tables = args.tables_dir or study / "figure3"
     tables.mkdir(parents=True, exist_ok=True)
 
     fig = panel("b")
@@ -71,23 +93,16 @@ def main():
         manuscript_text(fig, "b", 145.4, y, name, ha="center", va="center", rotation=90, fontsize=8)
         for x, (simulation, _) in zip(COLUMN_CENTERS, COLUMNS, strict=True):
             axis = manuscript_axes(fig, "b", x - 34.8, y - 33.4, 69.6, 66.8)
-            if simulation == "ground_truth":
-                spots = measured.copy()
-            else:
-                path = study / "methods" / method / SECTION / simulation / "result.h5ad"
-                spots = read_spots(path, LABEL_KEYS[method])
-                if set(spots.index) != set(measured.index):
-                    raise ValueError(f"Barcode support changed in {path}")
-                spots = spots.loc[measured.index].copy()
-                if not np.array_equal(spots[["x", "y"]], measured[["x", "y"]]):
-                    raise ValueError(f"Spot coordinates changed in {path}")
-                ari = adjusted_rand_score(measured.label, spots.label)
+            column = "ground_truth" if simulation == "ground_truth" else f"{method}__{simulation}"
+            spots = partitions[["x", "y"]].assign(label=partitions[column])
+            if simulation != "ground_truth":
+                ari = adjusted_rand_score(partitions.ground_truth, spots.label)
                 manuscript_text(fig, "b", x, y + 44.1, f"{ari:.3f}", ha="center",
                                 fontsize=9.7, style="italic", color="black")
                 aris.append({"slice_id": SECTION, "method": method, "simulation_id": simulation,
                              "ARI": ari, "printed_ARI": f"{ari:.3f}", "n_spots": len(spots)})
             spots["color"] = draw_map(axis, spots, limits)
-            spots["ground_truth"] = measured.label
+            spots["ground_truth"] = partitions.ground_truth
             maps.append(spots.assign(slice_id=SECTION, method=method, simulation_id=simulation))
     width, height = fig.get_size_inches() * 72
     fig.add_artist(FancyBboxPatch(
@@ -97,6 +112,8 @@ def main():
     ))
     pd.DataFrame(aris).to_csv(tables / "b_ari.csv", index=False)
     pd.concat(maps).to_csv(tables / "b_spots.csv.gz")
+    if args.plot_data is None:
+        partitions.to_csv(tables / "b_partitions.csv.gz")
     save_panel(fig, args.output)
 
 

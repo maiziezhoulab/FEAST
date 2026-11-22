@@ -1,0 +1,5 @@
+LR,sample,source_stage,receiver_region,receptor,n_measured_cells,n_joint_positive,joint_positive_pct
+Wnt7a--Fzd2_Lrp5,GSM8323035_E14M_1,E14,DorsalVZ,Fzd2_Lrp5,47583,10662,22.407162221801904
+Wnt7a--Fzd8_Lrp6,GSM8323035_E14M_1,E14,VentralVZ,Fzd8_Lrp6,31203,9151,29.327308271640547
+Wnt7a--Fzd2_Lrp5,GSM8323030_E18M_1,E18,DorsalVZ,Fzd2_Lrp5,21098,3697,17.522987960944164
+Wnt7a--Fzd8_Lrp6,GSM8323030_E18M_1,E18,VentralVZ,Fzd8_Lrp6,12882,2214,17.18677224033535

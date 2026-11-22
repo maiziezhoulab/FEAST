@@ -1,0 +1,65 @@
+{
+  "mode": "diagonal_affine",
+  "alphas": [
+    0.0,
+    0.25,
+    0.5,
+    0.75,
+    1.0,
+    1.25,
+    1.5
+  ],
+  "ordered_gene_panel": "same_slice/panel/panel.csv",
+  "simulation_manifest": "same_slice/simulations/manifest.csv",
+  "representation": "Library size 10000, log1p, randomized PCA-20 and column standardization",
+  "pca_seed": 42,
+  "umap": {
+    "n_neighbors": 30,
+    "min_dist": 0.3,
+    "metric": "euclidean",
+    "random_state": 42,
+    "n_jobs": 1
+  },
+  "zero_library_rows": {
+    "0.0": 0,
+    "0.25": 0,
+    "0.5": 0,
+    "0.75": 0,
+    "1.0": 0,
+    "1.25": 1,
+    "1.5": 3
+  },
+  "parameter_reference_region": {
+    "log_mean_reference": [
+      -3.0,
+      -1.5
+    ],
+    "log_variance_reference": [
+      -2.25,
+      -1.35
+    ],
+    "zero_proportion_reference": [
+      0.8,
+      0.91
+    ]
+  },
+  "parameter_display_limits": {
+    "log_mean": [
+      -4.3,
+      -1.2
+    ],
+    "log_variance": [
+      -3.9,
+      -0.5
+    ],
+    "zero_proportion": [
+      0.72,
+      1.02
+    ]
+  },
+  "selected_gene_count": 3078,
+  "camera": {
+    "elevation": 12,
+    "azimuth": -45
+  }
+}

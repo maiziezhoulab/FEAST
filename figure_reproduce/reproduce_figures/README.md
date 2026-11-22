@@ -1,25 +1,35 @@
-# Manuscript figure reproduction
+# Reproduce the manuscript figures
 
-The scripts in `Scripts/` reproduce Figures 2–7 and Supplementary Figures S1–S5. Figure 1 is the manuscript workflow schematic and has no analysis-derived panels. The manuscript PDFs set the page dimensions, panel order, and placement for each assembled figure.
+From the FEAST repository root, use a Python 3.11 environment and run:
 
-## Render and assemble
-
-Use the FEAST Python 3.11 environment with `pypdf` for PDF assembly and `pyarrow` for the archived Parquet inputs. Install them with `python -m pip install pypdf pyarrow` if needed. Arial is used when installed. Set `FEAST_FONT_DIR` to a directory containing the Arial font files if they are outside a standard system location.
-
-By default, the scripts read the external study inputs and results under `figure_reproduce/Zenodo/`. Use `--help` on any panel script to see its input and output options. Each lettered script writes its panel PDF to `figure_reproduce/reproduce_figures/Outputs/<figure>/`. Run `assemble.py` in the same script directory once all required panels are available.
-
-For example, run Figure 7 from the FEAST repository root with the unpacked study archive at `/path/to/Zenodo`.
-
-```sh
-scripts=figure_reproduce/reproduce_figures/Scripts/Figure_07
-for panel in a b c d e f; do
-    python "$scripts/$panel.py" --zenodo /path/to/Zenodo || exit
-done
-python "$scripts/assemble.py"
+```bash
+python -m pip install -r figure_reproduce/reproduce_figures/requirements.txt
+bash figure_reproduce/reproduce_figures/render_pdfs.sh
 ```
 
-Supplementary scripts also export PNG and SVG files by default. They use Poppler's `pdftoppm` for PNG export. Pass `--pdf-only` to both the panel scripts and the assembler for PDF-only output.
+The command renders **46 panel PDFs** and assembles Figures **2–7** and **S1–S5** from the included [plotting inputs](plot_data/README.md). It also copies the supplied Figure 1 workflow schematic. The PDFs appear in `figure_reproduce/reproduce_figures/Outputs/Figure_*/`. Use Arial for manuscript typography. Set `FEAST_FONT_DIR` to your Arial font directory if needed.
 
-When the Study 00 map tiles have already been exported, Figure 2b can replay `simulator_spatial_comparison.pdf` with the current journal labels and layout. Pass the export with `--archived-pdf` and its matching color-scale table directory with `--archived-dir`. This mode requires PyMuPDF.
+To rebuild individual figures, pass their identifiers:
 
-Figure 3a accepts `alteration_plot_data.csv` with `--plot-data` to recover the archived signed-shift levels. Figure 3d accepts `deconvolution_spatial_plot_data.csv.gz` with the same flag to replay the saved spatial compositions. Both scripts check the exports against the corresponding study results.
+```bash
+bash figure_reproduce/reproduce_figures/render_pdfs.sh 03 05 06
+```
+
+## What each render uses
+
+| Figure | Included visualization inputs |
+| --- | --- |
+| 1 | The manuscript workflow schematic in PDF format. |
+| 2 | Scores for five simulators across 12 sections. Panel b reconstructs the journal layout from 42 verified map tiles in the Study 00 spatial-comparison export and the matching color-scale table. |
+| 3 | Clustering scores and spot labels, deconvolution scores and spatial compositions, and alignment errors. Panel b recalculates 15 adjusted Rand indices from one 56 KiB [spot table](plot_data/Figure_03/b_partitions.csv.gz). |
+| 4 | Study design, method and seed summaries, embeddings, gene-parameter values and layer predictions. |
+| 5 | Transfer map coordinates, counts and retention masks, paired scores, slice-083 expression and geometry, section coverage and volume marker tables. |
+| 6 | Atlas geometry artwork, measured-section coordinates and regions, marker and plane projections, and regional communication tables. |
+| 7 | Region-pair metrics, native route images and their framing, directional opportunities and measured expression summaries. |
+| S1–S5 | Gene statistics, perturbation and alignment summaries, integration scores, transfer diagnostics, matched-section markers and spatial cluster projections. |
+
+## Using the full study archive
+
+The rendering command uses only the Git checkout and software listed above. Re-running simulation, fitting or scoring from raw data is a separate workflow in [reproduce_code](../reproduce_code/). The individual [panel scripts](Scripts/) retain their original options for full study inputs. For example, `Figure_03/b.py` can regenerate the compact clustering table from the section and 15 method H5ADs. Use `--help` on a panel script to see its options.
+
+To export supplementary PNG and SVG files as well, invoke the corresponding panel scripts with `--zenodo figure_reproduce/reproduce_figures/plot_data` from the repository root, then run their assembler without `--pdf-only`. PNG export requires Poppler’s `pdftoppm`.

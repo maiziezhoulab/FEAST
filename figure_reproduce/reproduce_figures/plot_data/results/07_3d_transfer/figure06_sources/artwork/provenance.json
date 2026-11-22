@@ -1,0 +1,54 @@
+{
+  "atlas": "results/07_3d_transfer/reconstruction/unified/E18.5_FEAST_3D.h5ad",
+  "whole_brain_mask": "inputs/raw/DevCCFv1_figshare_26377171/components/E18.5.zip",
+  "mask_member": "E18.5/E18-5_MRI-MaskBrain_40um.nii.gz",
+  "age": "E18.5",
+  "parallel_scale_mm": 3.607958057776194,
+  "camera_view": [
+    0.5965499862718936,
+    -0.5965499862718936,
+    0.5368949876447042
+  ],
+  "camera_up": [
+    -0.379642086548638,
+    0.379642086548638,
+    0.8436490812191957
+  ],
+  "cut_y_mm": 8.489999875277281,
+  "retained_voxels": 1581122,
+  "cutaway_callouts_axes_xy": {
+    "BT": [
+      0.6567437029937953,
+      0.3035242858929831
+    ],
+    "CP": [
+      0.6567437029937953,
+      0.5490458582324763
+    ],
+    "DorsalVZ": [
+      0.593137562648487,
+      0.5534886285536664
+    ],
+    "GE": [
+      0.6173684732562235,
+      0.3706335150542763
+    ],
+    "IZ": [
+      0.6491715434288776,
+      0.4841580139965852
+    ],
+    "SeptalVZ": [
+      0.5795076754316353,
+      0.42733730617327226
+    ],
+    "Septum": [
+      0.5567911967368824,
+      0.4173995278924557
+    ],
+    "VentralVZ": [
+      0.5961664264744542,
+      0.4274542214664318
+    ]
+  },
+  "display": "Schematic views of anatomical labels and DevCCF geometry."
+}

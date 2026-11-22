@@ -33,7 +33,7 @@ def main():
         raise ValueError("Retained fraction must agree across expression conditions and methods")
     rows["display_error"] = rows.rotation_recovery_error.clip(lower=FLOOR)
     rows["below_display_floor"] = rows.rotation_recovery_error.lt(FLOOR)
-    tables = study / "figure3"
+    tables = args.tables_dir or study / "figure3"
     tables.mkdir(parents=True, exist_ok=True)
     rows.to_csv(tables / "e_rotation_recovery.csv", index=False)
 
