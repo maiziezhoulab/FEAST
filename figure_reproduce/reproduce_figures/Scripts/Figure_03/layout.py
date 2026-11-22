@@ -2,14 +2,18 @@
 
 import argparse
 import os
+import sys
 from pathlib import Path
 
 os.environ.setdefault("MPLBACKEND", "Agg")
 os.environ.setdefault("MPLCONFIGDIR", "/tmp/feast-final-mpl")
 
 import matplotlib.pyplot as plt
-from matplotlib import font_manager, rcParams
+from matplotlib import rcParams
 from matplotlib.ticker import MaxNLocator
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from feast_plate import axes_box, register_arial_fonts, text_at
 
 PROJECT = Path(__file__).resolve().parents[3]
 INPUTS = PROJECT / "Zenodo/inputs"
@@ -20,12 +24,13 @@ PAGE = (584.904, 722.033)
 
 # Rectangles in the journal page's top-left coordinate system, in PDF points.
 PANELS = {
-    "a": (0, 0, 141, 308),
-    "b": (141, 0, 443.904, 311),
-    "c": (0, 308, 141, 414.033),
-    "d": (141, 311, 443.904, 272),
-    "e": (141, 583, 443.904, 139.033),
+    "a": (0, 0, 141, 312),
+    "b": (141, 0, 443.904, 320),
+    "c": (0, 298.1, 155, 423.933),
+    "d": (141, 298.1, 443.904, 292.5),
+    "e": (141, 566.2, 443.904, 155.833),
 }
+HEADING_COLOR = "#333333"
 
 CLUSTERING = {
     "GraphST": ("GraphST", "#0072B2", "o"),
@@ -34,19 +39,18 @@ CLUSTERING = {
 }
 
 
-def panel_args(letter, description):
+def panel_args(letter, description, *, plot_data_help=None):
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("--inputs", type=Path, default=INPUTS)
     parser.add_argument("--results", type=Path, default=RESULTS)
     parser.add_argument("--output", type=Path, default=OUTPUT / f"{letter}.pdf")
+    if plot_data_help:
+        parser.add_argument("--plot-data", type=Path, help=plot_data_help)
     return parser.parse_args()
 
 
 def configure_style():
-    default = PROJECT.parent / "miniconda3/fonts"
-    path = Path(os.environ.get("FEAST_FONT_DIR", default))
-    for filename in ("arial.ttf", "arialbd.ttf", "ariali.ttf", "arialbi.ttf"):
-        font_manager.fontManager.addfont(path / filename)
+    register_arial_fonts()
     rcParams.update({
         "font.family": "Arial",
         "font.size": 8,
@@ -72,13 +76,23 @@ def configure_style():
     })
 
 
-def panel(letter, *, label_x=7):
+def panel(letter):
     configure_style()
-    _, _, width, height = PANELS[letter]
+    left, top, width, height = PANELS[letter]
     figure = plt.figure(figsize=(width / 72, height / 72))
-    figure.text(label_x / width, 1 - 3 / height, letter, weight="bold",
-                fontsize=13, ha="left", va="top")
+    text_at(figure, 8.6 if left == 0 else 0, 12.1, letter,
+            weight="bold", fontsize=12.5, ha="left", va="baseline")
     return figure
+
+
+def manuscript_axes(figure, letter, x, top, width, height, **kwargs):
+    left, panel_top, _, _ = PANELS[letter]
+    return axes_box(figure, x - left, top - panel_top, width, height, **kwargs)
+
+
+def manuscript_text(figure, letter, x, top, value, **kwargs):
+    left, panel_top, _, _ = PANELS[letter]
+    return text_at(figure, x - left, top - panel_top, value, **kwargs)
 
 
 def style_axis(axis, *, max_ticks=5):
@@ -89,5 +103,7 @@ def style_axis(axis, *, max_ticks=5):
 
 def save_panel(figure, path):
     path.parent.mkdir(parents=True, exist_ok=True)
-    figure.savefig(path, dpi=600, metadata={"Creator": "FEAST reproduction", "CreationDate": None})
+    # The journal's tags and neighbouring labels occupy overlapping panel bounds.
+    figure.savefig(path, dpi=600, transparent=True,
+                   metadata={"Creator": "FEAST reproduction", "CreationDate": None})
     plt.close(figure)

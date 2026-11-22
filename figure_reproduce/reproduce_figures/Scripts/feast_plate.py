@@ -1,8 +1,7 @@
-"""Shared typography, panel CLI and PDF placement for Figures 5–7."""
+"""Shared typography, panel CLI and vector PDF placement."""
 import argparse
 import os
 from pathlib import Path
-import subprocess
 from tempfile import TemporaryDirectory
 
 import matplotlib as mpl
@@ -17,12 +16,36 @@ BLUE = "#0072b2"
 DPI = 500
 
 
+def register_arial_fonts():
+    """Use the configured font bundle or the Arial installed on this system."""
+    font_names = ("arial.ttf", "arialbd.ttf", "ariali.ttf", "arialbi.ttf")
+    mac_names = ("Arial.ttf", "Arial Bold.ttf", "Arial Italic.ttf", "Arial Bold Italic.ttf")
+    custom_dir = os.environ.get("FEAST_FONT_DIR")
+    locations = []
+    if custom_dir:
+        locations.append((Path(custom_dir), font_names))
+        locations.append((Path(custom_dir), mac_names))
+    locations.extend((
+        (FINAL.parent / "miniconda3/fonts", font_names),
+        (Path("/System/Library/Fonts/Supplemental"), mac_names),
+    ))
+    for directory, names in locations:
+        paths = [directory / name for name in names]
+        if all(path.is_file() for path in paths):
+            for path in paths:
+                font_manager.fontManager.addfont(path)
+            return
+
+
 def set_style():
-    font_dir = Path(os.environ.get("FEAST_FONT_DIR", FINAL.parent / "miniconda3/fonts"))
-    for name in ("arial.ttf", "arialbd.ttf", "ariali.ttf", "arialbi.ttf"):
-        font_manager.fontManager.addfont(font_dir / name)
+    register_arial_fonts()
+    try:
+        font_manager.findfont(font_manager.FontProperties(family="Arial"), fallback_to_default=False)
+        font_family = "Arial"
+    except ValueError:
+        font_family = "DejaVu Sans"
     mpl.rcParams.update({
-        "font.family": "Arial", "font.size": 7.5, "pdf.fonttype": 42, "ps.fonttype": 42,
+        "font.family": font_family, "font.size": 7.5, "pdf.fonttype": 42, "ps.fonttype": 42,
         "axes.linewidth": .55, "axes.labelsize": 7, "axes.titlesize": 8, "axes.labelcolor": INK,
         "xtick.labelsize": 6.5, "ytick.labelsize": 6.5, "xtick.major.size": 2, "ytick.major.size": 2,
         "xtick.major.pad": 2, "ytick.major.pad": 2, "axes.unicode_minus": True,
@@ -99,25 +122,27 @@ def assemble_main(figure_id, plate, page, frames):
 
 
 def assemble_pdf(panel_dir, output, page, frames):
+    from pypdf import PdfReader, PdfWriter
+
     width, height = page
     files = {letter: (panel_dir / f"{letter}.pdf").resolve(strict=True) for letter in frames}
-    commands = [f"<< /PageSize [{width} {height}] >> setpagedevice"]
+    writer = PdfWriter()
+    plate = writer.add_blank_page(width=width, height=height)
     for letter, (x, top, _, panel_height) in frames.items():
-        filename = os.fsencode(files[letter]).hex()
-        commands += [
-            f"gsave {x:.5f} {height - top - panel_height:.5f} translate",
-            f"<{filename}> (r) file runpdfbegin PDFFile 0 .PDFDrawPage runpdfend",
-            "grestore",
-        ]
-    commands += [f"[ /MediaBox [0 0 {width} {height}] /PAGE pdfmark", "showpage"]
+        reader = PdfReader(files[letter])
+        if len(reader.pages) != 1:
+            raise ValueError(f"Expected a single panel page in {files[letter]}")
+        writer.pdf_header = max(writer.pdf_header, reader.pdf_header)
+        source = reader.pages[0]
+        if source.rotation:
+            source.transfer_rotation_to_content()
+        plate.merge_translated_page(
+            source,
+            tx=x - float(source.cropbox.left),
+            ty=height - top - panel_height - float(source.cropbox.bottom),
+        )
     output.parent.mkdir(parents=True, exist_ok=True)
     with TemporaryDirectory(dir=output.parent) as scratch:
         pending = Path(scratch) / output.name
-        permitted = os.pathsep.join(map(str, files.values()))
-        subprocess.run([
-            "gs", "-q", "-dSAFER", "-dBATCH", "-dNOPAUSE", "-dNEWPDF",
-            "-dPDFSTOPONERROR", "-sDEVICE=pdfwrite", "-dAutoRotatePages=/None",
-            f"--permit-file-read={permitted}", f"-sOutputFile={pending}",
-            "-c", "\n".join(commands),
-        ], check=True)
+        writer.write(pending)
         pending.replace(output)

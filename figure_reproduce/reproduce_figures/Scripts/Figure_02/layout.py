@@ -1,7 +1,9 @@
 """Paths and journal page geometry shared by the Figure 2 entry points."""
 
-import os
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 PROJECT = Path(__file__).resolve().parents[3]
 STUDY = "00_simulator_benchmark"
@@ -14,6 +16,10 @@ WIDTH = 583.3209
 HEIGHT = 818.2211
 A_HEIGHT = 227
 B_HEIGHT = HEIGHT - A_HEIGHT
+PANELS = {
+    "a": (0, 0, WIDTH, A_HEIGHT),
+    "b": (0, A_HEIGHT, WIDTH, B_HEIGHT),
+}
 
 
 def rect(x, top, width, height, panel_height):
@@ -22,10 +28,6 @@ def rect(x, top, width, height, panel_height):
 
 
 def configure_style():
-    os.environ.setdefault("MPLCONFIGDIR", "/tmp/matplotlib")
-    lab_fonts = PROJECT.parent / "miniconda3/fonts"
-    if lab_fonts.is_dir():
-        os.environ.setdefault("FEAST_FONT_DIR", str(lab_fonts))
     from plot import configure_matplotlib
     from matplotlib import rcParams
 

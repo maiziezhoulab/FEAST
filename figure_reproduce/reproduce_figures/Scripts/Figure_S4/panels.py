@@ -30,6 +30,7 @@ def setup(zenodo, axis):
     tasks = pd.read_csv(zenodo / DATA / "task_summary.csv", dtype={"source":str,"target":str})
     axis.set(ylim=(16.1,-1.5),yticks=[])
     axis.spines[["left","right","top"]].set_visible(False)
+    axis.spines["bottom"].set_color("#555555")
     for first in tasks.groupby("task_group",sort=False).head(1).index[1:]:
         axis.axhline(Y[first]-1.02,color="#e8e8e8",lw=.65,zorder=0)
     axis.tick_params(axis="x",labelsize=8)
@@ -38,8 +39,8 @@ def setup(zenodo, axis):
 
 def pearson(fig, zenodo):
     """Render the task-wise gene Pearson distributions and finite counts."""
-    text_at(fig,143,4,"Coordinate-wise\ngene agreement",ha="center",va="top",weight="bold",size=10.1,linespacing=1)
-    ax = axes_box(fig,132,41,137,309)
+    text_at(fig,140.4,5.5,"Coordinate-wise\ngene agreement",ha="center",va="top",weight="bold",size=9,linespacing=1.1)
+    ax = axes_box(fig,132.16,41.67,137.34,308.69)
     tasks = setup(zenodo, ax)
     genes = pd.read_csv(zenodo / DATA / "gene_data.csv.gz",usecols=["job_id","pearson","pearson_defined"])
     groups = [genes.loc[genes.job_id.eq(task) & genes.pearson_defined, "pearson"].to_numpy() for task in tasks.job_id]
@@ -64,13 +65,13 @@ def pearson(fig, zenodo):
     ax.axvline(0,c="#999999",lw=.65,linestyle=(0,(2,2)),zorder=0)
     ax.set(xlim=(-1,1),xticks=[-1,0,1],xlabel="Gene Pearson r")
     ax.xaxis.label.set_size(8.8)
-    text_at(fig,8,380,"Counts: finite / full-panel genes",size=7.7,va="top",color="#454545")
+    text_at(fig,7.82,374.2,"Counts: finite / full-panel genes",size=7,va="top",color="#454545")
 
 
 def moran(fig, zenodo):
     """Show one ordinary Moran-profile correlation per registered task."""
-    text_at(fig,58,4,"Spatial-profile\nagreement",ha="center",va="top",weight="bold",size=10.1,linespacing=1)
-    ax = axes_box(fig,11,41,88,309)
+    text_at(fig,53,5.5,"Spatial-profile\nagreement",ha="center",va="top",weight="bold",size=9,linespacing=1.1)
+    ax = axes_box(fig,12.05,41.67,86.98,308.69)
     tasks = setup(zenodo,ax)
     ax.scatter(tasks.moran_corr,Y,s=13,c=BLUE,linewidths=0,zorder=3)
     for y,value in zip(Y,tasks.moran_corr):
@@ -81,8 +82,8 @@ def moran(fig, zenodo):
 
 def coverage(fig, zenodo):
     """Show retained and excluded positions out of each candidate target."""
-    text_at(fig,56,4,"Retained target\ncoverage",ha="center",va="top",weight="bold",size=10.1,linespacing=1)
-    ax = axes_box(fig,10,41,95,309)
+    text_at(fig,55.86,5.5,"Retained target\ncoverage",ha="center",va="top",weight="bold",size=9,linespacing=1.1)
+    ax = axes_box(fig,10.62,41.67,94.79,308.69)
     tasks = setup(zenodo,ax)
     ax.barh(Y-.08,100,height=.27,color="#e1e1e1",lw=0)
     ax.barh(Y-.08,tasks.target_retained_fraction*100,height=.27,color=BLUE,lw=0)
@@ -94,11 +95,11 @@ def coverage(fig, zenodo):
 
 
 def ar_curves(fig,zenodo,metric,title,ylabel,ticks,limits,legend):
-    text_at(fig,260,7,title,ha="center",va="top",weight="bold",size=10.3)
+    text_at(fig,258.9,3.5,title,ha="center",va="top",weight="bold",size=9)
     ar = pd.read_csv(zenodo / DATA / "ar_data.csv",dtype={"source":str,"target":str})
     for col,dataset in enumerate(("dlpfc","merfish")):
         part = ar.loc[ar.dataset.eq(dataset)]
-        ax = axes_box(fig,44+256*col,36,205,69)
+        ax = axes_box(fig,43.99+255.83*col,28.75,204.66,69.46)
         handles = []
         for direction, (color,linestyle) in DIRECTION_STYLES.items():
             group = part.loc[part.direction.eq(direction)].sort_values("assignment_randomness")
@@ -111,12 +112,14 @@ def ar_curves(fig,zenodo,metric,title,ylabel,ticks,limits,legend):
         ax.set(xlim=(-.02,.52), xticks=[0,.1,.2,.3,.5], yticks=ticks, ylim=(low,high))
         ax.set_xlabel("Assignment randomness",fontsize=8.15,labelpad=2)
         ax.set_ylabel(ylabel,fontsize=8.15,labelpad=2)
-        ax.set_title(dataset.upper(),fontsize=8.8,pad=3)
+        ax.set_title(dataset.upper(),fontsize=8,pad=3)
         ax.tick_params(axis="both",labelsize=7.7)
         ax.grid(axis="y",color="#d7d7d7",lw=.52)
         ax.spines[["top","right"]].set_visible(False)
+        for side in ("bottom", "left"):
+            ax.spines[side].set_color("#555555")
         if legend:
-            fig.legend(handles=handles,loc="lower left",bbox_to_anchor=(.055+.564*col,.014),
+            fig.legend(handles=handles,loc="lower left",bbox_to_anchor=(.053+.559*col,.001),
                        ncols=2 if col==0 else 1,fontsize=7.4,handlelength=2,columnspacing=1.15)
 
 

@@ -19,21 +19,21 @@ def expression(fig,zenodo):
     root = zenodo / DATA
     frame = pd.read_csv(root / "section_data.csv.gz",dtype={"cell_id":str})
     report = json.loads((root/"provenance.json").read_text())
-    text_at(fig,277,4,"Section expression at gap 5",ha="center",va="top",size=10.9,weight="bold")
-    text_at(fig,277,24,f"{report['gap5_measured_references']} reference sections",ha="center",va="top",size=8.4)
+    text_at(fig,273.4,4,"Section expression at gap 5",ha="center",va="top",size=9.2,weight="bold")
+    text_at(fig,273.4,23,f"{report['gap5_measured_references']} reference sections",ha="center",va="top",size=8)
     for col,sid in enumerate(sorted(frame.target_slice.unique())):
-        left = 36 + 156.5*col
+        left = 37.7 + 158.6*col
         subset = frame.loc[frame.target_slice.eq(sid)]
         text_at(fig,left+73,43,f"Section {sid} · {subset.z.iloc[0]:.2f} mm",ha="center",va="top",size=8.35)
         low = subset[["x","y"]].min().to_numpy()
         high = subset[["x","y"]].max().to_numpy()
         pad = np.maximum(.025*(high-low),.01)
         for index,method in enumerate(("Observed","FEAST")):
-            x = left + 78*index
+            x = left + 77*index
             part = subset.loc[subset.method.eq(method)]
             text_at(fig,x+34,61,method,ha="center",va="top",size=8.3)
             for row,gene in enumerate(GENES):
-                ax = axes_box(fig,x,74+84*row,69.5,74)
+                ax = axes_box(fig,x,72.3+85.1*row,69.5,74)
                 positive = part.loc[part[gene].gt(0)].sort_values(gene,kind="stable")
                 zero = part.loc[part[gene].eq(0)]
                 ax.scatter(zero.x,zero.y,s=.23,c="#d6dce0",linewidths=0,rasterized=True)
@@ -50,7 +50,7 @@ def expression(fig,zenodo):
                     ax.text(start[0]+length/2,start[1]-.13,"1 mm",ha="center",va="top",size=7.6)
     for j,gene in enumerate(GENES):
         cap = report["marker_log_count_caps"][gene]
-        top = 74+84*j
+        top = 73.5+85*j
         text_at(fig,11,top+37,gene,ha="center",va="center",rotation=90,size=9.6,style="italic")
         norm = mpl.colors.Normalize(0,cap,clip=True)
         bar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm,cmap="viridis"),cax=axes_box(fig,515,top,5,71),
@@ -61,7 +61,7 @@ def expression(fig,zenodo):
 
 
 def tissue(fig,points,top,bounds,triad):
-    ax = axes_box(fig,329,top,185,99,projection="3d")
+    ax = axes_box(fig,330.7,top,185,99,projection="3d")
     ax.scatter(points.x,points.y,points.z,c=points.plot_color,s=.26,linewidths=0,alpha=.75,
                depthshade=False,rasterized=True,clip_on=False)
     style_3d(ax,bounds,CAMERA["elevation"],CAMERA["azimuth"])
@@ -87,24 +87,24 @@ def clusters(fig,zenodo):
     low = umap.min(axis=0)
     high = umap.max(axis=0)
     pad = .04*(high-low)
-    text_at(fig,277,4,"Expression clusters in embedding and tissue",ha="center",va="top",size=10.9,weight="bold")
-    text_at(fig,277,23,f"{observed.n_cells:,} matched cells · {observed.n_sections} held-out sections",
-            ha="center",va="top",size=8.5)
-    text_at(fig,181,40,"UMAP",ha="center",va="top",size=9,weight="bold")
-    text_at(fig,420,40,"3D cluster map",ha="center",va="top",size=9,weight="bold")
+    text_at(fig,273.4,4,"Expression clusters in embedding and tissue",ha="center",va="top",size=9.2,weight="bold")
+    text_at(fig,273.4,22.5,f"{observed.n_cells:,} matched cells · {observed.n_sections} held-out sections",
+            ha="center",va="top",size=8)
+    text_at(fig,184.5,39.5,"UMAP",ha="center",va="top",size=8.5,weight="bold")
+    text_at(fig,423,39.5,"3D cluster map",ha="center",va="top",size=8.5,weight="bold")
     for row,(condition,heading) in enumerate(CONDITIONS):
-        top = 54+106*row
+        top = 52.7+107.7*row
         frame = data.loc[data.condition.eq(condition)]
-        text_at(fig,7,top+38,heading,ha="left",va="center",size=8.9,weight="bold")
-        text_at(fig,7,top+54,f"{summary.loc[condition,'n_clusters']} clusters",ha="left",va="center",size=8.1)
+        text_at(fig,6,top+40,heading,ha="left",va="center",size=8.4,weight="bold")
+        text_at(fig,6,top+56,f"{summary.loc[condition,'n_clusters']} clusters",ha="left",va="center",size=7.8)
         points = frame.iloc[np.random.default_rng(2026).permutation(len(frame))]
-        ax = axes_box(fig,88,top,188,98)
+        ax = axes_box(fig,90.5,top,188,98)
         ax.scatter(points.umap_1,points.umap_2,c=points.plot_color,s=.21,linewidths=0,alpha=.65,rasterized=True)
         ax.set(xlim=(low[0]-pad[0],high[0]+pad[0]),ylim=(low[1]-pad[1],high[1]+pad[1]),aspect="equal")
         ax.set_axis_off()
         tissue(fig,points,top,bounds,triad=row==0)
-    text_at(fig,181,484,"Observed-fitted UMAP",ha="center",va="top",size=8)
-    text_at(fig,420,484,"Target coordinates (mm)",ha="center",va="top",size=8)
+    text_at(fig,184.5,480.5,"Observed-fitted UMAP",ha="center",va="top",size=7.5)
+    text_at(fig,423,480.5,"Target coordinates (mm)",ha="center",va="top",size=7.5)
     labels = data[["display_label","plot_color"]].drop_duplicates().sort_values("display_label")
     width,height=fig.get_size_inches()*72
     for i,row in enumerate(labels.itertuples(index=False)):

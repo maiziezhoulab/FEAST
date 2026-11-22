@@ -3,17 +3,17 @@
 from itertools import product
 
 import pandas as pd
-from matplotlib.lines import Line2D
+from matplotlib.ticker import MultipleLocator
 
-from layout import METHODS, MODES, panel, panel_args, save_panel, style_axis
+from layout import METHODS, MODES, metric_axes, panel, panel_args, save_panel, style_axis, text_at
 
 METRICS = (
-    ("batch_asw", "Batch separation ASW ↓"),
-    ("batch_mixing_entropy_k30", "Batch mixing entropy (k=30) ↑"),
-    ("mmd2_rbf_biased", "Distribution MMD² ↓"),
-    ("paired_retrieval_top1", "Paired retrieval top-1 ↑"),
-    ("domain_asw", "Domain separation ASW ↑"),
-    ("domain_purity_k30", "Domain purity (k=30) ↑"),
+    ("batch_asw", "Batch separation ASW ↓", 0.005),
+    ("batch_mixing_entropy_k30", "Batch mixing entropy (k=30) ↑", 0.1),
+    ("mmd2_rbf_biased", "Distribution MMD² ↓", 0.005),
+    ("paired_retrieval_top1", "Paired retrieval top-1 ↑", 0.1),
+    ("domain_asw", "Domain separation ASW ↑", 0.02),
+    ("domain_purity_k30", "Domain purity (k=30) ↑", 0.02),
 )
 ALPHAS = (0.25, 0.5, 0.75, 1.0)
 
@@ -28,29 +28,25 @@ def main():
     table = args.results / "plot_data/same_slice/c_primary_metrics.csv"
     table.parent.mkdir(parents=True, exist_ok=True)
     selected[["method", "mode", "alpha", "representation", "support_variant",
-              *(key for key, _ in METRICS)]].to_csv(table, index=False)
-    fig = panel("c", label_x=1)
-    fig.text(0.52, 0.982, "Same-slice batch removal and biological preservation",
-             fontsize=9.05, weight="bold", ha="center", va="top")
-    axes = fig.subplots(2, 3)
-    fig.subplots_adjust(left=0.065, right=0.985, top=0.806, bottom=0.16, wspace=0.37, hspace=0.54)
-    for axis, (metric, label) in zip(axes.flat, METRICS):
+              *(key for key, _, _ in METRICS)]].to_csv(table, index=False)
+    fig = panel("c", label_x=1, label_top=0)
+    text_at(fig, 181, 5.5, "Same-slice batch removal and biological preservation",
+            fontsize=8.6, weight="bold", ha="center", va="top")
+    text_at(fig, 181, 98.0, "Biological signal preservation",
+            fontsize=7.1, weight="bold", ha="center", va="top")
+    axes = metric_axes(fig, (19.5, 134.4, 248.5), (28.5, 122.2))
+    for axis, (metric, label, step) in zip(axes, METRICS):
         for (method, mode), subset in selected.groupby(["method", "mode"]):
             rows = subset.sort_values("alpha")
             color, marker = METHODS[method]
             axis.plot(rows.alpha, rows[metric], color=color, ls=MODES[mode][1], marker=marker,
                       lw=0.93, ms=2.05, mec="white", mew=0.23)
-        style_axis(axis, max_ticks=4)
-        axis.set_title(label, fontsize=7.1, weight="bold", pad=4)
+        style_axis(axis)
+        axis.yaxis.set_major_locator(MultipleLocator(step))
+        axis.set_title(label, fontsize=6.65, weight="bold", pad=4)
         axis.set_xticks(ALPHAS, ["0.25", "0.50", "0.75", "1.00"])
         axis.set_xlim(0.21, 1.03)
-    handles = [Line2D([], [], color=color, marker=marker, ms=3, lw=1.05, label=name)
-               for name, (color, marker) in list(METHODS.items())[:3]]
-    handles += [Line2D([], [], color="#555555", ls=style, lw=1.05, label=name)
-                for name, style in MODES.values()]
-    fig.legend(handles=handles, loc="upper center", bbox_to_anchor=(0.52, 0.946),
-               ncols=5, handlelength=1.3, columnspacing=0.9, fontsize=6.7)
-    fig.text(0.515, 0.032, "Perturbation strength α", ha="center", fontsize=7.3)
+    text_at(fig, 181, 189, "Perturbation strength α", fontsize=6.7, ha="center", va="top")
     save_panel(fig, args.output)
 
 

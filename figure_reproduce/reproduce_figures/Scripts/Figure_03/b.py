@@ -6,21 +6,23 @@ import pandas as pd
 from matplotlib.patches import FancyBboxPatch
 from sklearn.metrics import adjusted_rand_score
 
-from layout import CLUSTERING, panel, panel_args, save_panel
+from layout import CLUSTERING, manuscript_axes, manuscript_text, panel, panel_args, save_panel
 
 SECTION = "151676"
 LABEL_KEYS = {"GraphST": "domain", "STAGATE_mclust": "mclust", "Leiden_unsupervised": "predicted_cluster"}
 COLUMNS = (
-    ("ground_truth", "Ground truth"),
+    ("ground_truth", "Ground Truth"),
     ("sparsity_neg_1", "Shift −1.00"),
     ("sparsity_neg_0_25", "Shift −0.25"),
-    ("baseline", "FEAST baseline\nShift 0"),
+    ("baseline", "FEAST baseline"),
     ("sparsity_pos_0_25", "Shift +0.25"),
     ("sparsity_pos_1", "Shift +1.00"),
 )
 PALETTE = ("#4C78A8", "#F58518", "#E45756", "#72B7B2", "#54A24B",
            "#B279A2", "#FF9DA6", "#9D755D", "#BAB0AC", "#D4A6C8",
            "#D1BC32", "#426c6d")
+COLUMN_CENTERS = (189.8, 262.0, 334.2, 406.2, 478.3, 550.3)
+ROW_CENTERS = (77.6, 174.3, 271.4)
 
 
 def read_spots(path, key):
@@ -54,20 +56,22 @@ def main():
     tables = study / "figure3"
     tables.mkdir(parents=True, exist_ok=True)
 
-    fig = panel("b", label_x=1)
-    fig.text(0.52, 0.983, "Adjusted Rand index (ARI)", ha="center", va="top", fontsize=8.6)
-    axes = fig.subplots(3, 6)
-    fig.subplots_adjust(left=0.033, right=0.996, top=0.875, bottom=0.047, wspace=0.055, hspace=0.31)
-    for axis, (simulation, title) in zip(axes[0], COLUMNS):
-        axis.set_title(title, fontsize=8.2, pad=3, weight="bold" if simulation in {"ground_truth", "baseline"} else "normal")
+    fig = panel("b")
+    manuscript_text(fig, "b", 370.5, 10.0, "Adjusted Rand index (ARI)", ha="center", fontsize=8.2)
+    for x, (simulation, title) in zip(COLUMN_CENTERS, COLUMNS, strict=True):
+        highlighted = simulation in {"ground_truth", "baseline"}
+        manuscript_text(fig, "b", x, 26.3 if simulation == "baseline" else 33.3, title,
+                        ha="center", fontsize=8.8, weight="bold" if highlighted else "normal")
+        if simulation == "baseline":
+            manuscript_text(fig, "b", x, 38.4, "Shift 0", ha="center", fontsize=8.8)
 
     maps = []
     aris = []
-    for row, (method, (name, _, _)) in enumerate(CLUSTERING.items()):
-        axes[row, 0].text(-0.13, 0.5, name, ha="right", va="center", rotation=90,
-                          transform=axes[row, 0].transAxes, fontsize=8)
-        for column, (simulation, _) in enumerate(COLUMNS):
-            if column == 0:
+    for y, (method, (name, _, _)) in zip(ROW_CENTERS, CLUSTERING.items(), strict=True):
+        manuscript_text(fig, "b", 145.4, y, name, ha="center", va="center", rotation=90, fontsize=8)
+        for x, (simulation, _) in zip(COLUMN_CENTERS, COLUMNS, strict=True):
+            axis = manuscript_axes(fig, "b", x - 34.8, y - 33.4, 69.6, 66.8)
+            if simulation == "ground_truth":
                 spots = measured.copy()
             else:
                 path = study / "methods" / method / SECTION / simulation / "result.h5ad"
@@ -78,17 +82,16 @@ def main():
                 if not np.array_equal(spots[["x", "y"]], measured[["x", "y"]]):
                     raise ValueError(f"Spot coordinates changed in {path}")
                 ari = adjusted_rand_score(measured.label, spots.label)
-                axes[row, column].text(0.5, -0.045, f"{ari:.3f}", ha="center", va="top",
-                                       transform=axes[row, column].transAxes, fontsize=9.1, style="italic")
+                manuscript_text(fig, "b", x, y + 44.1, f"{ari:.3f}", ha="center",
+                                fontsize=9.7, style="italic", color="black")
                 aris.append({"slice_id": SECTION, "method": method, "simulation_id": simulation,
                              "ARI": ari, "printed_ARI": f"{ari:.3f}", "n_spots": len(spots)})
-            spots["color"] = draw_map(axes[row, column], spots, limits)
+            spots["color"] = draw_map(axis, spots, limits)
             spots["ground_truth"] = measured.label
             maps.append(spots.assign(slice_id=SECTION, method=method, simulation_id=simulation))
-    top = axes[0, 0].get_position()
-    bottom = axes[-1, 0].get_position()
+    width, height = fig.get_size_inches() * 72
     fig.add_artist(FancyBboxPatch(
-        (top.x0 - 0.001, bottom.y0 - 0.023), top.width + 0.002, top.y1 - bottom.y0 + 0.028,
+        (12.5 / width, 1 - 310.0 / height), 73.1 / width, (310.0 - 41.1) / height,
         boxstyle="round,pad=0.001,rounding_size=0.037",
         transform=fig.transFigure, fill=False, ec="#6849cc", lw=0.65,
     ))

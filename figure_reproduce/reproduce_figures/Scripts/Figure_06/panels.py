@@ -2,29 +2,39 @@
 import json
 
 import matplotlib as mpl
-from matplotlib.lines import Line2D
 from matplotlib.patches import Patch, Rectangle
-from matplotlib.ticker import FuncFormatter
+from matplotlib.ticker import FuncFormatter, MultipleLocator
+from mpl_toolkits.mplot3d import proj3d
 import numpy as np
 import pandas as pd
 from PIL import Image
 
 from feast_plate import axes_box, limits, panel, panel_args, save, style_3d, text_at
-from layout import FIGURE, FRAMES
+from layout import FIGURE, FRAMES, TAG_LEFT
 import network_style
 
 ROOT = "results/07_3d_transfer"
 AGES = ("E15.5", "E18.5")
 GENES = ("Slc17a7", "Gad2", "Reln")
 REGIONS = ("DorsalVZ", "IZ", "CP", "VentralVZ", "GE", "SeptalVZ", "Septum", "BT")
+SUPPORT_STACK_ORDER = ("BT", "IZ", "GE", "CP", "DorsalVZ", "Septum", "VentralVZ", "SeptalVZ")
 HEATMAP_ORDER = ("CP", "IZ", "DorsalVZ", "BT", "GE", "VentralVZ", "SeptalVZ", "Septum")
 PANELS = ("A", "B", "C", "D")
 NETWORK_TITLES = ("Measured E14", "E14 → DevCCF E15.5", "Measured E18", "E18 → DevCCF E18.5")
+CCC_TITLE_TOP = 16
+CCC_ROW_PITCH = 125
 
 
 def region_colors(zenodo):
     tbl = pd.read_csv(zenodo / "inputs/07_3d_transfer/ccc/region_schema.tsv", sep="\t")
     return dict(zip(tbl.region_label, tbl.hex_color))
+
+
+def centered_bounds(data, coordinates, common_bounds):
+    """Center a view on its tissue while keeping the comparison's physical scale."""
+    half_spans = np.ptp(common_bounds, axis=1) / 2
+    centers = [(data[dim].min() + data[dim].max()) / 2 for dim in coordinates]
+    return [(center - span, center + span) for center, span in zip(centers, half_spans)]
 
 
 def image_crop(figure, path, box, anchors=None):
@@ -47,10 +57,10 @@ def schematic(fig, zenodo):
     art = results / "figure06_sources/artwork"
     record = json.loads((art / "provenance.json").read_text())
     colors = region_colors(zenodo)
-    image_crop(fig, art / "coordinate_system.png", (7, 18, 65, 64))
-    text_at(fig, 38, 86, "Coordinate\nSystem", ha="center", va="top", size=7.6)
+    image_crop(fig, art / "coordinate_system.png", (7, 19, 62, 63))
+    text_at(fig, 32.6, 85, "Coordinate\nSystem", ha="center", va="top", size=7.5)
     data = pd.read_parquet(results / "ccc_atlas/observed_st/GSM8323030_E18M_1_observed.parquet")
-    axis = axes_box(fig, 75, 31, 55, 41)
+    axis = axes_box(fig, 78, 32, 53, 38)
     axis.scatter(data.x_um, data.y_um, color=data.region.astype(str).map(colors).fillna("#cccccc"),
                  s=.08, linewidths=0, rasterized=True)
     axis.set_aspect("equal")
@@ -58,23 +68,27 @@ def schematic(fig, zenodo):
     for i in (3, 2, 1):
         axis.add_patch(Rectangle((.04*i, .025*i), .87, .94, fill=False, lw=.35,
                                  edgecolor="#9ca9b4", transform=axis.transAxes, zorder=-1))
-    text_at(fig, 105, 21, "External ST slices", ha="center", va="top", size=7.6)
-    arrow = axes_box(fig, 73, 70, 61, 13)
-    arrow.annotate("", (.98, .42), (.02, .42), arrowprops={"arrowstyle": "->", "lw": .65, "color": "#171717"})
+    text_at(fig, 102, 22, "External ST slices", ha="center", va="top", size=7.5)
+    arrow = axes_box(fig, 75, 70, 60, 10)
+    arrow.annotate("", (.98, .46), (.02, .46), arrowprops={"arrowstyle": "->", "lw": .65, "color": "#171717"})
     arrow.axis("off")
-    text_at(fig, 103, 80, "FEAST", weight="bold", ha="center", va="top", size=8.4)
-    text_at(fig, 103, 93, "Conditional Prediction", style="italic", ha="center", va="top", size=7.1)
-    image_crop(fig, art / "translucent.png", (132, 20, 77, 58))
-    cut, anchors = image_crop(fig, art / "cutaway.png", (226, 20, 60, 58), record["cutaway_callouts_axes_xy"])
-    sides = (("DorsalVZ", "VentralVZ", "SeptalVZ", "Septum"), ("CP", "IZ", "GE", "BT"))
-    for left, names in zip((True, False), sides):
-        for i, name in enumerate(names):
-            cut.annotate(name, xy=anchors[name], xytext=(-.065 if left else 1.065, .80 - .195*i),
-                         textcoords="axes fraction", ha="right" if left else "left", va="center",
-                         fontsize=4.9, color=colors[name], weight="bold",
+    text_at(fig, 102, 77, "FEAST", weight="bold", ha="center", va="top", size=8.5)
+    text_at(fig, 102, 89, "Conditional Prediction", style="italic", ha="center", va="top", size=7)
+    image_crop(fig, art / "translucent.png", (135, 20, 72, 57))
+    cut, anchors = image_crop(fig, art / "cutaway.png", (230, 23, 56, 56), record["cutaway_callouts_axes_xy"])
+    callouts = (
+        (230, "right", (("DorsalVZ", 32), ("VentralVZ", 45), ("SeptalVZ", 59), ("Septum", 67))),
+        (288, "left", (("CP", 37), ("IZ", 47), ("GE", 61), ("BT", 74))),
+    )
+    width, height = fig.get_size_inches() * 72
+    for x, alignment, labels in callouts:
+        for name, top in labels:
+            cut.annotate(name, xy=anchors[name], xytext=(x / width, 1 - top / height),
+                         textcoords=fig.transFigure, ha=alignment, va="center",
+                         fontsize=4.5, color=colors[name], weight="bold",
                          arrowprops={"arrowstyle": "-", "lw": .27, "color": "#7b868a"}, annotation_clip=False)
-    text_at(fig, 211, 8, "3D annotation", ha="center", va="top", size=8.7, weight="bold")
-    text_at(fig, 229, 86, "3D Expression\nRebuild", ha="center", va="top", size=7.5)
+    text_at(fig, 208, 6, "3D annotation", ha="center", va="top", size=8.5, weight="bold")
+    text_at(fig, 224, 85, "3D Expression\nRebuild", ha="center", va="top", size=7.5)
 
 
 def volume(fig, zenodo):
@@ -82,14 +96,19 @@ def volume(fig, zenodo):
     info = json.loads((data / "provenance.json").read_text())
     samples = pd.read_parquet(data / "volume.parquet")
     bounds = limits(samples)
+    # The journal plate uses one scale across all three genes and both ages.
+    # Use the largest archived positive-percentile cap to retain the range of each gene.
+    cap = max(info["display_caps"]["volume"][gene] for gene in GENES)
+    norm = mpl.colors.Normalize(0, cap, clip=True)
+    stages = [samples.loc[samples.age.eq(age)] for age in AGES]
+    # Match the published isotropic crops for the two specimen rows.
+    view_zooms = (1.77, 1.57)
+    projected_centers = []
     for col, gene in enumerate(GENES):
-        x = 15 + col*76.5
-        text_at(fig, x+36, 3, gene, ha="center", va="top", weight="bold", size=7.7)
-        cap = info["display_caps"]["volume"][gene]
-        norm = mpl.colors.Normalize(0, cap, clip=True)
-        for row, age in enumerate(AGES):
-            axis = axes_box(fig, x, 12 + row*44, 74, 47, projection="3d")
-            subset = samples.loc[samples.age.eq(age)]
+        x = 15 + col*70
+        text_at(fig, x+32, 3.3, gene, ha="center", va="top", weight="bold", size=7.5)
+        for row, subset in enumerate(stages):
+            axis = axes_box(fig, x, 6.8 + row*52, 64, 64, projection="3d")
             axis.scatter(subset.x, subset.y, subset.z, color="#c7ced4", s=.13, linewidths=0, alpha=.09,
                          rasterized=True, depthshade=False)
             positive = subset.loc[subset[gene].gt(0)].sort_values(gene, kind="stable")
@@ -97,14 +116,23 @@ def volume(fig, zenodo):
                          norm=norm, cmap="viridis", s=.12, alpha=.64, linewidths=0,
                          rasterized=True, depthshade=False)
             style_3d(axis, bounds, 23, -55)
-            axis.set_box_aspect(np.ptp(bounds, axis=1), zoom=1.62)
-        bar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap="viridis"), orientation="horizontal",
-                          cax=axes_box(fig, x + 10, 104, 51, 3.4), ticks=[0, cap])
-        bar.set_ticklabels(["0", f"{cap:.2f}"])
-        bar.ax.tick_params(labelsize=5.4, pad=.5, length=1)
+            axis.set_box_aspect(np.ptp(bounds, axis=1), zoom=view_zooms[row])
+            if col == 0:
+                px, py, _ = proj3d.proj_transform(subset.x, subset.y, subset.z, axis.get_proj())
+                projected_centers.append(((px.min() + px.max()) / 2, (py.min() + py.max()) / 2))
+            # Pan the projected view without moving the anatomical coordinates or camera.
+            px, py = projected_centers[row]
+            half_width, half_height = axis.viewLim.width / 2, axis.viewLim.height / 2
+            axis.viewLim.intervalx = (px - half_width, px + half_width)
+            axis.viewLim.intervaly = (py - half_height, py + half_height)
     for index, age in enumerate(AGES):
-        text_at(fig, 10, 38+44*index, age, rotation=90, ha="center", va="center", weight="bold", size=7)
-    text_at(fig, 251, 68, "log1p counts", rotation=90, ha="center", va="center", size=6.5)
+        text_at(fig, 4.5, 49+52*index, age, rotation=90, ha="center", va="center", weight="bold", size=7)
+    bar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap="viridis"),
+                       cax=axes_box(fig, 230.5, 11.8, 5.3, 104.8),
+                       ticks=np.arange(0, cap + 1e-9, .5), format="%.1f")
+    bar.outline.set_linewidth(.5)
+    bar.ax.tick_params(labelsize=5.5, pad=1.5, length=1.6, width=.45)
+    text_at(fig, 265, 66, "log1p counts", rotation=90, ha="center", va="center", size=6.25)
 
 
 def expression_map(axis, data, coords, gene, cap, bounds):
@@ -125,38 +153,42 @@ def sections(fig, zenodo):
     levels = pd.read_csv(root / "levels.csv")
     caps = json.loads((root / "provenance.json").read_text())["display_caps"]["axial"]
     handles = [Patch(facecolor=colors[region], label=region) for region in REGIONS]
-    fig.legend(handles=handles, ncols=8, loc="upper center", bbox_to_anchor=(.53, .998),
-               columnspacing=.84, handlelength=.95, handleheight=.7, handletextpad=.28, fontsize=6.1)
-    xy = limits(data)[:2]
+    fig.legend(handles=handles, ncols=8, loc="upper center", bbox_to_anchor=(.523, .975),
+               columnspacing=1.06, handlelength=.95, handleheight=.7, handletextpad=.28, fontsize=6.25)
+    xy = limits(data, .017)[:2]
     for i, age in enumerate(AGES):
         z = levels.loc[levels.age.eq(age) & levels.peak, "z_world"].item()
         table = coverage.loc[coverage.age.eq(age)].pivot(index="z_world", columns="region", values="n_spots").fillna(0)
         table = table.loc[:, list(REGIONS)].sort_index()
-        top = 31 + 92*i
-        ax = axes_box(fig, 34, top, 121, 65.5)
+        top = 35 + 91*i
+        ax = axes_box(fig, 33.5, top, 122.27, 65)
         values = table.sum(axis=1)
-        order = list(reversed(REGIONS))
+        order = list(SUPPORT_STACK_ORDER)
         ax.stackplot(table.index, *table[order].T.to_numpy(), colors=[colors[r] for r in order], linewidth=0)
-        ax.plot(table.index, values, color="#333333", lw=.6)
-        ax.axvline(z, color="#404040", lw=.65, linestyle=(0,(2,2)))
-        x = table.index.max() - .07
-        ax.annotate(f"displayed section\nz = {z:.2f} mm", xy=(z, values.loc[z]), xytext=(x, values.max()*.66),
-                    ha="right", fontsize=5.8, color="#343b40",
+        ax.plot(table.index, values, color="#333333", lw=.45)
+        ax.axvline(z, color="#151515", lw=.55, linestyle=(0, (2, 2)))
+        ax.scatter(z, values.loc[z], color="#151515", marker="D", s=7, linewidths=0, zorder=3)
+        ax.annotate(f"displayed section\nz = {z:.2f}", xy=(z, values.loc[z]), xytext=(.99, .85),
+                    textcoords="axes fraction", va="top", ha="right", fontsize=5.5, color="#555555",
                     arrowprops={"arrowstyle": "-", "lw": .45, "color": "#454545"})
         ax.set(xlim=(table.index.min(), table.index.max()), ylim=(0, 1.06*values.max()))
-        ax.tick_params(axis="both", labelsize=5.6, length=1.3)
+        ax.tick_params(axis="both", labelsize=5.5, length=1.3, pad=2.3)
+        ax.xaxis.set_major_locator(MultipleLocator(.5))
+        ax.yaxis.set_major_locator(MultipleLocator(5000))
         ax.yaxis.set_major_formatter(FuncFormatter(lambda n, _: "0" if n == 0 else f"{n/1e3:g}k"))
-        ax.grid(axis="y", color="#dddddd", lw=.35, zorder=-1)
+        ax.set_axisbelow(True)
+        ax.grid(axis="y", color="#dddddd", lw=.3, zorder=-1)
         ax.spines[["top", "right"]].set_visible(False)
-        ax.set_title(f"{age} regional support", size=7.5, pad=2, weight="bold", loc="left")
+        text_at(fig, 33.5, top-15.3, f"{age} regional support", size=7, weight="bold", va="top")
         section = data.loc[data.age.eq(age)]
+        section_bounds = centered_bounds(section, "xy", xy)
         for j, gene in enumerate(GENES):
-            x = 162+j*54
+            x = 159.1+j*57
             if i == 0:
-                text_at(fig, x+26, 19, gene, ha="center", va="top", size=7.5, weight="bold")
-            expression_map(axes_box(fig, x, top+1, 52, 62), section, ("x", "y"), gene, caps[gene], xy)
-    text_at(fig, 7, 99, "Blueprint spots per z level", size=6.7, rotation=90, ha="center", va="center")
-    text_at(fig, 95, 204, "DevCCF z (mm)", size=6.7, ha="center", va="bottom")
+                text_at(fig, x+27.5, 19.3, gene, ha="center", va="top", size=7.5, weight="bold")
+            expression_map(axes_box(fig, x, top, 55, 65), section, ("x", "y"), gene, caps[gene], section_bounds)
+    text_at(fig, 5.6, 112, "Blueprint spots per z level", size=6.25, rotation=90, ha="center", va="center")
+    text_at(fig, 94.6, 207.3, "DevCCF z coordinate", size=6.25, ha="center", va="top")
 
 
 def multiplane(fig, zenodo):
@@ -170,10 +202,10 @@ def multiplane(fig, zenodo):
     caps = record["display_caps"]["planes"]
     early = record["ages"][0]
     for row, name in enumerate(("XZ", "YZ", "Oblique XZ 45°")):
-        top = 29 + row*57
+        top = 33 + row*59
         selected = planes.loc[planes.age.eq("E15.5") & planes.plane.eq(name)]
         parameters = next(p for p in early["planes"] if p["plane"] == name)
-        local = axes_box(fig, 5, top, 55, 54, projection="3d")
+        local = axes_box(fig, 1, top, 58, 58, projection="3d")
         local.scatter(sample.x, sample.y, sample.z, s=.095, c="#939ca5",
                       alpha=.07, linewidths=0, rasterized=True, depthshade=False)
         u, v = np.meshgrid([selected.u.min(), selected.u.max()], [selected.v.min(), selected.v.max()])
@@ -181,13 +213,14 @@ def multiplane(fig, zenodo):
         local.plot_surface(surface[..., 0], surface[..., 1], surface[..., 2], color="#1882b3",
                            alpha=.35, linewidth=0, shade=False)
         style_3d(local, bounds, 25, -55, axes=True)
-        local.set_box_aspect(np.ptp(bounds, axis=1), zoom=1.12)
+        local.set_box_aspect(np.ptp(bounds, axis=1), zoom=1.02)
+        plane_bounds = centered_bounds(selected, "uv", [(-extent, extent)] * 2)
         for col, gene in enumerate(GENES):
-            x = 68 + col*63
+            x = 65.6 + col*60
             if row == 0:
-                text_at(fig, x+24, 17, gene, weight="bold", size=7.5, ha="center", va="top")
-            expression_map(axes_box(fig, x, top, 51, 53), selected, ("u", "v"), gene,
-                           caps[gene], [(-extent, extent)]*2)
+                text_at(fig, x+24, 19.3, gene, weight="bold", size=7.5, ha="center", va="top")
+            expression_map(axes_box(fig, x, top, 48, 58), selected, ("u", "v"), gene,
+                           caps[gene], plane_bounds)
 
 
 def networks(fig, zenodo):
@@ -195,20 +228,28 @@ def networks(fig, zenodo):
     nodes = pd.read_csv(root / "regional_edges.csv")
     colors = region_colors(zenodo)
     pos = network_style.layout(REGIONS)
+    labels = (
+        ("DorsalVZ", 0, -51, "center"), ("IZ", 44, -35, "center"), ("CP", 49, 0, "left"),
+        ("VentralVZ", 42, 43, "center"), ("GE", 0, 49, "center"),
+        ("SeptalVZ", -42, 43, "center"), ("Septum", -46, 0, "right"), ("BT", -44, -35, "center"),
+    )
     for i, letter in enumerate(PANELS):
         row, col = divmod(i, 2)
-        left, top = 15 + 139*col, 23 + 126*row
-        text_at(fig, left+56, top-10, NETWORK_TITLES[i], weight="bold", size=7.6, ha="center", va="top")
-        ax = axes_box(fig, left, top, 112, 109)
-        network_style.network(ax, nodes.loc[nodes.panel.eq(letter)], REGIONS, colors, pos, "balanced")
-        ax.set(xlim=(-1.8, 1.8), ylim=(-1.72,1.72))
-    key = axes_box(fig, 33, 271, 224, 23)
+        x, y = 72.6 + 140*col, 87.4 + CCC_ROW_PITCH*row
+        text_at(fig, x, CCC_TITLE_TOP + CCC_ROW_PITCH*row, NETWORK_TITLES[i],
+                weight="bold", size=7, ha="center", va="top")
+        ax = axes_box(fig, x-46, y-46, 92, 92)
+        network_style.network(ax, nodes.loc[nodes.panel.eq(letter)], REGIONS, colors, pos, "balanced", labels=False)
+        ax.set(xlim=(-1.35, 1.35), ylim=(-1.35, 1.35))
+        for region, dx, dy, align in labels:
+            text_at(fig, x+dx, y+dy, region, size=6.5, color="#37444a", ha=align, va="center")
+    key = axes_box(fig, 0, 273, 287, 24)
     for index, pct in enumerate((.1, 1, 10, 40)):
-        xpos = .10 + .265*index
-        key.plot([xpos-.052, xpos+.052], [.59, .59], color="#65757b",
+        xpos = 51.6 + 63*index
+        key.plot([xpos-12, xpos+12], [9, 9], color="#65757b",
                  linewidth=network_style.edge_width(pct/100, "balanced"), solid_capstyle="butt")
-        key.text(xpos, .18, f"{pct:g}%", size=7, ha="center", va="center")
-    key.set(xlim=(0, 1), ylim=(0,1))
+        key.text(xpos, 0, f"{pct:g}%", size=6.5, ha="center", va="center")
+    key.set(xlim=(0, 287), ylim=(-3, 21))
     key.axis("off")
 
 
@@ -216,31 +257,33 @@ def allocations(fig, zenodo):
     source = pd.read_csv(zenodo / ROOT / "ccc_figure5/regional_edges.csv")
     masking = np.eye(len(HEATMAP_ORDER), dtype=bool)
     cmap = mpl.colors.LinearSegmentedColormap.from_list("regional_share", ["#ffffff", "#e9a6a1", "#b64342"])
-    cmap.set_bad("#e1e5e7")
+    cmap.set_bad("#e5e8ea")
     norm = mpl.colors.Normalize(0, 2)
     for i, letter in enumerate(PANELS):
         row, col = divmod(i, 2)
-        x, y, size = 37 + 139*col, 34 + 124*row, 98
+        x, y, size = 41.6 + 140*col, 38.8 + CCC_ROW_PITCH*row, 98.28
         values = source.loc[source.panel.eq(letter)].pivot(
             index="sender_region", columns="receiver_region", values="share_percent").loc[HEATMAP_ORDER, HEATMAP_ORDER]
         axis = axes_box(fig, x, y, size, size)
         shown = np.ma.masked_array(values.to_numpy(), mask=masking)
         axis.pcolormesh(np.arange(9), np.arange(9), shown, cmap=cmap, norm=norm,
-                        linewidth=.29, edgecolors="#e0e0e0")
+                        linewidth=.35, edgecolors="#eeeeee")
         axis.set(xlim=(0, 8), ylim=(8, 0), aspect="equal", yticks=np.arange(8)+.5)
-        axis.set_yticklabels(HEATMAP_ORDER, fontsize=6.1)
+        axis.set_yticklabels(HEATMAP_ORDER, fontsize=5.5)
         axis.set_xticks(np.arange(8)+.5 if row == 1 else [])
         if row == 1:
-            axis.set_xticklabels(HEATMAP_ORDER, rotation=48, ha="right", fontsize=6.1, rotation_mode="anchor")
-        axis.tick_params(length=0, pad=1)
+            axis.set_xticklabels(HEATMAP_ORDER, rotation=50, ha="right", fontsize=5.5, rotation_mode="anchor")
+        axis.tick_params(length=0, pad=2)
         axis.spines[:].set_visible(False)
-        text_at(fig, x+size/2, y-22, NETWORK_TITLES[i], weight="bold", size=7.5, ha="center", va="top")
-    text_at(fig, 9, 145, "Sending region", rotation=90, ha="center", va="center", size=6.9)
-    text_at(fig, 160, 301, "Receiving region", ha="center", va="bottom", size=6.9)
-    colorbar = fig.colorbar(mpl.cm.ScalarMappable(cmap=cmap, norm=norm), cax=axes_box(fig, 286, 56, 5, 183),
-                           ticks=np.arange(0, 2.01, .25))
-    colorbar.ax.tick_params(labelsize=5.9, pad=1.3, length=1.2)
-    colorbar.ax.set_title("Share (%)", size=6.4, pad=4)
+        text_at(fig, x+size/2, CCC_TITLE_TOP + CCC_ROW_PITCH*row, NETWORK_TITLES[i],
+                weight="bold", size=7, ha="center", va="top")
+    text_at(fig, 4.8, 150.7, "Sending region", rotation=90, ha="center", va="center", size=6.25)
+    text_at(fig, 160.7, 301.1, "Receiving region", ha="center", va="bottom", size=6.25)
+    colorbar = fig.colorbar(mpl.cm.ScalarMappable(cmap=cmap, norm=norm),
+                           cax=axes_box(fig, 288.6, 59.8, 5, 180), ticks=np.arange(0, 2.01, .25), format="%.2f")
+    colorbar.outline.set_linewidth(.4)
+    colorbar.ax.tick_params(labelsize=5.5, pad=1.3, length=1.2, width=.4)
+    text_at(fig, 293, 47.3, "Share (%)", size=6.25, ha="center", va="top")
 
 
 PLOTS = {"a": schematic, "b": volume, "c": sections, "d": multiplane, "e": networks, "f": allocations}
@@ -250,5 +293,8 @@ def main(letter):
     plot = PLOTS[letter]
     args = panel_args(FIGURE, letter, plot.__name__).parse_args()
     fig = panel(letter, FRAMES)
-    plot(fig, args.zenodo)
-    save(fig, args.output)
+    fig.texts[0].set_x(TAG_LEFT[letter] / FRAMES[letter][2])
+    # The compact plate lets the row boxes meet where only annotations extend.
+    with mpl.rc_context({"savefig.transparent": True, "text.color": "#111111"}):
+        plot(fig, args.zenodo)
+        save(fig, args.output)

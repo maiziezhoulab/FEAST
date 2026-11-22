@@ -36,11 +36,11 @@ def heatmaps(fig, zenodo):
     root = zenodo / DATA
     table = pd.read_csv(root / "Fig_S1_metrics.csv")
     meta = json.loads((root / "provenance.json").read_text())
-    text_at(fig, 282, 4, "Dataset-specific simulation fidelity", ha="center", va="top", size=11.3, weight="bold")
+    text_at(fig, 285.6, 5, "Dataset-specific simulation fidelity", ha="center", va="top", size=11, weight="bold")
     for i, (metric, title) in enumerate(METRICS):
         row, col = divmod(i, 4)
-        x, top = 109.5 + 115.8 * col, 36.5 + 191.5 * row
-        ax = axes_box(fig, x, top, 94.5, 115)
+        x, top = 110.04 + 116.08 * col, 38.19 + 191.15 * row
+        ax = axes_box(fig, x, top, 94.08, 113.52)
         values = table.loc[table.metric.eq(metric)].pivot(index="sample", columns="method", values="value")
         scale = meta["metric_scales"][metric]
         lo, hi = scale["limits"]
@@ -49,16 +49,16 @@ def heatmaps(fig, zenodo):
         image = ax.imshow(values.loc[meta["sample_order"], METHODS].to_numpy(), cmap=cmap, norm=norm,
                           aspect="auto", interpolation="nearest")
         ax.set_xticks(range(5), ["FEAST", "SRTsim", "Splatter", "Spl. S.", "scCube"],
-                      rotation=46, ha="right", rotation_mode="anchor", fontsize=8.1)
-        ax.set_yticks(range(12), LABELS if col == 0 else [""]*12, fontsize=8.15)
+                      rotation=46, ha="right", rotation_mode="anchor", fontsize=8)
+        ax.set_yticks(range(12), LABELS if col == 0 else [""]*12, fontsize=8)
         ax.tick_params(length=0, pad=1.5)
         ax.spines[:].set_visible(False)
-        ax.set_title(title, fontsize=8.8, weight="bold", pad=4, linespacing=1)
+        ax.set_title(title, fontsize=8.5, weight="bold", pad=4, linespacing=1)
         for separator in (2.5, 5.5, 7.5, 8.5, 10.5):
             ax.axhline(separator, lw=.75, color="white")
         midpoint = 10**round((np.log10(lo)+np.log10(hi))/2) if scale["kind"] == "log" else (lo+hi)/2
         ticks = [lo, midpoint, hi]
-        bar = fig.colorbar(image, cax=axes_box(fig, x, top+151, 94.5, 4.5), orientation="horizontal", ticks=ticks)
+        bar = fig.colorbar(image, cax=axes_box(fig, x, top+150.87, 94.08, 4), orientation="horizontal", ticks=ticks)
         bar.set_ticklabels([number(v).replace("-", "−") for v in ticks])
         bar.outline.set_visible(False)
         bar.ax.minorticks_off()
@@ -72,11 +72,11 @@ def cloud(fig, zenodo, sample, heading, colorbar):
     meta = json.loads((root / "provenance.json").read_text())["cloud_limits"][sample]
     n_genes = table.gene_id.nunique()
     n_spots = table.n_spots.iloc[0]
-    text_at(fig, 282, 9, f"{heading} · {n_genes:,} genes · {n_spots:,} spots per source",
-            ha="center", va="top", size=10.8, weight="bold")
+    text_at(fig, 285.6, 5, f"{heading} · {n_genes:,} genes · {n_spots:,} spots per source",
+            ha="center", va="top", size=10.5, weight="bold")
     for i, source in enumerate(["Reference", *METHODS]):
-        x = 41 + 87.9*i
-        ax = axes_box(fig, x, 48, 76, 100)
+        x = 41.57 + 89.29*i
+        ax = axes_box(fig, x, 42.4, 73.22, 100.4)
         selected = table.loc[table.source.eq(source)]
         points = ax.scatter(selected.log1p_mean, selected.log1p_variance, c=selected.zero_fraction,
                             cmap="viridis", vmin=0, vmax=1, s=1.1 if n_genes > 2000 else 2.4,
@@ -86,13 +86,13 @@ def cloud(fig, zenodo, sample, heading, colorbar):
         ax.yaxis.set_major_locator(MaxNLocator(3))
         ax.spines[["right","top"]].set_visible(False)
         ax.tick_params(labelsize=8, labelleft=i==0, length=2)
-        ax.set_title(source.replace("Splatter Simple","Splatter\nSimple"), fontsize=8.8,
+        ax.set_title(source.replace("Splatter Simple","Splatter\nSimple"), fontsize=8.5,
                      weight="bold", pad=4, linespacing=1)
         if i == 0:
-            ax.set_ylabel("log(1 + variance)", fontsize=8.35, labelpad=0)
-    text_at(fig, 282, 177, "log(1 + mean)", ha="center", va="center", size=8.35)
+            ax.set_ylabel("log(1 + variance)", fontsize=8, labelpad=0)
+    text_at(fig, 279.7, 172.2, "log(1 + mean)", ha="center", va="center", size=8)
     if colorbar:
-        bar = fig.colorbar(points, cax=axes_box(fig, 459, 177, 91, 4.4), orientation="horizontal", ticks=[0,.5,1])
+        bar = fig.colorbar(points, cax=axes_box(fig, 461.28, 173.9, 89.28, 3.84), orientation="horizontal", ticks=[0,.5,1])
         bar.outline.set_visible(False)
         bar.ax.tick_params(length=1.5, labelsize=7.8, pad=1.3)
         bar.ax.set_title("Zero proportion", size=8.15, pad=4)

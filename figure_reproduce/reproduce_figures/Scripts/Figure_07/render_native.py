@@ -16,6 +16,7 @@ import pandas as pd
 from PIL import Image
 
 from feast_plate import FINAL
+from layout import NATIVE_VIEW_HEIGHT
 import native_routes as routes
 
 CASES = ("Wnt7a--Fzd2_Lrp5", "Wnt7a--Fzd8_Lrp6")
@@ -74,7 +75,7 @@ def render(sources, output):
                 min(routes.WINDOW[1], max(box[3] for box in bounds)+24))
         world_width = 2 * scale * (crop[2] - crop[0]) / routes.WINDOW[1]
         aspect = (crop[2] - crop[0]) / (crop[3] - crop[1])
-        display_width = min(75., 61.*aspect)
+        display_width = NATIVE_VIEW_HEIGHT * aspect
         directions.extend({**record, "crop_pixels": crop, "cropped_world_width_mm": world_width,
                            "display_width_pt": display_width, "scale_bar_pt": display_width/world_width,
                            "scale_bar_mm": 1.0} for record in records)

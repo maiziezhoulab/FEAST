@@ -10,7 +10,14 @@ import plot
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.cbook import boxplot_stats
-from matplotlib.ticker import FixedLocator, FuncFormatter, LogFormatterMathtext, LogLocator, MaxNLocator
+from matplotlib.ticker import FixedLocator, FuncFormatter, LogFormatterMathtext
+
+LOG_TICK_EXPONENTS = {
+    "relative_error_mean": (-2, 0, 2, 4, 6, 8),
+    "gene_zero_fraction_wasserstein": (-17, -14, -11, -8, -5, -2),
+    "cosine_divergence": (-2, -1, 0),
+    "library_size_wasserstein": (0, 1, 2, 3, 4),
+}
 
 
 def draw_axis(ax, long_table, spec):
@@ -32,14 +39,15 @@ def draw_axis(ax, long_table, spec):
             raise ValueError(f"{label} requires nonnegative scores with positive log support")
         positive_min = values[values > 0].min()
         largest = values.max()
+        ticks = [10.0 ** exponent for exponent in LOG_TICK_EXPONENTS[spec["column"]]]
         ax.set_yscale("log")
-        ax.set_ylim(positive_min * 0.65, largest * 1.35)
+        ymin, ymax = min(positive_min * 0.65, ticks[0]), max(largest * 1.35, ticks[-1] * 1.05)
+        ax.set_ylim(ymin, ymax)
         if (values == 0).any():
             # Put exact zeros in a labelled slot below the positive log range.
             zero_slot = positive_min / 4
-            ax.set_ylim(zero_slot * 0.68, largest * 1.35)
-            ticks = LogLocator(numticks=5).tick_values(positive_min * 0.65, largest * 1.35)
-            ticks = ticks[(ticks >= positive_min * 0.65) & (ticks <= largest * 1.35)]
+            ax.set_ylim(min(ymin, zero_slot * 0.68), ymax)
+            ticks = [tick for tick in ticks if tick > zero_slot]
             formatter = LogFormatterMathtext()
             ax.yaxis.set_major_locator(FixedLocator([zero_slot, *ticks]))
             ax.yaxis.set_major_formatter(
@@ -51,13 +59,15 @@ def draw_axis(ax, long_table, spec):
                     if summary[bound] == 0:
                         summary[bound] = zero_slot
         else:
-            ax.yaxis.set_major_locator(LogLocator(numticks=5))
+            ax.yaxis.set_major_locator(FixedLocator(ticks))
         ax.tick_params(axis="y", which="minor", length=0)
     else:
         low, high = values.min(), values.max()
         margin = max(high - low, 0.1) * 0.10
-        ax.set_ylim(low - margin, min(1.02, high + margin))
-        ax.yaxis.set_major_locator(MaxNLocator(nbins=5))
+        ax.set_ylim(min(0, low - margin), max(1.02, min(1.08, high + margin)))
+        step = 0.25 if spec["column"] == "moran_i_correlation" else 0.2
+        ax.yaxis.set_major_locator(FixedLocator(np.arange(0, 1.01, step)))
+        ax.yaxis.set_major_formatter(FuncFormatter(lambda value, _: f"{value:.{2 if step == 0.25 else 1}f}"))
 
     positions = np.arange(1, len(methods) + 1)
     boxes = ax.bxp(
@@ -97,12 +107,12 @@ def render(metrics_path, results_dir, output_dir):
     medians = plot.build_median_table(long_table)
 
     figure = plt.figure(figsize=(WIDTH / 72, A_HEIGHT / 72))
-    figure.text(7 / WIDTH, 1 - 4.8 / A_HEIGHT, "a", va="top", fontsize=13, fontweight="bold")
+    figure.text(6.9 / WIDTH, 1 - 9.4 / A_HEIGHT, "a", va="baseline", fontsize=13.1, fontweight="bold")
     figure.text(6.5 / WIDTH, 1 - 106 / A_HEIGHT, "Metric value", rotation=90,
                 ha="center", va="center", fontsize=7.2)
     for index, spec in enumerate(plot.METRIC_SPECS):
         row, column = divmod(index, 4)
-        ax = figure.add_axes(rect((29, 172, 316, 460)[column], (17, 131)[row], 120, 66, A_HEIGHT))
+        ax = figure.add_axes(rect((28.7, 172.2, 315.8, 459.3)[column], (17, 131)[row], 120.8, 66.3, A_HEIGHT))
         draw_axis(ax, long_table, spec)
 
     results_dir.mkdir(parents=True, exist_ok=True)
@@ -114,8 +124,8 @@ def render(metrics_path, results_dir, output_dir):
     provenance = {
         "figure": "Figure 2a",
         "metrics_source": str(metrics_path.resolve().relative_to(PROJECT)) if metrics_path.resolve().is_relative_to(PROJECT) else str(metrics_path),
-        "retained_rows": int(metrics["simulator"].ne("FEAST_reference_rank").sum()),
-        "fresh_feast_rows": int(metrics["simulator"].eq("FEAST_reference_rank").sum()),
+        "comparator_rows": int(metrics["simulator"].ne("FEAST_reference_rank").sum()),
+        "feast_rows": int(metrics["simulator"].eq("FEAST_reference_rank").sum()),
         "plotted_scores": len(long_table),
         "boxplots": "Cohort median order for each metric, 1.5 IQR whiskers, sample-sorted point offsets",
         "exact_zeros_by_log_metric": {
@@ -129,7 +139,7 @@ def render(metrics_path, results_dir, output_dir):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--metrics-csv", type=Path, default=RESULTS / "metrics/simulator_quality_metrics.csv")
+    parser.add_argument("--metrics-csv", type=Path, default=plot.DEFAULT_METRICS_CSV)
     parser.add_argument("--results-dir", type=Path, default=RESULTS / "figure2")
     parser.add_argument("--output-dir", type=Path, default=FIGURES)
     args = parser.parse_args()

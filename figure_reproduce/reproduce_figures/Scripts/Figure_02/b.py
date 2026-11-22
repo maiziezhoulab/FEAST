@@ -3,8 +3,9 @@
 import argparse
 import json
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
-from layout import B_HEIGHT, FIGURES, HEIGHT, INPUTS, PROJECT, RESULTS, WIDTH, configure_style, rect
+from layout import A_HEIGHT, B_HEIGHT, FIGURES, HEIGHT, INPUTS, PROJECT, RESULTS, WIDTH, configure_style, rect
 from plot_slice_panel import PANEL_SPECS, SOURCES, SOURCE_LABELS, h5ad_path, read_spatial_marker
 from plot_spatial_comparison import (
     DELTA_CMAP,
@@ -22,15 +23,15 @@ import pandas as pd
 from matplotlib.colors import Normalize, TwoSlopeNorm
 
 STEM = "simulator_spatial_comparison"
-COLUMN_CENTERS = (89, 181, 271, 361, 453, 544)
-ROW_CENTERS = (332.5, 401.5, 470.5, 539.5, 615.0, 684.0, 753.0)
+COLUMN_CENTERS = (89.1, 179.7, 271.22, 361.05, 453.3, 544.4)
+ROW_CENTERS = (332.2, 400.7, 469.2, 537.7, 614.8, 683.3, 751.8)
 TITLES = (
     "Human DLPFC\n(10X Visium)",
     "Mouse Brain\n(MERFISH)",
     "Human metastatic\nlymph node\n(Open-ST)",
     "Human melanoma\nbrain metastasis\n(Slide-seq V2)",
     "Mouse Embryo\n(Stereo-seq)",
-    "Human Lymph Node\n(Xenium)",
+    "Human Lymph node\n(Xenium)",
 )
 EXPRESSION_NORM = Normalize(0, 1)
 RESIDUAL_NORM = TwoSlopeNorm(vmin=-1, vcenter=0, vmax=1)
@@ -61,7 +62,7 @@ def display_spots(sample, gene, view, source, data, values, indices):
 
 
 def draw_map(figure, column, row, points, scale, size, view, limits):
-    ax = figure.add_axes(figure_rect(COLUMN_CENTERS[column] - 42, ROW_CENTERS[row] - 33.4, 84, 66.8))
+    ax = figure.add_axes(figure_rect(COLUMN_CENTERS[column] - 42, ROW_CENTERS[row] - 32.8, 84, 65.6))
     expression = view == "expression"
     ax.scatter(
         points["x"], points["y"], c=points["log1p_value"] / scale, s=size,
@@ -76,8 +77,8 @@ def draw_map(figure, column, row, points, scale, size, view, limits):
 
 def draw_keys(figure):
     for top, norm, cmap, label, ticks in (
-        (237.5, EXPRESSION_NORM, "viridis", "Expression: log1p(value) / column q99.5 across all sources", np.linspace(0, 1, 6)),
-        (804.7, RESIDUAL_NORM, DELTA_CMAP, "Error: [log1p(simulated) − log1p(reference)] / column q99(|Δ|)", np.linspace(-1, 1, 5)),
+        (237, EXPRESSION_NORM, "viridis", "Expression: log1p(value) / column q99.5 across all sources", np.linspace(0, 1, 6)),
+        (803.6, RESIDUAL_NORM, DELTA_CMAP, "Error: [log1p(simulated) − log1p(reference)] / column q99(|Δ|)", np.linspace(-1, 1, 5)),
     ):
         center = 316.5
         axis = figure.add_axes(figure_rect(center - 150, top, 300, 4.5))
@@ -85,6 +86,89 @@ def draw_keys(figure):
         bar.outline.set_linewidth(0.35)
         axis.tick_params(labelsize=5.6, length=1.5, width=0.35, pad=0.6)
         text_at(figure, center, top - 3.5, label, ha="center", va="bottom", fontsize=6.1)
+
+
+def draw_header(figure, column, gene, residual_max):
+    center = COLUMN_CENTERS[column]
+    for line, baseline in zip(reversed(TITLES[column].splitlines()), (279.0, 269.8, 260.6)):
+        text_at(figure, center, baseline, line, ha="center", va="baseline", fontsize=6.9)
+    figure.add_artist(plt.Line2D(
+        [(center - 31) / WIDTH, (center + 31) / WIDTH],
+        [(HEIGHT - 283.9) / B_HEIGHT] * 2, transform=figure.transFigure,
+        color="#444444", linewidth=0.35,
+    ))
+    text_at(figure, center, 291.4, f"{gene}  Δ q99 ±{residual_max:.3g}", ha="center",
+            va="baseline", fontsize=6.42)
+
+
+def labeled_figure():
+    figure = plt.figure(figsize=(WIDTH / 72, B_HEIGHT / 72))
+    text_at(figure, 6.9, 269.2, "b", va="baseline", fontsize=13.1, fontweight="bold")
+    labels = [*SOURCE_LABELS, *(f"{source} Diff" for source in DELTA_SOURCES)]
+    for top, label in zip(ROW_CENTERS, labels, strict=True):
+        text_at(figure, 28.6, top, label, rotation=90, ha="center", va="center",
+                fontsize=10, fontweight="bold", linespacing=1.0)
+    draw_keys(figure)
+    return figure
+
+
+def render_archive(archived_pdf, archived_dir, output_dir):
+    """Replay the independently verified Study 00 export with journal annotations."""
+    import pymupdf
+
+    configure_style()
+    scale_path = archived_dir / f"{STEM}_color_limits.csv"
+    scales = pd.read_csv(scale_path).set_index(["sample", "gene"], verify_integrity=True)
+    if len(scales) != len(PANEL_SPECS) or not np.array_equal(scales.residual_vmin, -scales.residual_vmax):
+        raise ValueError(f"Invalid archived color scales in {scale_path}")
+    figure = labeled_figure()
+    for column, spec in enumerate(PANEL_SPECS):
+        draw_header(figure, column, spec["gene"], scales.loc[(spec["sample"], spec["gene"]), "residual_vmax"])
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    with TemporaryDirectory(dir=output_dir) as scratch:
+        base = Path(scratch) / "base.pdf"
+        result = Path(scratch) / "b.pdf"
+        figure.savefig(base, dpi=600, metadata={"Title": "Figure 2b"})
+        plt.close(figure)
+        with pymupdf.open(archived_pdf) as source, pymupdf.open(base) as output:
+            if len(source) != 1:
+                raise ValueError(f"Expected one page in {archived_pdf}")
+            tiles = source[0].get_image_info(xrefs=True)
+            rows = len(ROW_CENTERS)
+            if len(tiles) != rows * len(PANEL_SPECS) + 2:
+                raise ValueError(f"Expected 42 map tiles and two color bars in {archived_pdf}")
+            maps = tiles[:-2]
+            first_top = min(tile["bbox"][1] for tile in maps)
+            output_page = output[0]
+            # The verified source has a column-major map sequence and a regular row pitch.
+            factor = 0.520
+            previous_center = float("-inf")
+            for column, target_center in enumerate(COLUMN_CENTERS):
+                column_tiles = maps[column * rows:(column + 1) * rows]
+                centers = [(tile["bbox"][0] + tile["bbox"][2]) / 2 for tile in column_tiles]
+                starts = [tile["bbox"][1] for tile in column_tiles]
+                if (centers[0] <= previous_center or np.ptp(centers) >= 1
+                        or not np.all(np.diff(starts) > 0)):
+                    raise ValueError(f"Unrecognized map order in {archived_pdf}")
+                previous_center = centers[0]
+                for tile in column_tiles:
+                    x0, y0, x1, y1 = tile["bbox"]
+                    box = pymupdf.Rect(
+                        target_center + (x0 - centers[0]) * factor,
+                        300.8 - A_HEIGHT + (y0 - first_top) * factor,
+                        target_center + (x1 - centers[0]) * factor,
+                        300.8 - A_HEIGHT + (y1 - first_top) * factor,
+                    )
+                    image = source.extract_image(tile["xref"])
+                    alpha = source.extract_image(image["smask"])["image"] if image["smask"] else None
+                    inserted = output_page.insert_image(box, stream=image["image"], mask=alpha)
+                    if alpha is not None:
+                        _, mask_ref = output.xref_get_key(inserted, "SMask")
+                        # PDF soft masks require DeviceGray, including PNGs with an ICC profile.
+                        output.xref_set_key(int(mask_ref.split()[0]), "ColorSpace", "/DeviceGray")
+            output.save(result, garbage=4, deflate=True)
+        result.replace(output_dir / "b.pdf")
 
 
 def project_path(path):
@@ -104,12 +188,7 @@ def render(archived_dir, source_dirs, results_dir, output_dir):
         archived_dir / f"{STEM}_spot_matching.csv", float_precision="round_trip",
     ).set_index(["sample", "gene", "source"], verify_integrity=True)
 
-    figure = plt.figure(figsize=(WIDTH / 72, B_HEIGHT / 72))
-    text_at(figure, 7, 258, "b", va="top", fontsize=13, fontweight="bold")
-    for top, label in zip(ROW_CENTERS, [*SOURCE_LABELS, *(f"{source} Diff" for source in DELTA_SOURCES)], strict=True):
-        text_at(figure, 27, top, label, rotation=90, ha="center", va="center",
-                fontsize=10, fontweight="bold", linespacing=1.0)
-    draw_keys(figure)
+    figure = labeled_figure()
     residual_frames, displays, scales, matches = [], [], [], []
     for column, spec in enumerate(PANEL_SPECS):
         sample, gene, platform = spec["sample"], spec["gene"], spec["platform"]
@@ -181,14 +260,7 @@ def render(archived_dir, source_dirs, results_dir, output_dir):
             size = _point_size(reference.n_obs, platform) * (WIDTH / 1158.89) ** 2
             draw_map(figure, column, row, points, residual_max, size, "residual", limits)
 
-        center = COLUMN_CENTERS[column]
-        text_at(figure, center, 280.5, TITLES[column], ha="center", va="bottom", fontsize=7, linespacing=1.10)
-        figure.add_artist(plt.Line2D(
-            [(center - 31) / WIDTH, (center + 31) / WIDTH],
-            [(HEIGHT - 283.9) / B_HEIGHT] * 2, transform=figure.transFigure,
-            color="#444444", linewidth=0.35,
-        ))
-        text_at(figure, center, 286.6, f"{gene}  Δ q99 ±{residual_max:.3g}", ha="center", va="top", fontsize=6.4)
+        draw_header(figure, column, gene, residual_max)
         print(f"Figure 2b: {sample} / {gene}, {reference.n_obs:,} joined spots", flush=True)
 
     results_dir.mkdir(parents=True, exist_ok=True)
@@ -233,11 +305,16 @@ def main():
     parser.add_argument("--srtsim-dir", type=Path, default=INPUTS / "external/SRTsim")
     parser.add_argument("--sccube-dir", type=Path, default=INPUTS / "external/scCube")
     parser.add_argument("--archived-dir", type=Path, default=RESULTS / "article/figure2")
+    parser.add_argument("--archived-pdf", type=Path,
+                        help="Replay map tiles from the verified simulator_spatial_comparison.pdf (requires PyMuPDF).")
     parser.add_argument("--results-dir", type=Path, default=RESULTS / "figure2")
     parser.add_argument("--output-dir", type=Path, default=FIGURES)
     args = parser.parse_args()
-    source_dirs = dict(zip(SOURCES, [args.reference_dir, args.feast_dir, args.srtsim_dir, args.sccube_dir], strict=True))
-    render(args.archived_dir, source_dirs, args.results_dir, args.output_dir)
+    if args.archived_pdf:
+        render_archive(args.archived_pdf, args.archived_dir, args.output_dir)
+    else:
+        source_dirs = dict(zip(SOURCES, [args.reference_dir, args.feast_dir, args.srtsim_dir, args.sccube_dir], strict=True))
+        render(args.archived_dir, source_dirs, args.results_dir, args.output_dir)
 
 
 if __name__ == "__main__":

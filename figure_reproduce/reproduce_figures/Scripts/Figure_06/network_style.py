@@ -19,7 +19,7 @@ def edge_width(share, display_style):
     return WIDTH_PER_UNIT_SHARE * share
 
 
-def network(ax, table, regions, colors, positions, display_style='linear'):
+def network(ax, table, regions, colors, positions, display_style='linear', *, labels=True):
     ax.set_xlim(-1.85, 1.85); ax.set_ylim(-1.85, 1.85)
     ax.set_aspect('equal'); ax.set_axis_off()
     nodes = {}
@@ -56,9 +56,10 @@ def network(ax, table, regions, colors, positions, display_style='linear'):
                                     patchA=nodes[sender], patchB=nodes[receiver],
                                     connectionstyle='arc3,rad=0.15', **kwargs)
         ax.add_patch(arrow)
-    for region in regions:
-        radial = positions[region] / .93
-        point = radial * (1.45 if display_style == 'balanced' else 1.58)
-        ha = 'left' if radial[0] > .3 else 'right' if radial[0] < -.3 else 'center'
-        va = 'bottom' if radial[1] > .3 else 'top' if radial[1] < -.3 else 'center'
-        ax.text(*point, region, ha=ha, va=va, fontsize=6.55, color='#263238', zorder=5)
+    if labels:
+        for region in regions:
+            radial = positions[region] / .93
+            point = radial * (1.45 if display_style == 'balanced' else 1.58)
+            ha = 'left' if radial[0] > .3 else 'right' if radial[0] < -.3 else 'center'
+            va = 'bottom' if radial[1] > .3 else 'top' if radial[1] < -.3 else 'center'
+            ax.text(*point, region, ha=ha, va=va, fontsize=6.55, color='#263238', zorder=5)

@@ -109,15 +109,15 @@ def plot_metric(axis: plt.Axes, frame: pd.DataFrame, metric: str, title: str) ->
             linewidth=0.80,
             zorder=4,
         )
-    axis.set_title(title, fontsize=7.8, fontweight="bold", pad=2.5)
+    axis.set_title(title, fontsize=8, fontweight="bold", pad=7, color="black")
     axis.set_xticks(
         np.arange(len(GROUPS)), [label for _dataset, _mode, label in GROUPS]
     )
-    axis.set_xlim(-0.5, len(GROUPS) - 0.5)
+    axis.set_xlim(-.39, len(GROUPS) - .61)
     axis.grid(axis="y", color="#DDDDDD", linewidth=0.6, alpha=0.65)
     axis.set_axisbelow(True)
     axis.spines["top"].set_visible(False)
     axis.spines["right"].set_visible(False)
     for spine_name in ("left", "bottom"):
-        axis.spines[spine_name].set_linewidth(0.8)
+        axis.spines[spine_name].set_linewidth(.3)
         axis.spines[spine_name].set_color("#555555")

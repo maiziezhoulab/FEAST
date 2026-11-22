@@ -55,14 +55,11 @@ def panel(axis: plt.Axes, frame: pd.DataFrame, metric: str, title: str) -> None:
                 alpha=0.55,
                 zorder=3,
             )
-    axis.set_title(title, fontsize=7.9, fontweight="bold", pad=4, loc='left')
-    counts = method_frames['spatialz'].groupby('gap').size()
-    axis.set_xticks(positions, [f'{gap}\nn={counts[gap]}' for gap in gaps])
-    axis.set_xlabel("Reference gap")
+    axis.set_title(title, fontsize=8, fontweight="bold", pad=7, loc="left")
     axis.grid(axis="y", color="#DDDDDD", linewidth=0.6, alpha=0.65)
     axis.set_axisbelow(True)
     axis.spines["top"].set_visible(False)
     axis.spines["right"].set_visible(False)
     for spine_name in ("left", "bottom"):
-        axis.spines[spine_name].set_linewidth(0.8)
+        axis.spines[spine_name].set_linewidth(.45)
         axis.spines[spine_name].set_color("#555555")

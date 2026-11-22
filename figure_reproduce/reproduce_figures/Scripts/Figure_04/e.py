@@ -5,13 +5,13 @@ import pandas as pd
 from sklearn.metrics import f1_score
 
 from embedding_layout import draw_umap_pair, handles
-from layout import BATCH_COLORS, LAYER_COLORS, panel, panel_args, save_panel
+from layout import BATCH_COLORS, LAYER_COLORS, axes_box, panel, panel_args, save_panel, text_at
 
 METHODS = ("Uncorrected", "GraphST", "STAMP", "scVI")
 
 
 def draw_spatial(axis, data, label, limits):
-    axis.scatter(data.x, data.y, c=data[label].map(LAYER_COLORS), s=1.27,
+    axis.scatter(data.x, data.y, c=data[label].map(LAYER_COLORS), s=1.05,
                  linewidths=0, rasterized=True)
     axis.set(xlim=limits[0], ylim=limits[1], aspect="equal")
     axis.axis("off")
@@ -32,24 +32,23 @@ def main():
     limits = ((low[0], high[0]), (high[1], low[1]))
 
     fig = panel("e", label_x=10)
-    axes = fig.subplots(3, 5, gridspec_kw={"height_ratios": [1, 1, 1.16]})
-    fig.subplots_adjust(left=0.027, right=0.984, top=0.913, bottom=0.013, wspace=0.15, hspace=0.18)
     legend_layout = [
-        (axes[0, 0], "Batch mixing", BATCH_COLORS, 1),
-        (axes[1, 0], "Layer structure", LAYER_COLORS, 2),
+        (22, "Batch mixing", BATCH_COLORS, 1),
+        (76.5, "Layer structure", LAYER_COLORS, 2),
     ]
-    for axis, title, palette, ncols in legend_layout:
+    for top, title, palette, ncols in legend_layout:
+        text_at(fig, 20, top, title, weight="bold", va="top", ha="left", fontsize=10)
+        axis = axes_box(fig, 19, top + 15, 100, 57)
         axis.axis("off")
-        axis.text(0.03, 0.945, title, weight="bold", va="top", ha="left", fontsize=9, transform=axis.transAxes)
-        axis.legend(handles=handles(palette), ncols=ncols, loc="upper left", bbox_to_anchor=(0, 0.76),
-                    fontsize=7.5, handletextpad=0.36, handlelength=1.2, columnspacing=0.65)
-    axes[0, 0].text(0.64, 1.17, "α = 1", weight="bold", fontsize=8.4,
-                    transform=axes[0, 0].transAxes, va="top")
-    draw_spatial(axes[2, 0], canonical, "ground_truth", limits)
-    axes[2, 0].set_title("Ground truth · DLPFC 151673", size=7.55, weight="bold", pad=4)
-    fig.text(0.603, 0.347, "Predicted layers · Macro-F1", fontsize=8.6,
-             weight="bold", va="bottom", ha="center")
-    for column, method in enumerate(METHODS, start=1):
+        axis.legend(handles=handles(palette), ncols=ncols, loc="upper left", fontsize=8.1,
+                    handletextpad=0.45, handlelength=1.25, columnspacing=0.65)
+    text_at(fig, 68.5, 10.5, "α = 1", weight="bold", fontsize=8.3, va="top")
+    text_at(fig, 28, 172, "Ground Truth: DLPFC\n151673", fontsize=8.15, weight="bold", va="top")
+    ground_truth = axes_box(fig, 29.5, 192.5, 78, 78)
+    draw_spatial(ground_truth, canonical, "ground_truth", limits)
+    text_at(fig, 364, 172, "Predicted layers · Macro-F1", fontsize=8.15,
+            weight="bold", va="top", ha="center")
+    for center, method in zip((190, 306, 422, 538), METHODS):
         name = "Uncorrected input" if method == "Uncorrected" else method
         embedding = table.loc[table.representation.eq(name)]
         prediction = pred.loc[pred.method.eq(method)].set_index("source_spot_id")
@@ -61,15 +60,17 @@ def main():
             labels = embedding.loc[embedding.batch.eq(batch)].set_index("source_spot_id").ground_truth
             if not labels.index.is_unique or not labels.loc[canonical.index].equals(canonical.ground_truth):
                 raise ValueError(f"Unexpected display label support for {method} {batch}")
-        draw_umap_pair(axes[:2, column], embedding, point_size=0.72)
-        axes[0, column].set_title(name, fontsize=9.1, weight="bold", pad=4)
-        draw_spatial(axes[2, column], prediction, "predicted_layer", limits)
+        views = [axes_box(fig, center - 39, top, 78, 78) for top in (28, 99)]
+        draw_umap_pair(views, embedding, point_size=0.51)
+        text_at(fig, center, 15.5, name, fontsize=9.3, weight="bold", ha="center", va="top")
+        spatial = axes_box(fig, center - 39, 192.5, 78, 78)
+        draw_spatial(spatial, prediction, "predicted_layer", limits)
         stored = scores.loc[scores.method.eq(method), "macro_f1"].item()
         observed = f1_score(prediction.ground_truth, prediction.predicted_layer, labels=list(LAYER_COLORS),
                             average="macro", zero_division=0)
         if not np.isclose(observed, stored, atol=1e-12, rtol=0):
             raise ValueError(f"Printed macro-F1 differs from predictions for {method}")
-        axes[2, column].set_title(f"{observed:.3f}", fontsize=8.2, weight="bold", pad=4)
+        text_at(fig, center, 182, f"{observed:.3f}", fontsize=8.2, weight="bold", ha="center", va="top")
     save_panel(fig, args.output)
 
 

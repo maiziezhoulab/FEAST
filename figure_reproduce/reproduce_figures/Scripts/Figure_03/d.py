@@ -8,10 +8,12 @@ import pandas as pd
 from matplotlib.patches import Rectangle
 
 import deconvolution_spatial as spatial
-from layout import panel, panel_args, save_panel
+from layout import manuscript_axes, manuscript_text, panel, panel_args, save_panel
 
 SECTION = "100"
 SOURCES = ("truth", "cell2location", "rctd")
+COLUMN_CENTERS = (202.5, 327.6, 438.0, 548.2)
+ROW_CENTERS = (386.3, 469.3, 551.6)
 
 
 def read_compositions(run, retained):
@@ -46,19 +48,39 @@ def read_compositions(run, retained):
 
 def draw_key(axis, palette):
     axis.axis("off")
-    axis.text(0, 0.99, "Cell classes", va="top", fontsize=8.6, weight="bold")
+    axis.text(0, 0.99, "Cell classes", va="top", fontsize=8.5)
     entries = list(palette.items())
     per_column = (len(entries) + 1) // 2
     for i, (name, color) in enumerate(entries):
         column, row = divmod(i, per_column)
-        x = 0.535 * column
-        y = 0.865 - 0.094 * row
+        x = 0.53 * column
+        y = 0.835 - 0.113 * row
         axis.add_patch(Rectangle((x, y - 0.022), 0.03, 0.038, color=color, lw=0))
         axis.text(x + 0.036, y, name, fontsize=5.9, va="center")
 
 
+def read_plot_data(path, palette):
+    rows = pd.read_csv(path, dtype={"unit_id": str, "resolution": str}, float_precision="round_trip")
+    measured = rows.loc[rows.panel.eq("single_cell_reference"), ["unit_id", "x", "y", "cell_class"]]
+    measured = measured.set_index("unit_id", verify_integrity=True).rename(columns={"cell_class": "display_class"})
+    grouped = rows.loc[~rows.panel.eq("single_cell_reference")].rename(columns={"panel": "source"})
+    grouped["resolution"] = grouped.resolution.astype(float)
+    keys = ["source", "resolution", "unit_id"]
+    metadata = grouped.loc[:, keys + ["x", "y", "n_source_cells"]].drop_duplicates().set_index(keys, verify_integrity=True)
+    proportions = grouped.pivot(index=keys, columns="cell_class", values="proportion")
+    if (set(proportions.columns) != set(palette) or proportions.isna().any().any()
+            or not set(measured.display_class).issubset(palette)):
+        raise ValueError(f"Archive cell classes differ from scored support in {path}")
+    for resolution in map(float, spatial.RESOLUTIONS):
+        support = metadata.xs(("truth", resolution), level=("source", "resolution"))
+        for source in SOURCES[1:]:
+            pd.testing.assert_frame_equal(metadata.xs((source, resolution), level=("source", "resolution")), support)
+    return measured, metadata.join(proportions).reset_index()
+
+
 def main():
-    args = panel_args("d", __doc__)
+    args = panel_args("d", __doc__,
+                      plot_data_help="Replay the archived deconvolution_spatial_plot_data.csv.gz.")
     study = args.results / "03_deconvolution"
     run = study / "cell_class"
     audit = pd.read_csv(run / "scores/support_audit.csv", dtype={"slice_id": str})
@@ -69,23 +91,26 @@ def main():
     retained = retained_lists[0]
     palette = {label: spatial.FULL_CELL_TYPE_COLORS[label] for label in retained}
     palette.update([spatial.OTHER_CELL_CLASS])
-    reference = ad.read_h5ad(args.inputs / f"03_deconvolution/Zhuang-ABCA-1.{SECTION}.h5ad", backed="r")
-    try:
-        xy = reference.obsm["spatial"]
-        classes = reference.obs["cell_class"].astype(str)
-        measured = pd.DataFrame({"x": xy[:, 0], "y": xy[:, 1], "cell_class": classes})
-        measured["display_class"] = classes.where(classes.isin(retained), "Other")
-        measured.index.name = "cell_barcode"
-    finally:
-        reference.file.close()
-    data = read_compositions(run, retained)
     tables = study / "figure3"
     tables.mkdir(parents=True, exist_ok=True)
-    measured.to_csv(tables / "d_reference_spots.csv.gz")
-    data.to_csv(tables / "d_compositions.csv.gz")
+    if args.plot_data:
+        measured, data = read_plot_data(args.plot_data, palette)
+    else:
+        reference = ad.read_h5ad(args.inputs / f"03_deconvolution/Zhuang-ABCA-1.{SECTION}.h5ad", backed="r")
+        try:
+            xy = reference.obsm["spatial"]
+            classes = reference.obs["cell_class"].astype(str)
+            measured = pd.DataFrame({"x": xy[:, 0], "y": xy[:, 1], "cell_class": classes})
+            measured["display_class"] = classes.where(classes.isin(retained), "Other")
+            measured.index.name = "cell_barcode"
+        finally:
+            reference.file.close()
+        data = read_compositions(run, retained)
+        measured.to_csv(tables / "d_reference_spots.csv.gz")
+        data.to_csv(tables / "d_compositions.csv.gz")
     pd.Series(palette, name="color").rename_axis("cell_class").to_csv(tables / "d_palette.csv")
 
-    xlim, ylim = spatial.common_limits(xy)
+    xlim, ylim = spatial.common_limits(measured[["x", "y"]].to_numpy())
     roi = spatial.roi_bounds(xlim, ylim)
     distances = {
         resolution: spatial.nearest_neighbor_distance(data.loc[
@@ -99,23 +124,25 @@ def main():
         "pie_radius": radii, "roi_pie_radius": enlarged_radius,
         "occupied_cells_only": True, "minimum_displayed_fraction": spatial.DISPLAY_THRESHOLD,
         "wedge_order": "clockwise from 90 degrees", "y_axis": "image coordinates, increasing down",
+        "archived_plot_data": str(args.plot_data) if args.plot_data else None,
     }, indent=2) + "\n")
 
-    fig = panel("d", label_x=1)
-    grid = fig.add_gridspec(3, 4, left=0.029, right=0.994, top=0.904, bottom=0.007,
-                          width_ratios=[1.13, 1.2, 1.2, 0.91], wspace=0.16, hspace=0.05)
-    ref = fig.add_subplot(grid[0, 0])
+    fig = panel("d")
+    ref = manuscript_axes(fig, "d", COLUMN_CENTERS[0] - 45, ROW_CENTERS[0] - 42, 90, 84)
     spatial.format_spatial_axis(ref, xlim, ylim)
     ref.scatter(measured.x, measured.y, c=measured.display_class.map(palette), s=0.43,
                 linewidths=0, rasterized=True)
-    ref.set_title("Single-cell\nMERFISH", fontsize=9, pad=3)
-    key = fig.add_subplot(grid[1:, 0])
-    key.set_position([0.025, 0.145, 0.27, 0.36])
+    manuscript_text(fig, "d", COLUMN_CENTERS[0], 330.5, "Single-cell\nMERFISH",
+                    fontsize=9.7, ha="center", va="top", linespacing=0.95)
+    key = manuscript_axes(fig, "d", 155, 451, 131, 89)
     draw_key(key, palette)
-    for row, source in enumerate(SOURCES):
-        for column, resolution in enumerate(("0.25", "0.1", "roi"), start=1):
-            axis = fig.add_subplot(grid[row, column])
+    for y, source in zip(ROW_CENTERS, SOURCES, strict=True):
+        manuscript_text(fig, "d", 276.3, y, spatial.SOURCE_LABELS[source], rotation=90,
+                        ha="center", va="center", fontsize=9.7)
+        for x, resolution in zip(COLUMN_CENTERS[1:], ("0.25", "0.1", "roi"), strict=True):
             is_roi = resolution == "roi"
+            width, height = (70, 76) if is_roi else (94, 82)
+            axis = manuscript_axes(fig, "d", x - width / 2, y - height / 2, width, height)
             factor = "0.1" if is_roi else resolution
             values = data.loc[data.resolution.eq(float(factor)) & data.source.eq(source)]
             occupied = values.loc[values.n_source_cells.gt(0)]
@@ -131,13 +158,11 @@ def main():
                 axis.add_collection(spatial.pie_collection(coords, props, radii[factor], palette))
                 if factor == "0.1":
                     spatial.add_roi_rectangle(axis, roi)
-            if column == 1:
-                axis.text(-0.035, 0.5, spatial.SOURCE_LABELS[source], rotation=90,
-                          ha="right", va="center", fontsize=8.1, transform=axis.transAxes)
-            if row == 0:
-                axis.set_title({"0.25": "×0.25", "0.1": "×0.10", "roi": "Enlarged ROI"}[resolution],
-                               fontsize=9, pad=3)
-    fig.text(0.557, 0.972, "Resolution", ha="center", va="top", fontsize=9.1)
+    manuscript_text(fig, "d", 383, 334, "Resolution", ha="center", va="top", fontsize=9.7)
+    for x, label in zip(COLUMN_CENTERS[1:3], ("×0.25", "×0.10"), strict=True):
+        manuscript_text(fig, "d", x, 343.8, label, ha="center", va="baseline", fontsize=9.7)
+    manuscript_text(fig, "d", COLUMN_CENTERS[3], 330.5, "Enlarged\nROI", ha="center",
+                    va="top", fontsize=9.7, linespacing=0.95)
     save_panel(fig, args.output)
 
 

@@ -3,7 +3,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import sys
 from pathlib import Path
 os.environ.setdefault('MPLCONFIGDIR', '/tmp/matplotlib')
 os.environ.setdefault('SOURCE_DATE_EPOCH', '0')
@@ -12,9 +11,9 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from matplotlib import font_manager
 from matplotlib.patches import Patch
 from layout import FIGURES, PROJECT, RESULTS
+from feast_plate import register_arial_fonts
 
 DEFAULT_METRICS_CSV = RESULTS / 'article/metrics/simulator_quality_metrics.csv'
 DEFAULT_OUTPUT_DIR = FIGURES / 'supporting'
@@ -104,8 +103,7 @@ def build_median_table(long_table: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(records)
 
 def configure_matplotlib() -> None:
-    for filename in ('arial.ttf', 'arialbd.ttf', 'ariali.ttf', 'arialbi.ttf'):
-        font_manager.fontManager.addfont(Path(os.environ.get('FEAST_FONT_DIR', Path(sys.prefix) / 'fonts')) / filename)
+    register_arial_fonts()
     plt.rcParams.update({'font.family': 'Arial', 'mathtext.fontset': 'custom', 'mathtext.rm': 'Arial', 'mathtext.it': 'Arial:italic', 'mathtext.bf': 'Arial:bold', 'mathtext.sf': 'Arial', 'mathtext.fallback': None, 'font.size': 12, 'axes.titlesize': 15, 'axes.labelsize': 12, 'xtick.labelsize': 11, 'ytick.labelsize': 11, 'legend.fontsize': 12, 'figure.facecolor': 'white', 'axes.facecolor': 'white', 'savefig.facecolor': 'white', 'pdf.fonttype': 42, 'ps.fonttype': 42, 'svg.fonttype': 'none'})
 
 def draw_boxplot_panel(ax: plt.Axes, long_table: pd.DataFrame, spec: dict[str, object]) -> None:
