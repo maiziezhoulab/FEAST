@@ -1,5 +1,4 @@
-# FEAST | Parameter-cloud modeling of spatial transcriptomics for simulation and de novo virtual slices
-
+# FEAST | controllable statistical generative modeling of spatial transcriptomics data
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/)
 
@@ -20,7 +19,7 @@ python -c "from importlib.metadata import version; import FEAST; print(version('
 
 For an editable Conda installation, follow the [source installation guide](https://maiziezhoulab.github.io/FEAST/installation.html).
 
-## Simulate a slice
+## Generate a slice
 
 ```python
 import scanpy as sc
@@ -28,13 +27,9 @@ from FEAST import Alteration, simulate
 
 # Supply raw counts in X and XY coordinates in obsm["spatial"].
 adata = sc.read_h5ad("your_spatial_data.h5ad")
-simulated_adata = simulate(adata, seed=7)
+simulated_adata = simulate(adata, seed=2026)
 
-# Request a twofold change in the target mean expression.
-altered_adata = simulate(adata, alteration=Alteration.mean_only(fold_change=2.0), seed=7)
 ```
-
-The returned AnnData contains simulated counts in `.X` and retains the reference spot coordinates.
 
 ## Tutorials
 
