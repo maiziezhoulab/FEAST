@@ -1,0 +1,427 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>07 · Generate expression on a developmental brain atlas &mdash; FEAST 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=c546c3da" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="API Reference" href="../api.html" />
+    <link rel="prev" title="05 · Generate expression on another slice’s anatomy" href="05_2d_conditional_transfer.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            FEAST
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#published-package">Published package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#editable-conda-installation">Editable Conda installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#documentation">Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="00_single_slice_graphst.html">00 · Simulate a slice and find spatial clusters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="00_single_slice_graphst.html#Load-the-reference">Load the reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="00_single_slice_graphst.html#Simulate-counts">Simulate counts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="00_single_slice_graphst.html#Prepare-the-GraphST-input">Prepare the GraphST input</a></li>
+<li class="toctree-l3"><a class="reference internal" href="00_single_slice_graphst.html#Cluster-the-simulated-slice">Cluster the simulated slice</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="02_alignment.html">02 · Create an alignment pair</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="02_alignment.html#Simulate-and-rotate">Simulate and rotate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02_alignment.html#Recover-the-known-matches">Recover the known matches</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="03_deconvolution.html">03 · Create mixed spots with known cell-class proportions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="03_deconvolution.html#Simulate-single-cell-counts">Simulate single-cell counts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03_deconvolution.html#Aggregate-cells-into-spots">Aggregate cells into spots</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03_deconvolution.html#Plot-cell-class-proportions">Plot cell-class proportions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="04_batch_effect_removal.html">04 · Simulate a batch effect and correct it with scVI</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="04_batch_effect_removal.html#Generate-paired-batches">Generate paired batches</a></li>
+<li class="toctree-l3"><a class="reference internal" href="04_batch_effect_removal.html#Prepare-raw-counts-for-scVI">Prepare raw counts for scVI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="04_batch_effect_removal.html#Correct-the-batch-effect">Correct the batch effect</a></li>
+<li class="toctree-l3"><a class="reference internal" href="04_batch_effect_removal.html#Compare-batch-mixing-and-tissue-layers">Compare batch mixing and tissue layers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="05_2d_conditional_transfer.html">05 · Generate expression on another slice’s anatomy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="05_2d_conditional_transfer.html#Build-the-target-blueprint">Build the target blueprint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="05_2d_conditional_transfer.html#Generate-counts">Generate counts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="05_2d_conditional_transfer.html#Compare-with-measured-expression">Compare with measured expression</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">07 · Generate expression on a developmental brain atlas</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Load-the-five-references-and-select-atlas-sections">Load the five references and select atlas sections</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Generate-counts-on-each-section">Generate counts on each section</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Compare-atlas-anatomy-and-generated-Reln-expression">Compare atlas anatomy and generated Reln expression</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials.html#de-novo-virtual-slice-generation">De novo virtual slice generation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#simulation-and-fitting">Simulation and fitting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.simulate"><code class="docutils literal notranslate"><span class="pre">simulate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.generate"><code class="docutils literal notranslate"><span class="pre">generate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.fit"><code class="docutils literal notranslate"><span class="pre">fit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.de_novo.fit_reference"><code class="docutils literal notranslate"><span class="pre">fit_reference()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.estimate_assignment_randomness"><code class="docutils literal notranslate"><span class="pre">estimate_assignment_randomness()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.GeneParameterSimulator"><code class="docutils literal notranslate"><span class="pre">GeneParameterSimulator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#configuration">Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.Alteration"><code class="docutils literal notranslate"><span class="pre">Alteration</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.TransportConfig"><code class="docutils literal notranslate"><span class="pre">TransportConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.ReferenceFitConfig"><code class="docutils literal notranslate"><span class="pre">ReferenceFitConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.SimulationConfig"><code class="docutils literal notranslate"><span class="pre">SimulationConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.SimulationReference"><code class="docutils literal notranslate"><span class="pre">SimulationReference</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#de-novo-builders">De novo builders</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.SliceBlueprint"><code class="docutils literal notranslate"><span class="pre">SliceBlueprint</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.de_novo.SimulationBlueprintBuilder"><code class="docutils literal notranslate"><span class="pre">SimulationBlueprintBuilder</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.de_novo.SimulationParameterBuilder"><code class="docutils literal notranslate"><span class="pre">SimulationParameterBuilder</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.de_novo.SimulationPatternBuilder"><code class="docutils literal notranslate"><span class="pre">SimulationPatternBuilder</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#alignment-and-deconvolution">Alignment and deconvolution</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.alignment.rotate_spatial"><code class="docutils literal notranslate"><span class="pre">rotate_spatial()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.alignment.apply_spatial_transform"><code class="docutils literal notranslate"><span class="pre">apply_spatial_transform()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.alignment.simulate_alignment_rotation"><code class="docutils literal notranslate"><span class="pre">simulate_alignment_rotation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.alignment.simulate_alignment_warp"><code class="docutils literal notranslate"><span class="pre">simulate_alignment_warp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.deconvolution.create_deconvolution_benchmark_data"><code class="docutils literal notranslate"><span class="pre">create_deconvolution_benchmark_data()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#batch-simulation">Batch simulation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.BatchDeformation"><code class="docutils literal notranslate"><span class="pre">BatchDeformation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.characterize_batch"><code class="docutils literal notranslate"><span class="pre">characterize_batch()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.simulate_batch_effect"><code class="docutils literal notranslate"><span class="pre">simulate_batch_effect()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#parameter-utilities">Parameter utilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.stats_to_theta"><code class="docutils literal notranslate"><span class="pre">stats_to_theta()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.theta_to_stats"><code class="docutils literal notranslate"><span class="pre">theta_to_stats()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#compatibility">Compatibility</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#local-multi-reference-3d-generation">Local multi-reference 3D generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.simulate_local_references"><code class="docutils literal notranslate"><span class="pre">simulate_local_references()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.simulate_stack"><code class="docutils literal notranslate"><span class="pre">simulate_stack()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.calibrate_local_references"><code class="docutils literal notranslate"><span class="pre">calibrate_local_references()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">FEAST</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../tutorials.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">07 · Generate expression on a developmental brain atlas</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/notebooks/07_3d_transfer.nblink.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p><a class="reference download internal" download="" href="../_downloads/b034957f33bed0b92fb7647629859831/07_3d_transfer.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">notebook</span></code></a></p>
+<section id="07-·-Generate-expression-on-a-developmental-brain-atlas">
+<h1>07 · Generate expression on a developmental brain atlas<a class="headerlink" href="#07-·-Generate-expression-on-a-developmental-brain-atlas" title="Link to this heading"></a></h1>
+<p>Use the article’s five male E14 MERFISH references and an expression-free E15.5 DevCCF atlas to generate sections 47, 78 and 109. Each section uses the shared 550-gene panel. This example requires CUDA and the Study 07 inputs. <a class="reference external" href="https://github.com/maiziezhoulab/FEAST/blob/main/tutorial/README.md#case-07-public-sources-and-prepared-inputs">Setup</a></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">redirect_stdout</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">FEAST</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">FEAST.de_novo.local</span><span class="w"> </span><span class="kn">import</span> <span class="n">local_seed</span>
+
+<span class="n">TUTORIAL</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="k">if</span> <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;tutorial&quot;</span> <span class="k">else</span> <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;tutorial&quot;</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">TUTORIAL</span><span class="p">))</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">cache_reference_counts</span><span class="p">,</span> <span class="n">data_root</span><span class="p">,</span> <span class="n">gene_values</span><span class="p">,</span> <span class="n">load_counts</span>
+
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">TUTORIAL</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;figure_reproduce/reproduce_code/07_3d_transfer&quot;</span><span class="p">))</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">workflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_blueprint_payload</span><span class="p">,</span> <span class="n">load_region_schema</span><span class="p">,</span> <span class="n">make_spot_ids</span><span class="p">,</span> <span class="n">read_nifti_gz</span>
+
+<span class="n">DATA</span> <span class="o">=</span> <span class="n">data_root</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;07&quot;</span>
+<span class="n">OUT</span> <span class="o">=</span> <span class="n">TUTORIAL</span> <span class="o">/</span> <span class="s2">&quot;outputs&quot;</span> <span class="o">/</span> <span class="s2">&quot;07&quot;</span>
+<span class="n">OUT</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;FEAST&quot;</span><span class="p">,</span> <span class="n">FEAST</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+FEAST 1.0.6
+</pre></div></div>
+</div>
+<section id="Load-the-five-references-and-select-atlas-sections">
+<h2>Load the five references and select atlas sections<a class="headerlink" href="#Load-the-five-references-and-select-atlas-sections" title="Link to this heading"></a></h2>
+<p>The reference files contain counts and broad region labels. The merged atlas volume and its region schema supply the corresponding labels and world coordinates for each target voxel.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">reference_dir</span> <span class="o">=</span> <span class="n">DATA</span> <span class="o">/</span> <span class="s2">&quot;GSE269617/h5ad_region_annotated&quot;</span>
+<span class="n">references</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;GSM</span><span class="si">{</span><span class="mi">8323034</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="si">}</span><span class="s2">_E14M_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">ref</span> <span class="o">=</span> <span class="n">load_counts</span><span class="p">(</span><span class="n">reference_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.h5ad&quot;</span><span class="p">,</span> <span class="s2">&quot;region&quot;</span><span class="p">)</span>
+    <span class="n">ref</span> <span class="o">=</span> <span class="n">ref</span><span class="p">[:,</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">ref</span><span class="o">.</span><span class="n">var_names</span><span class="p">)]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">ref</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s2">&quot;reference_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="n">cache_reference_counts</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
+    <span class="n">references</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
+
+<span class="n">atlas_dir</span> <span class="o">=</span> <span class="n">DATA</span> <span class="o">/</span> <span class="s2">&quot;DevCCFv1_figshare_26377171/coordinate_system/GSE269617_region_merged&quot;</span>
+<span class="n">volume</span><span class="p">,</span> <span class="n">affine</span> <span class="o">=</span> <span class="n">read_nifti_gz</span><span class="p">(</span><span class="n">atlas_dir</span> <span class="o">/</span> <span class="s2">&quot;E15.5_broad_region_annotations.nii.gz&quot;</span><span class="p">)</span>
+<span class="n">schema</span> <span class="o">=</span> <span class="n">load_region_schema</span><span class="p">(</span><span class="n">atlas_dir</span> <span class="o">/</span> <span class="s2">&quot;gse269617_region_schema.tsv&quot;</span><span class="p">)</span>
+<span class="n">atlas</span> <span class="o">=</span> <span class="n">extract_blueprint_payload</span><span class="p">(</span><span class="n">volume</span><span class="p">,</span> <span class="n">affine</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="s2">&quot;E15.5&quot;</span><span class="p">)</span>
+<span class="n">entries</span> <span class="o">=</span> <span class="p">[</span><span class="n">atlas</span><span class="p">[</span><span class="s2">&quot;slices&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">47</span><span class="p">,</span> <span class="mi">78</span><span class="p">,</span> <span class="mi">109</span><span class="p">)]</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">entries</span><span class="p">)[[</span><span class="s2">&quot;z_index&quot;</span><span class="p">,</span> <span class="s2">&quot;z_world&quot;</span><span class="p">,</span> <span class="s2">&quot;n_spots&quot;</span><span class="p">]]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>z_index</th>
+      <th>z_world</th>
+      <th>n_spots</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>47</td>
+      <td>-3.18</td>
+      <td>24066</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>78</td>
+      <td>-2.56</td>
+      <td>20675</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>109</td>
+      <td>-1.94</td>
+      <td>15543</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+<section id="Generate-counts-on-each-section">
+<h2>Generate counts on each section<a class="headerlink" href="#Generate-counts-on-each-section" title="Link to this heading"></a></h2>
+<p>For each region, FEAST selects up to two of the five references. Use the article’s E15.5 assignment randomness of 0.30, float32 log-domain transport, and section seed <code class="docutils literal notranslate"><span class="pre">2026</span> <span class="pre">+</span> <span class="pre">z_index</span></code>. The cache lets sections reuse fitted reference parameters.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">transport</span> <span class="o">=</span> <span class="n">FEAST</span><span class="o">.</span><span class="n">SimulationConfig</span><span class="p">(</span>
+    <span class="n">assignment_randomness</span><span class="o">=</span><span class="mf">0.30</span><span class="p">,</span> <span class="n">sinkhorn_method</span><span class="o">=</span><span class="s2">&quot;sinkhorn_log&quot;</span><span class="p">,</span>
+    <span class="n">transport_backend</span><span class="o">=</span><span class="s2">&quot;torch&quot;</span><span class="p">,</span> <span class="n">transport_device</span><span class="o">=</span><span class="s2">&quot;cuda:0&quot;</span><span class="p">,</span> <span class="n">transport_dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span>
+    <span class="n">epsilon</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">sinkhorn_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">sinkhorn_tol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span>
+    <span class="n">unbalanced_transport</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">reg_m</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">transport_nonconvergence</span><span class="o">=</span><span class="s2">&quot;raise&quot;</span><span class="p">,</span>
+    <span class="n">max_transport_pairs</span><span class="o">=</span><span class="mi">25_000_000</span><span class="p">,</span> <span class="n">quantile_field_mode</span><span class="o">=</span><span class="s2">&quot;latent_reference&quot;</span><span class="p">,</span>
+    <span class="n">store_latent_scores</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">store_quantiles</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">fit_cache</span> <span class="o">=</span> <span class="p">{}</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">generated_sections</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
+    <span class="n">z_index</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;z_index&quot;</span><span class="p">],</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;z_world&quot;</span><span class="p">]</span>
+    <span class="n">xy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">],</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]])</span>
+    <span class="n">regions</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;region&quot;</span><span class="p">]</span>
+    <span class="n">obs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;spot_id&quot;</span><span class="p">:</span> <span class="n">make_spot_ids</span><span class="p">(</span><span class="s2">&quot;E15.5&quot;</span><span class="p">,</span> <span class="n">entry</span><span class="p">),</span> <span class="s2">&quot;region&quot;</span><span class="p">:</span> <span class="n">regions</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="n">z</span><span class="p">})</span>
+    <span class="n">blueprint</span> <span class="o">=</span> <span class="n">FEAST</span><span class="o">.</span><span class="n">SliceBlueprint</span><span class="p">(</span>
+        <span class="n">coordinates</span><span class="o">=</span><span class="n">xy</span><span class="p">,</span> <span class="n">domain_map</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">regions</span><span class="p">),</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span>
+        <span class="n">grid_type</span><span class="o">=</span><span class="s2">&quot;devccf_coronal&quot;</span><span class="p">,</span> <span class="n">technology</span><span class="o">=</span><span class="s2">&quot;MERFISH&quot;</span><span class="p">,</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="s2">&quot;E15.5&quot;</span><span class="p">,</span> <span class="s2">&quot;z_world&quot;</span><span class="p">:</span> <span class="n">z</span><span class="p">,</span> <span class="s2">&quot;expression_source&quot;</span><span class="p">:</span> <span class="s2">&quot;none&quot;</span><span class="p">},</span>
+    <span class="p">)</span>
+    <span class="k">with</span> <span class="p">(</span><span class="n">OUT</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;z</span><span class="si">{</span><span class="n">z_index</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">.log&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">log</span><span class="p">,</span> <span class="n">redirect_stdout</span><span class="p">(</span><span class="n">log</span><span class="p">):</span>
+        <span class="n">generated</span> <span class="o">=</span> <span class="n">FEAST</span><span class="o">.</span><span class="n">simulate_local_references</span><span class="p">(</span>
+            <span class="n">references</span><span class="p">,</span> <span class="n">blueprint</span><span class="p">,</span> <span class="n">label_key</span><span class="o">=</span><span class="s2">&quot;region&quot;</span><span class="p">,</span> <span class="n">n_references</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">transport</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">2026</span> <span class="o">+</span> <span class="n">z_index</span><span class="p">,</span> <span class="n">parameter_seed</span><span class="o">=</span><span class="mi">2026</span><span class="p">,</span>
+            <span class="n">batch_seed</span><span class="o">=</span><span class="n">local_seed</span><span class="p">(</span><span class="mi">2026</span><span class="p">,</span> <span class="s2">&quot;physical_target&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;E15.5:</span><span class="si">{</span><span class="n">z_index</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+            <span class="n">min_positions</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">batch_sd</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span>
+            <span class="n">cache_path</span><span class="o">=</span><span class="n">OUT</span> <span class="o">/</span> <span class="s2">&quot;E15.5_male_reference_parameters.sqlite&quot;</span><span class="p">,</span> <span class="n">fit_cache</span><span class="o">=</span><span class="n">fit_cache</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="n">generated</span><span class="o">.</span><span class="n">obs_names</span> <span class="o">=</span> <span class="n">generated</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s2">&quot;spot_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="n">generated</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="s2">&quot;spatial&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xy</span>
+    <span class="n">generated</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="s2">&quot;spatial_3d&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">xy</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">xy</span><span class="p">),</span> <span class="n">z</span><span class="p">)])</span>
+    <span class="n">generated</span><span class="o">.</span><span class="n">write_h5ad</span><span class="p">(</span><span class="n">OUT</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;E15.5_z</span><span class="si">{</span><span class="n">z_index</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">.h5ad&quot;</span><span class="p">)</span>
+    <span class="n">generated_sections</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">generated</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Section </span><span class="si">{</span><span class="n">z_index</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">generated</span><span class="o">.</span><span class="n">n_obs</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> voxels × </span><span class="si">{</span><span class="n">generated</span><span class="o">.</span><span class="n">n_vars</span><span class="si">}</span><span class="s2"> genes&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Section 47: 24,066 voxels × 550 genes
+Section 78: 20,675 voxels × 550 genes
+Section 109: 15,543 voxels × 550 genes
+</pre></div></div>
+</div>
+</section>
+<section id="Compare-atlas-anatomy-and-generated-Reln-expression">
+<h2>Compare atlas anatomy and generated Reln expression<a class="headerlink" href="#Compare-atlas-anatomy-and-generated-Reln-expression" title="Link to this heading"></a></h2>
+<p>Plot the three sections at their atlas z coordinates. The left panel shows anatomical regions and the right panel shows generated Reln counts on a log scale.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">xyz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">section</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="s2">&quot;spatial_3d&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="n">generated_sections</span><span class="p">])</span>
+<span class="n">regions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">section</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s2">&quot;region&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span> <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="n">generated_sections</span><span class="p">])</span>
+<span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="n">gene_values</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="s2">&quot;Reln&quot;</span><span class="p">))</span> <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="n">generated_sections</span><span class="p">])</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="s2">&quot;constrained&quot;</span><span class="p">)</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">121</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s2">&quot;3d&quot;</span><span class="p">)</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">regions</span><span class="p">))</span>
+<span class="n">colors</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s2">&quot;tab10&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">labels</span><span class="p">):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="o">*</span><span class="n">xyz</span><span class="p">[</span><span class="n">regions</span> <span class="o">==</span> <span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">rasterized</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">markerscale</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Atlas regions · three selected sections&quot;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">zlabel</span><span class="o">=</span><span class="s2">&quot;z&quot;</span><span class="p">)</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">122</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s2">&quot;3d&quot;</span><span class="p">)</span>
+<span class="n">artist</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="o">*</span><span class="n">xyz</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">values</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;viridis&quot;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">rasterized</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">artist</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">shrink</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Generated Reln · log1p counts&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Conditional expression&quot;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">zlabel</span><span class="o">=</span><span class="s2">&quot;z&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_07_3d_transfer_8_0.png" src="../_images/notebooks_07_3d_transfer_8_0.png" />
+</div>
+</div>
+<p>The gaps separate the three selected atlas planes. The expression map is a prediction for these locations.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="05_2d_conditional_transfer.html" class="btn btn-neutral float-left" title="05 · Generate expression on another slice’s anatomy" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../api.html" class="btn btn-neutral float-right" title="API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Yiru CHEN &amp; Maizie Zhou Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,382 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FEAST.deconvolution.generate_deconvolution &mdash; FEAST 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=c546c3da" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            FEAST
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#published-package">Published package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#editable-conda-installation">Editable Conda installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#documentation">Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/00_single_slice_graphst.html">00 · Simulate a slice and find spatial clusters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/00_single_slice_graphst.html#Load-the-reference">Load the reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/00_single_slice_graphst.html#Simulate-counts">Simulate counts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/00_single_slice_graphst.html#Prepare-the-GraphST-input">Prepare the GraphST input</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/00_single_slice_graphst.html#Cluster-the-simulated-slice">Cluster the simulated slice</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/02_alignment.html">02 · Create an alignment pair</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/02_alignment.html#Simulate-and-rotate">Simulate and rotate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/02_alignment.html#Recover-the-known-matches">Recover the known matches</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/03_deconvolution.html">03 · Create mixed spots with known cell-class proportions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/03_deconvolution.html#Simulate-single-cell-counts">Simulate single-cell counts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/03_deconvolution.html#Aggregate-cells-into-spots">Aggregate cells into spots</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/03_deconvolution.html#Plot-cell-class-proportions">Plot cell-class proportions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/04_batch_effect_removal.html">04 · Simulate a batch effect and correct it with scVI</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/04_batch_effect_removal.html#Generate-paired-batches">Generate paired batches</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/04_batch_effect_removal.html#Prepare-raw-counts-for-scVI">Prepare raw counts for scVI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/04_batch_effect_removal.html#Correct-the-batch-effect">Correct the batch effect</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/04_batch_effect_removal.html#Compare-batch-mixing-and-tissue-layers">Compare batch mixing and tissue layers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/05_2d_conditional_transfer.html">05 · Generate expression on another slice’s anatomy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/05_2d_conditional_transfer.html#Build-the-target-blueprint">Build the target blueprint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/05_2d_conditional_transfer.html#Generate-counts">Generate counts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/05_2d_conditional_transfer.html#Compare-with-measured-expression">Compare with measured expression</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/07_3d_transfer.html">07 · Generate expression on a developmental brain atlas</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/07_3d_transfer.html#Load-the-five-references-and-select-atlas-sections">Load the five references and select atlas sections</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/07_3d_transfer.html#Generate-counts-on-each-section">Generate counts on each section</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/07_3d_transfer.html#Compare-atlas-anatomy-and-generated-Reln-expression">Compare atlas anatomy and generated Reln expression</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials.html#de-novo-virtual-slice-generation">De novo virtual slice generation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#simulation-and-fitting">Simulation and fitting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.simulate"><code class="docutils literal notranslate"><span class="pre">simulate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.generate"><code class="docutils literal notranslate"><span class="pre">generate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.fit"><code class="docutils literal notranslate"><span class="pre">fit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.de_novo.fit_reference"><code class="docutils literal notranslate"><span class="pre">fit_reference()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.estimate_assignment_randomness"><code class="docutils literal notranslate"><span class="pre">estimate_assignment_randomness()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.GeneParameterSimulator"><code class="docutils literal notranslate"><span class="pre">GeneParameterSimulator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#configuration">Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.Alteration"><code class="docutils literal notranslate"><span class="pre">Alteration</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.TransportConfig"><code class="docutils literal notranslate"><span class="pre">TransportConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.ReferenceFitConfig"><code class="docutils literal notranslate"><span class="pre">ReferenceFitConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.SimulationConfig"><code class="docutils literal notranslate"><span class="pre">SimulationConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.SimulationReference"><code class="docutils literal notranslate"><span class="pre">SimulationReference</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#de-novo-builders">De novo builders</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.SliceBlueprint"><code class="docutils literal notranslate"><span class="pre">SliceBlueprint</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.de_novo.SimulationBlueprintBuilder"><code class="docutils literal notranslate"><span class="pre">SimulationBlueprintBuilder</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.de_novo.SimulationParameterBuilder"><code class="docutils literal notranslate"><span class="pre">SimulationParameterBuilder</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.de_novo.SimulationPatternBuilder"><code class="docutils literal notranslate"><span class="pre">SimulationPatternBuilder</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#alignment-and-deconvolution">Alignment and deconvolution</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.alignment.rotate_spatial"><code class="docutils literal notranslate"><span class="pre">rotate_spatial()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.alignment.apply_spatial_transform"><code class="docutils literal notranslate"><span class="pre">apply_spatial_transform()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.alignment.simulate_alignment_rotation"><code class="docutils literal notranslate"><span class="pre">simulate_alignment_rotation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.alignment.simulate_alignment_warp"><code class="docutils literal notranslate"><span class="pre">simulate_alignment_warp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.deconvolution.create_deconvolution_benchmark_data"><code class="docutils literal notranslate"><span class="pre">create_deconvolution_benchmark_data()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#batch-simulation">Batch simulation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.BatchDeformation"><code class="docutils literal notranslate"><span class="pre">BatchDeformation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.characterize_batch"><code class="docutils literal notranslate"><span class="pre">characterize_batch()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.simulate_batch_effect"><code class="docutils literal notranslate"><span class="pre">simulate_batch_effect()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#parameter-utilities">Parameter utilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.stats_to_theta"><code class="docutils literal notranslate"><span class="pre">stats_to_theta()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.theta_to_stats"><code class="docutils literal notranslate"><span class="pre">theta_to_stats()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#compatibility">Compatibility</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#local-multi-reference-3d-generation">Local multi-reference 3D generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.simulate_local_references"><code class="docutils literal notranslate"><span class="pre">simulate_local_references()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.simulate_stack"><code class="docutils literal notranslate"><span class="pre">simulate_stack()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.calibrate_local_references"><code class="docutils literal notranslate"><span class="pre">calibrate_local_references()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">FEAST</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../FEAST.html">FEAST</a></li>
+      <li class="breadcrumb-item active">FEAST.deconvolution.generate_deconvolution</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for FEAST.deconvolution.generate_deconvolution</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scanpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">alphashape</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Point</span><span class="p">,</span> <span class="n">MultiPolygon</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.spatial</span><span class="w"> </span><span class="kn">import</span> <span class="n">cKDTree</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.cluster</span><span class="w"> </span><span class="kn">import</span> <span class="n">KMeans</span>
+
+<span class="k">global</span> <span class="n">device</span>   
+<span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">create_low_resolution_grid</span><span class="p">(</span><span class="n">spatial_coords</span><span class="p">,</span> <span class="n">downsampling_factor</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">grid_type</span><span class="o">=</span><span class="s1">&#39;hexagonal&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a lower resolution grid based on original spatial coordinates.&quot;&quot;&quot;</span>
+    <span class="n">x_min</span><span class="p">,</span> <span class="n">y_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">spatial_coords</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">x_max</span><span class="p">,</span> <span class="n">y_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">spatial_coords</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    
+    <span class="n">base_spots</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">spatial_coords</span><span class="p">)</span>
+    <span class="n">target_spots</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">base_spots</span> <span class="o">*</span> <span class="n">downsampling_factor</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">grid_type</span> <span class="o">==</span> <span class="s1">&#39;square&#39;</span><span class="p">:</span>
+        <span class="c1"># Create a square grid with fewer points</span>
+        <span class="n">grid_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">target_spots</span><span class="p">))</span>
+        <span class="n">x_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">x_min</span><span class="p">,</span> <span class="n">x_max</span><span class="p">,</span> <span class="n">grid_size</span><span class="p">)</span>
+        <span class="n">y_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">y_min</span><span class="p">,</span> <span class="n">y_max</span><span class="p">,</span> <span class="n">grid_size</span><span class="p">)</span>
+        <span class="n">x_centers</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_points</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">x_points</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">y_centers</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_points</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">y_points</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">grid_x</span><span class="p">,</span> <span class="n">grid_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x_centers</span><span class="p">,</span> <span class="n">y_centers</span><span class="p">)</span>
+        <span class="n">grid_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">grid_x</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">grid_y</span><span class="o">.</span><span class="n">ravel</span><span class="p">()))</span>
+    
+    <span class="k">elif</span> <span class="n">grid_type</span> <span class="o">==</span> <span class="s1">&#39;hexagonal&#39;</span><span class="p">:</span>
+        <span class="c1"># Create a hexagonal grid with fewer points</span>
+        <span class="n">spacing</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">x_max</span> <span class="o">-</span> <span class="n">x_min</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">y_max</span> <span class="o">-</span> <span class="n">y_min</span><span class="p">)</span> <span class="o">/</span> <span class="n">target_spots</span><span class="p">)</span>
+        <span class="n">hex_centers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">((</span><span class="n">y_max</span> <span class="o">-</span> <span class="n">y_min</span><span class="p">)</span> <span class="o">/</span> <span class="n">spacing</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">((</span><span class="n">x_max</span> <span class="o">-</span> <span class="n">x_min</span><span class="p">)</span> <span class="o">/</span> <span class="n">spacing</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">x_min</span> <span class="o">+</span> <span class="n">j</span> <span class="o">*</span> <span class="n">spacing</span> <span class="o">+</span> <span class="p">(</span><span class="n">i</span> <span class="o">%</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">spacing</span> <span class="o">/</span> <span class="mi">2</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">y_min</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">spacing</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+                <span class="k">if</span> <span class="n">x_min</span> <span class="o">&lt;=</span> <span class="n">x</span> <span class="o">&lt;=</span> <span class="n">x_max</span> <span class="ow">and</span> <span class="n">y_min</span> <span class="o">&lt;=</span> <span class="n">y</span> <span class="o">&lt;=</span> <span class="n">y_max</span><span class="p">:</span>
+                    <span class="n">hex_centers</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">])</span>
+        <span class="n">grid_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hex_centers</span><span class="p">)</span>
+    
+    <span class="k">elif</span> <span class="n">grid_type</span> <span class="o">==</span> <span class="s1">&#39;kmeans&#39;</span><span class="p">:</span>
+        <span class="c1"># Use KMeans to create spot clusters</span>
+        <span class="n">kmeans</span> <span class="o">=</span> <span class="n">KMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="n">target_spots</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">n_init</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">kmeans</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">spatial_coords</span><span class="p">)</span>
+        <span class="n">grid_coords</span> <span class="o">=</span> <span class="n">kmeans</span><span class="o">.</span><span class="n">cluster_centers_</span>
+    
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported grid type: </span><span class="si">{</span><span class="n">grid_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">grid_coords</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">filter_grid_to_tissue_shape</span><span class="p">(</span><span class="n">original_coords</span><span class="p">,</span> <span class="n">grid_coords</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Filter grid points to only include those within the tissue shape.&quot;&quot;&quot;</span>
+    <span class="n">alpha_shape</span> <span class="o">=</span> <span class="n">alphashape</span><span class="o">.</span><span class="n">alphashape</span><span class="p">(</span><span class="n">original_coords</span><span class="p">,</span> <span class="n">alpha</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">alpha_shape</span><span class="p">,</span> <span class="n">MultiPolygon</span><span class="p">):</span>
+        <span class="n">polygons</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">alpha_shape</span><span class="o">.</span><span class="n">geoms</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">polygons</span> <span class="o">=</span> <span class="p">[</span><span class="n">alpha_shape</span><span class="p">]</span>
+    
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+        <span class="nb">any</span><span class="p">(</span><span class="n">polygon</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="k">for</span> <span class="n">polygon</span> <span class="ow">in</span> <span class="n">polygons</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">grid_coords</span>
+    <span class="p">])</span>
+    
+    <span class="k">return</span> <span class="n">grid_coords</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">assign_original_spots_to_grid</span><span class="p">(</span><span class="n">original_coords</span><span class="p">,</span> <span class="n">grid_coords</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Assign each original spot to the nearest low-resolution grid point.&quot;&quot;&quot;</span>
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">cKDTree</span><span class="p">(</span><span class="n">grid_coords</span><span class="p">)</span>
+    <span class="n">distances</span><span class="p">,</span> <span class="n">assignments</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">original_coords</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">assignments</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_cell_type_proportions_for_lowres</span><span class="p">(</span><span class="n">cell_types</span><span class="p">,</span> <span class="n">assignments</span><span class="p">,</span> <span class="n">n_lowres_spots</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate cell type proportions for each low-resolution spot.&quot;&quot;&quot;</span>
+    <span class="n">unique_cell_types</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">cell_types</span><span class="p">)</span>
+    <span class="n">proportions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_lowres_spots</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique_cell_types</span><span class="p">)))</span>
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_lowres_spots</span><span class="p">):</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">assignments</span> <span class="o">==</span> <span class="n">i</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">spot_cell_types</span> <span class="o">=</span> <span class="n">cell_types</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">cell_type</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">unique_cell_types</span><span class="p">):</span>
+                <span class="n">proportions</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">spot_cell_types</span> <span class="o">==</span> <span class="n">cell_type</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">spot_cell_types</span><span class="p">)</span>
+    
+    <span class="c1"># Create DataFrame with cell type proportions</span>
+    <span class="n">proportions_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">proportions</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">unique_cell_types</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">proportions_df</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">aggregate_gene_expression</span><span class="p">(</span><span class="n">expression_matrix</span><span class="p">,</span> <span class="n">assignments</span><span class="p">,</span> <span class="n">n_lowres_spots</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Aggregate gene expression from original spots to low-resolution spots.</span>
+<span class="sd">    </span>
+<span class="sd">    This function sums the gene expression from all original spots assigned to</span>
+<span class="sd">    each low-resolution spot.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Convert to PyTorch tensors</span>
+    <span class="n">expression_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">expression_matrix</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">assignments_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">assignments</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+    
+    <span class="c1"># Initialize output tensor</span>
+    <span class="n">n_genes</span> <span class="o">=</span> <span class="n">expression_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">aggregated_counts</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_lowres_spots</span><span class="p">,</span> <span class="n">n_genes</span><span class="p">),</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+    
+    <span class="c1"># For each low-resolution spot, sum expression from assigned original spots</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_lowres_spots</span><span class="p">):</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">assignments_tensor</span> <span class="o">==</span> <span class="n">i</span>
+        <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">aggregated_counts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">expression_tensor</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">aggregated_counts</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+<div class="viewcode-block" id="create_deconvolution_benchmark_data">
+<a class="viewcode-back" href="../../../api.html#FEAST.deconvolution.create_deconvolution_benchmark_data">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_deconvolution_benchmark_data</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">downsampling_factor</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">grid_type</span><span class="o">=</span><span class="s1">&#39;hexagonal&#39;</span><span class="p">,</span> <span class="n">cell_type_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create lower-resolution ST data for deconvolution benchmarking with ground truth proportions.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">    -----------</span>
+<span class="sd">    adata : AnnData</span>
+<span class="sd">        Original ST data</span>
+<span class="sd">    downsampling_factor : float</span>
+<span class="sd">        Factor to reduce resolution (0.25 = 4x fewer spots)</span>
+<span class="sd">    grid_type : str</span>
+<span class="sd">        Grid type (&#39;hexagonal&#39;, &#39;square&#39;, or &#39;kmeans&#39;)</span>
+<span class="sd">    cell_type_key : str</span>
+<span class="sd">        Key in adata.obs containing cell type labels</span>
+<span class="sd">    alpha : float</span>
+<span class="sd">        Alpha value for the alphashape algorithm</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">    --------</span>
+<span class="sd">    AnnData</span>
+<span class="sd">        Lower-resolution ST data with ground truth proportions</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">original_coords</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="s1">&#39;spatial&#39;</span><span class="p">]</span>
+    
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">expression_matrix</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">X</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">expression_matrix</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
+    
+    <span class="n">lowres_grid</span> <span class="o">=</span> <span class="n">create_low_resolution_grid</span><span class="p">(</span><span class="n">original_coords</span><span class="p">,</span> <span class="n">downsampling_factor</span><span class="p">,</span> <span class="n">grid_type</span><span class="p">)</span>
+    
+    <span class="n">lowres_grid</span> <span class="o">=</span> <span class="n">filter_grid_to_tissue_shape</span><span class="p">(</span><span class="n">original_coords</span><span class="p">,</span> <span class="n">lowres_grid</span><span class="p">,</span> <span class="n">alpha</span><span class="p">)</span>
+    
+    <span class="n">assignments</span> <span class="o">=</span> <span class="n">assign_original_spots_to_grid</span><span class="p">(</span><span class="n">original_coords</span><span class="p">,</span> <span class="n">lowres_grid</span><span class="p">)</span>
+    
+    <span class="n">aggregated_counts</span> <span class="o">=</span> <span class="n">aggregate_gene_expression</span><span class="p">(</span><span class="n">expression_matrix</span><span class="p">,</span> <span class="n">assignments</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">lowres_grid</span><span class="p">))</span>
+    
+    <span class="n">lowres_adata</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">AnnData</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">aggregated_counts</span><span class="p">,</span> <span class="n">var</span><span class="o">=</span><span class="n">adata</span><span class="o">.</span><span class="n">var</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+    <span class="n">lowres_adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="s1">&#39;spatial&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lowres_grid</span>
+    
+    <span class="k">if</span> <span class="n">cell_type_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">cell_type_key</span> <span class="ow">in</span> <span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">:</span>
+        <span class="n">cell_types</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="n">cell_type_key</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">proportions_df</span> <span class="o">=</span> <span class="n">calculate_cell_type_proportions_for_lowres</span><span class="p">(</span>
+            <span class="n">cell_types</span><span class="p">,</span> 
+            <span class="n">assignments</span><span class="p">,</span> 
+            <span class="nb">len</span><span class="p">(</span><span class="n">lowres_grid</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Store proportions directly in the AnnData object</span>
+        <span class="n">lowres_adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="s1">&#39;cell_type_proportions&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">proportions_df</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">lowres_adata</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;cell_type_names&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">proportions_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span>
+    
+    <span class="n">lowres_adata</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;spot_assignments&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">assignments</span>
+    
+    <span class="n">lowres_adata</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;benchmark_params&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;original_spots&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">original_coords</span><span class="p">),</span>
+        <span class="s1">&#39;low_res_spots&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">lowres_grid</span><span class="p">),</span>
+        <span class="s1">&#39;downsampling_factor&#39;</span><span class="p">:</span> <span class="n">downsampling_factor</span><span class="p">,</span>
+        <span class="s1">&#39;grid_type&#39;</span><span class="p">:</span> <span class="n">grid_type</span><span class="p">,</span>
+        <span class="s1">&#39;has_ground_truth&#39;</span><span class="p">:</span> <span class="n">cell_type_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">cell_type_key</span> <span class="ow">in</span> <span class="n">adata</span><span class="o">.</span><span class="n">obs</span>
+    <span class="p">}</span>
+    
+    <span class="k">return</span> <span class="n">lowres_adata</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Yiru CHEN &amp; Maizie Zhou Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

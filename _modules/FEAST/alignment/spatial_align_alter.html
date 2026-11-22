@@ -1,0 +1,751 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FEAST.alignment.spatial_align_alter &mdash; FEAST 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=c546c3da" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            FEAST
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#published-package">Published package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#editable-conda-installation">Editable Conda installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#documentation">Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/00_single_slice_graphst.html">00 · Simulate a slice and find spatial clusters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/00_single_slice_graphst.html#Load-the-reference">Load the reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/00_single_slice_graphst.html#Simulate-counts">Simulate counts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/00_single_slice_graphst.html#Prepare-the-GraphST-input">Prepare the GraphST input</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/00_single_slice_graphst.html#Cluster-the-simulated-slice">Cluster the simulated slice</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/02_alignment.html">02 · Create an alignment pair</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/02_alignment.html#Simulate-and-rotate">Simulate and rotate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/02_alignment.html#Recover-the-known-matches">Recover the known matches</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/03_deconvolution.html">03 · Create mixed spots with known cell-class proportions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/03_deconvolution.html#Simulate-single-cell-counts">Simulate single-cell counts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/03_deconvolution.html#Aggregate-cells-into-spots">Aggregate cells into spots</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/03_deconvolution.html#Plot-cell-class-proportions">Plot cell-class proportions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/04_batch_effect_removal.html">04 · Simulate a batch effect and correct it with scVI</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/04_batch_effect_removal.html#Generate-paired-batches">Generate paired batches</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/04_batch_effect_removal.html#Prepare-raw-counts-for-scVI">Prepare raw counts for scVI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/04_batch_effect_removal.html#Correct-the-batch-effect">Correct the batch effect</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/04_batch_effect_removal.html#Compare-batch-mixing-and-tissue-layers">Compare batch mixing and tissue layers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/05_2d_conditional_transfer.html">05 · Generate expression on another slice’s anatomy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/05_2d_conditional_transfer.html#Build-the-target-blueprint">Build the target blueprint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/05_2d_conditional_transfer.html#Generate-counts">Generate counts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/05_2d_conditional_transfer.html#Compare-with-measured-expression">Compare with measured expression</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/07_3d_transfer.html">07 · Generate expression on a developmental brain atlas</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/07_3d_transfer.html#Load-the-five-references-and-select-atlas-sections">Load the five references and select atlas sections</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/07_3d_transfer.html#Generate-counts-on-each-section">Generate counts on each section</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/07_3d_transfer.html#Compare-atlas-anatomy-and-generated-Reln-expression">Compare atlas anatomy and generated Reln expression</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials.html#de-novo-virtual-slice-generation">De novo virtual slice generation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#simulation-and-fitting">Simulation and fitting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.simulate"><code class="docutils literal notranslate"><span class="pre">simulate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.generate"><code class="docutils literal notranslate"><span class="pre">generate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.fit"><code class="docutils literal notranslate"><span class="pre">fit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.de_novo.fit_reference"><code class="docutils literal notranslate"><span class="pre">fit_reference()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.estimate_assignment_randomness"><code class="docutils literal notranslate"><span class="pre">estimate_assignment_randomness()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.GeneParameterSimulator"><code class="docutils literal notranslate"><span class="pre">GeneParameterSimulator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#configuration">Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.Alteration"><code class="docutils literal notranslate"><span class="pre">Alteration</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.TransportConfig"><code class="docutils literal notranslate"><span class="pre">TransportConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.ReferenceFitConfig"><code class="docutils literal notranslate"><span class="pre">ReferenceFitConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.SimulationConfig"><code class="docutils literal notranslate"><span class="pre">SimulationConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.SimulationReference"><code class="docutils literal notranslate"><span class="pre">SimulationReference</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#de-novo-builders">De novo builders</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.SliceBlueprint"><code class="docutils literal notranslate"><span class="pre">SliceBlueprint</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.de_novo.SimulationBlueprintBuilder"><code class="docutils literal notranslate"><span class="pre">SimulationBlueprintBuilder</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.de_novo.SimulationParameterBuilder"><code class="docutils literal notranslate"><span class="pre">SimulationParameterBuilder</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.de_novo.SimulationPatternBuilder"><code class="docutils literal notranslate"><span class="pre">SimulationPatternBuilder</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#alignment-and-deconvolution">Alignment and deconvolution</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.alignment.rotate_spatial"><code class="docutils literal notranslate"><span class="pre">rotate_spatial()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.alignment.apply_spatial_transform"><code class="docutils literal notranslate"><span class="pre">apply_spatial_transform()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.alignment.simulate_alignment_rotation"><code class="docutils literal notranslate"><span class="pre">simulate_alignment_rotation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.alignment.simulate_alignment_warp"><code class="docutils literal notranslate"><span class="pre">simulate_alignment_warp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.deconvolution.create_deconvolution_benchmark_data"><code class="docutils literal notranslate"><span class="pre">create_deconvolution_benchmark_data()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#batch-simulation">Batch simulation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.BatchDeformation"><code class="docutils literal notranslate"><span class="pre">BatchDeformation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.characterize_batch"><code class="docutils literal notranslate"><span class="pre">characterize_batch()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.simulate_batch_effect"><code class="docutils literal notranslate"><span class="pre">simulate_batch_effect()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#parameter-utilities">Parameter utilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.stats_to_theta"><code class="docutils literal notranslate"><span class="pre">stats_to_theta()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.theta_to_stats"><code class="docutils literal notranslate"><span class="pre">theta_to_stats()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#compatibility">Compatibility</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#local-multi-reference-3d-generation">Local multi-reference 3D generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.simulate_local_references"><code class="docutils literal notranslate"><span class="pre">simulate_local_references()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.simulate_stack"><code class="docutils literal notranslate"><span class="pre">simulate_stack()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.calibrate_local_references"><code class="docutils literal notranslate"><span class="pre">calibrate_local_references()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">FEAST</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../FEAST.html">FEAST</a></li>
+      <li class="breadcrumb-item active">FEAST.alignment.spatial_align_alter</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for FEAST.alignment.spatial_align_alter</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.spatial</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">anndata</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ad</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tps</span><span class="w"> </span><span class="kn">import</span> <span class="n">ThinPlateSpline</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">rigid_rotation_transform</span><span class="p">(</span><span class="n">angle_degrees</span><span class="p">,</span> <span class="n">center</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return forward and inverse 2D homogeneous rotation matrices.</span>
+
+<span class="sd">    Positive angles rotate counter-clockwise around ``center``.  The matrices</span>
+<span class="sd">    act on homogeneous column vectors ``[x, y, 1]``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">center</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">center</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">center</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;center must contain two finite coordinates&quot;</span><span class="p">)</span>
+
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">angle_degrees</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">theta</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;angle_degrees must be finite&quot;</span><span class="p">)</span>
+    <span class="n">cosine</span><span class="p">,</span> <span class="n">sine</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+    <span class="n">rotation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[[</span><span class="n">cosine</span><span class="p">,</span> <span class="o">-</span><span class="n">sine</span><span class="p">],</span> <span class="p">[</span><span class="n">sine</span><span class="p">,</span> <span class="n">cosine</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span>
+    <span class="p">)</span>
+
+    <span class="n">forward</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">forward</span><span class="p">[:</span><span class="mi">2</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">rotation</span>
+    <span class="n">forward</span><span class="p">[:</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">center</span> <span class="o">-</span> <span class="n">rotation</span> <span class="o">@</span> <span class="n">center</span>
+    <span class="n">inverse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">forward</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">forward</span><span class="p">,</span> <span class="n">inverse</span>
+
+
+<div class="viewcode-block" id="apply_spatial_transform">
+<a class="viewcode-back" href="../../../api.html#FEAST.alignment.apply_spatial_transform">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">apply_spatial_transform</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">transform</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply a 3x3 homogeneous transform to finite 2D coordinates.&quot;&quot;&quot;</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">transform</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">transform</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">coords</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;coords must have shape (n_spots, 2)&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">transform</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;transform must have shape (3, 3)&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">transform</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;coordinates and transform must be finite&quot;</span><span class="p">)</span>
+
+    <span class="n">homogeneous</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])])</span>
+    <span class="n">transformed</span> <span class="o">=</span> <span class="n">homogeneous</span> <span class="o">@</span> <span class="n">transform</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">transformed</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">],</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;transform produced invalid homogeneous coordinates&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">transformed</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="rotate_spatial">
+<a class="viewcode-back" href="../../../api.html#FEAST.alignment.rotate_spatial">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">rotate_spatial</span><span class="p">(</span>
+    <span class="n">adata</span><span class="p">,</span>
+    <span class="n">angle_degrees</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">center</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">plate_bounds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">spatial_key</span><span class="o">=</span><span class="s2">&quot;spatial&quot;</span><span class="p">,</span>
+    <span class="n">original_key</span><span class="o">=</span><span class="s2">&quot;spatial_original&quot;</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Rotate an AnnData slice, optionally cropping to a fixed plate.</span>
+
+<span class="sd">    The transformation is centered on the coordinate centroid unless an</span>
+<span class="sd">    explicit center is supplied.  By default it never changes spot support.</span>
+<span class="sd">    Pass ``plate_bounds`` as ``[[x_min, y_min], [x_max, y_max]]`` to retain</span>
+<span class="sd">    only rotated spots inside that inclusive rectangle.  It never snaps,</span>
+<span class="sd">    deduplicates, or reorders spots.  Transform and crop metadata are recorded</span>
+<span class="sd">    in ``.uns``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">spatial_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;obsm[</span><span class="si">{</span><span class="n">spatial_key</span><span class="si">!r}</span><span class="s2">] is required&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">adata</span><span class="o">.</span><span class="n">obs_names</span><span class="o">.</span><span class="n">is_unique</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;stable observation identifiers must be unique&quot;</span><span class="p">)</span>
+
+    <span class="n">spatial</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="n">spatial_key</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">spatial</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">spatial</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;obsm[</span><span class="si">{</span><span class="n">spatial_key</span><span class="si">!r}</span><span class="s2">] must have shape (n_spots, 2)&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">spatial</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">adata</span><span class="o">.</span><span class="n">n_obs</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">spatial</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;spatial coordinates must be finite and match n_obs&quot;</span><span class="p">)</span>
+
+    <span class="n">validated_bounds</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">plate_bounds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">validated_bounds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">plate_bounds</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;plate_bounds must be finite [[x_min, y_min], [x_max, y_max]]&quot;</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">error</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">validated_bounds</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">validated_bounds</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;plate_bounds must be finite [[x_min, y_min], [x_max, y_max]]&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">validated_bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">validated_bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;plate_bounds lower coordinates must be less than upper coordinates&quot;</span>
+            <span class="p">)</span>
+
+    <span class="n">rotation_center</span> <span class="o">=</span> <span class="n">spatial</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="k">if</span> <span class="n">center</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">center</span><span class="p">)</span>
+    <span class="n">forward</span><span class="p">,</span> <span class="n">inverse</span> <span class="o">=</span> <span class="n">rigid_rotation_transform</span><span class="p">(</span><span class="n">angle_degrees</span><span class="p">,</span> <span class="n">rotation_center</span><span class="p">)</span>
+    <span class="n">rotated</span> <span class="o">=</span> <span class="n">apply_spatial_transform</span><span class="p">(</span><span class="n">spatial</span><span class="p">,</span> <span class="n">forward</span><span class="p">)</span>
+
+    <span class="n">retained_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">n_obs</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">validated_bounds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">retained_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">rotated</span> <span class="o">&gt;=</span> <span class="n">validated_bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">rotated</span> <span class="o">&lt;=</span> <span class="n">validated_bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">adata</span><span class="p">[</span><span class="n">retained_mask</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">validated_bounds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">else</span> <span class="n">adata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="n">original_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">spatial</span><span class="p">[</span><span class="n">retained_mask</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="n">spatial_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">rotated</span><span class="p">[</span><span class="n">retained_mask</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="n">retained_n_spots</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">retained_mask</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+    <span class="n">transform_metadata</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;schema_version&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;centered_rigid_rotation&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;angle_degrees&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">angle_degrees</span><span class="p">),</span>
+        <span class="s2">&quot;center&quot;</span><span class="p">:</span> <span class="n">rotation_center</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span>
+        <span class="s2">&quot;forward_matrix&quot;</span><span class="p">:</span> <span class="n">forward</span><span class="p">,</span>
+        <span class="s2">&quot;inverse_matrix&quot;</span><span class="p">:</span> <span class="n">inverse</span><span class="p">,</span>
+        <span class="s2">&quot;spatial_key&quot;</span><span class="p">:</span> <span class="n">spatial_key</span><span class="p">,</span>
+        <span class="s2">&quot;original_key&quot;</span><span class="p">:</span> <span class="n">original_key</span><span class="p">,</span>
+        <span class="s2">&quot;preserve_spot_identity&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;preserve_spot_count&quot;</span><span class="p">:</span> <span class="n">retained_n_spots</span> <span class="o">==</span> <span class="n">adata</span><span class="o">.</span><span class="n">n_obs</span><span class="p">,</span>
+        <span class="s2">&quot;plate_bounds_applied&quot;</span><span class="p">:</span> <span class="n">validated_bounds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;input_n_spots&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">n_obs</span><span class="p">),</span>
+        <span class="s2">&quot;retained_n_spots&quot;</span><span class="p">:</span> <span class="n">retained_n_spots</span><span class="p">,</span>
+        <span class="s2">&quot;dropped_n_spots&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">n_obs</span> <span class="o">-</span> <span class="n">retained_n_spots</span><span class="p">),</span>
+        <span class="s2">&quot;retained_fraction&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">retained_n_spots</span> <span class="o">/</span> <span class="n">adata</span><span class="o">.</span><span class="n">n_obs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">adata</span><span class="o">.</span><span class="n">n_obs</span>
+        <span class="k">else</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;n_spots&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">n_obs</span><span class="p">),</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">validated_bounds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">transform_metadata</span><span class="p">[</span><span class="s2">&quot;plate_bounds&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">validated_bounds</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s2">&quot;feast_alignment_transform&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">transform_metadata</span>
+
+    <span class="n">expected_names</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">obs_names</span><span class="p">[</span><span class="n">retained_mask</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">n_obs</span> <span class="o">!=</span> <span class="n">retained_n_spots</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">obs_names</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">expected_names</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;rotation changed expected spot support or ordering&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">SpatialTransformer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for spatial transcriptomics data transformations with ground truth tracking.&quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adata</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;spatial&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No spatial coordinates found in &#39;adata.obsm[&#39;spatial&#39;]&#39;.&quot;</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">adata</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spatial_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="s1">&#39;spatial&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="s1">&#39;spatial_original&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spatial_data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply transformation. Must be implemented by subclasses.&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Subclasses must implement transform()&quot;</span><span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_min</span><span class="p">,</span> <span class="n">x_max</span><span class="p">,</span> <span class="n">y_min</span><span class="p">,</span> <span class="n">y_max</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cut a rectangular section from the spatial data.&quot;&quot;&quot;</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spatial_data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">x_min</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spatial_data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">x_max</span><span class="p">)</span> <span class="o">&amp;</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spatial_data</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">y_min</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spatial_data</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">y_max</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">adata_cut</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adata</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">adata_cut</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">):</span>
+        <span class="n">x_min</span><span class="p">,</span> <span class="n">x_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="s1">&#39;spatial&#39;</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="s1">&#39;spatial&#39;</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">y_min</span><span class="p">,</span> <span class="n">y_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="s1">&#39;spatial&#39;</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="s1">&#39;spatial&#39;</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">])</span>
+        
+        <span class="n">moved_adata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">moved_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spatial_data</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">])</span>
+        
+        <span class="n">in_bounds</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">moved_coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">x_min</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">moved_coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">x_max</span><span class="p">)</span> <span class="o">&amp;</span>
+            <span class="p">(</span><span class="n">moved_coords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">y_min</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">moved_coords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">y_max</span><span class="p">)</span>
+        <span class="p">)</span>
+        
+        <span class="n">moved_adata</span> <span class="o">=</span> <span class="n">moved_adata</span><span class="p">[</span><span class="n">in_bounds</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">moved_adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="s1">&#39;spatial&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">moved_coords</span><span class="p">[</span><span class="n">in_bounds</span><span class="p">]</span>
+        
+        <span class="k">return</span> <span class="n">moved_adata</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">RotationTransformer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform spatial data by rotation for both sequencing-based and imaging-based methods.&quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adata</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">adata</span> <span class="o">=</span> <span class="n">adata</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spatial_data</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="s1">&#39;spatial&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">angle_degrees</span><span class="p">,</span> <span class="n">center_correction</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle_degrees</span><span class="p">)</span>
+        <span class="n">rotation_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+            <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)],</span>
+            <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)]</span>
+        <span class="p">])</span>
+
+        <span class="n">coords_centered</span> <span class="o">=</span> <span class="n">coords</span> <span class="o">+</span> <span class="n">center_correction</span>
+        <span class="n">rotated_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">rotation_matrix</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">point</span><span class="p">)</span> <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">coords_centered</span><span class="p">])</span>
+        <span class="n">rotated_coords</span> <span class="o">-=</span> <span class="n">center_correction</span>
+
+        <span class="k">return</span> <span class="n">rotated_coords</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">transform_rigid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rotation_angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply the publication-safe centered continuous rotation.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">rotate_spatial</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">adata</span><span class="p">,</span>
+            <span class="n">rotation_angle</span><span class="p">,</span>
+            <span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">,</span>
+        <span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_generate_offset_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">spacing</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">x_range</span><span class="p">,</span> <span class="n">y_range</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate a hexagonal grid of points.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        rows : int</span>
+<span class="sd">            Number of rows in the grid</span>
+<span class="sd">        cols : int</span>
+<span class="sd">            Number of columns in the grid</span>
+<span class="sd">        spacing : float</span>
+<span class="sd">            Horizontal spacing between adjacent points</span>
+<span class="sd">        offset : float</span>
+<span class="sd">            Vertical spacing between rows</span>
+<span class="sd">        x_range : list</span>
+<span class="sd">            [min_x, max_x] range for the grid</span>
+<span class="sd">        y_range : list</span>
+<span class="sd">            [min_y, max_y] range for the grid</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        numpy.ndarray</span>
+<span class="sd">            Array of grid coordinates</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cols</span><span class="p">):</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">x_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">col</span> <span class="o">*</span> <span class="n">spacing</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">row</span> <span class="o">%</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">spacing</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">y_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">row</span> <span class="o">*</span> <span class="n">offset</span>
+                <span class="n">grid</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_find_nearest_grid_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rotated_spots</span><span class="p">,</span> <span class="n">grid</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find nearest grid points for each rotated spot using a KD-tree.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        rotated_spots : numpy.ndarray</span>
+<span class="sd">            Array of rotated spot coordinates</span>
+<span class="sd">        grid : numpy.ndarray</span>
+<span class="sd">            Array of grid coordinates</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        numpy.ndarray</span>
+<span class="sd">            Indices of nearest grid points</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">scipy.spatial</span>
+        
+        <span class="n">kdtree</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">spatial</span><span class="o">.</span><span class="n">KDTree</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">nearest_indices</span> <span class="o">=</span> <span class="n">kdtree</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">rotated_spots</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">nearest_indices</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_spatial_bounds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coords</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the min/max bounds of the spatial coordinates.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coords : numpy.ndarray</span>
+<span class="sd">            Array of coordinates</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            (min_x, max_x, min_y, max_y)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x_coords</span> <span class="o">=</span> <span class="n">coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">y_coords</span> <span class="o">=</span> <span class="n">coords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">x_coords</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">x_coords</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">y_coords</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">y_coords</span><span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_filter_points_in_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">original_bounds</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Filter points to keep only those within the given bounds.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coords : numpy.ndarray</span>
+<span class="sd">            Array of coordinates</span>
+<span class="sd">        original_bounds : tuple</span>
+<span class="sd">            (min_x, max_x, min_y, max_y) bounds</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        numpy.ndarray</span>
+<span class="sd">            Boolean mask of points within bounds</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">min_x</span><span class="p">,</span> <span class="n">max_x</span><span class="p">,</span> <span class="n">min_y</span><span class="p">,</span> <span class="n">max_y</span> <span class="o">=</span> <span class="n">original_bounds</span>
+        
+        <span class="n">in_bounds</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">min_x</span><span class="p">)</span> <span class="o">&amp;</span> 
+            <span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">max_x</span><span class="p">)</span> <span class="o">&amp;</span> 
+            <span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">min_y</span><span class="p">)</span> <span class="o">&amp;</span> 
+            <span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">max_y</span><span class="p">)</span>
+        <span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">in_bounds</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">transform_sequencing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rotation_angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">center_correction</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> 
+                             <span class="n">min_space</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transform sequencing-based spatial data with rotation and grid alignment.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        rotation_angle : float</span>
+<span class="sd">            Rotation angle in degrees</span>
+<span class="sd">        center_correction : float or array-like</span>
+<span class="sd">            Center point for rotation</span>
+<span class="sd">        min_space : float, optional</span>
+<span class="sd">            Minimal spacing between spots. If None, will be calculated from data.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        AnnData</span>
+<span class="sd">            Transformed AnnData object with grid-aligned coordinates</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Transforming sequencing-based data with </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">spatial_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> spots&quot;</span><span class="p">)</span>
+        
+        <span class="n">x_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spatial_data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">y_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spatial_data</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">min_x</span><span class="p">,</span> <span class="n">max_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">x_coords</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">x_coords</span><span class="p">)</span>
+        <span class="n">min_y</span><span class="p">,</span> <span class="n">max_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">y_coords</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">y_coords</span><span class="p">)</span>
+        <span class="n">x_range</span> <span class="o">=</span> <span class="p">[</span><span class="n">min_x</span><span class="p">,</span> <span class="n">max_x</span><span class="p">]</span>
+        <span class="n">y_range</span> <span class="o">=</span> <span class="p">[</span><span class="n">min_y</span><span class="p">,</span> <span class="n">max_y</span><span class="p">]</span>
+        
+        <span class="k">if</span> <span class="n">min_space</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.spatial</span><span class="w"> </span><span class="kn">import</span> <span class="n">distance_matrix</span>
+            
+            <span class="n">sample_size</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spatial_data</span><span class="p">))</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spatial_data</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="n">sample_size</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">sampled_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spatial_data</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
+            
+            <span class="n">dist_matrix</span> <span class="o">=</span> <span class="n">distance_matrix</span><span class="p">(</span><span class="n">sampled_coords</span><span class="p">,</span> <span class="n">sampled_coords</span><span class="p">)</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">dist_matrix</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+            <span class="n">min_space</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">dist_matrix</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Calculated minimal spacing: </span><span class="si">{</span><span class="n">min_space</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="n">spacing</span> <span class="o">=</span> <span class="n">min_space</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">offset</span> <span class="o">=</span> <span class="n">min_space</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+        
+        <span class="n">rows_full</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="n">y_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">y_range</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">offset</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">cols_full</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="n">x_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x_range</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">spacing</span> <span class="o">*</span> <span class="mi">2</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">estimated_grid_size</span> <span class="o">=</span> <span class="n">rows_full</span> <span class="o">*</span> <span class="n">cols_full</span>
+        
+
+        <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="n">rows_full</span><span class="p">,</span> <span class="n">cols_full</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generating grid with </span><span class="si">{</span><span class="n">rows</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="n">cols</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">rows</span><span class="o">*</span><span class="n">cols</span><span class="si">}</span><span class="s2"> points&quot;</span><span class="p">)</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_offset_grid</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">spacing</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">x_range</span><span class="p">,</span> <span class="n">y_range</span><span class="p">)</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Rotating spots by </span><span class="si">{</span><span class="n">rotation_angle</span><span class="si">}</span><span class="s2"> degrees&quot;</span><span class="p">)</span>
+        <span class="n">rotated_spots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rotate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spatial_data</span><span class="p">,</span> <span class="n">rotation_angle</span><span class="p">,</span> <span class="n">center_correction</span><span class="p">)</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Finding nearest grid points&quot;</span><span class="p">)</span>
+        <span class="n">nearest_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_nearest_grid_points</span><span class="p">(</span><span class="n">rotated_spots</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
+        <span class="n">new_spots</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="n">nearest_indices</span><span class="p">]</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Removing duplicates&quot;</span><span class="p">)</span>
+        <span class="n">seen</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">mapping</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">new_spots</span><span class="p">)):</span>
+            <span class="n">spot_tuple</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">new_spots</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">spot_tuple</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">seen</span><span class="p">[</span><span class="n">spot_tuple</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">mapping</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating new AnnData with </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span><span class="si">}</span><span class="s2"> spots&quot;</span><span class="p">)</span>
+        <span class="n">new_adata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adata</span><span class="p">[</span><span class="n">mapping</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">new_adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="s1">&#39;spatial&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_spots</span><span class="p">[</span><span class="n">mapping</span><span class="p">]</span>
+        <span class="n">new_adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="s1">&#39;spatial_rotated&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rotated_spots</span><span class="p">[</span><span class="n">mapping</span><span class="p">]</span>
+        <span class="n">new_adata</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;transformation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;method&#39;</span><span class="p">:</span> <span class="s1">&#39;sequencing_rotation&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;rotation_angle&#39;</span><span class="p">:</span> <span class="n">rotation_angle</span><span class="p">,</span>
+            <span class="s1">&#39;center_correction&#39;</span><span class="p">:</span> <span class="n">center_correction</span><span class="p">,</span>
+            <span class="s1">&#39;min_space&#39;</span><span class="p">:</span> <span class="n">min_space</span><span class="p">,</span>
+            <span class="s1">&#39;original_grid_size&#39;</span><span class="p">:</span> <span class="n">estimated_grid_size</span><span class="p">,</span>
+            <span class="s1">&#39;actual_grid_size&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">grid</span><span class="p">),</span>
+            <span class="s1">&#39;original_spots&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spatial_data</span><span class="p">),</span>
+            <span class="s1">&#39;remaining_spots&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span>
+        <span class="p">}</span>
+        
+        <span class="k">return</span> <span class="n">new_adata</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">transform_imaging</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rotation_angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">center_correction</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">keep_bounds</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transform imaging-based spatial data with direct rotation.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        rotation_angle : float</span>
+<span class="sd">            Rotation angle in degrees</span>
+<span class="sd">        center_correction : float or array-like</span>
+<span class="sd">            Center point for rotation</span>
+<span class="sd">        keep_bounds : bool</span>
+<span class="sd">            If True, only keep spots that remain within the original spatial bounds</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        AnnData</span>
+<span class="sd">            Transformed AnnData object with directly rotated coordinates</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Transforming imaging-based data with </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">spatial_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> spots&quot;</span><span class="p">)</span>
+        
+        <span class="n">original_bounds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_spatial_bounds</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spatial_data</span><span class="p">)</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Rotating spots by </span><span class="si">{</span><span class="n">rotation_angle</span><span class="si">}</span><span class="s2"> degrees&quot;</span><span class="p">)</span>
+        <span class="n">rotated_spots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rotate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spatial_data</span><span class="p">,</span> <span class="n">rotation_angle</span><span class="p">,</span> <span class="n">center_correction</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">keep_bounds</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Filtering spots to keep only those within original bounds&quot;</span><span class="p">)</span>
+            <span class="n">in_bounds_mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter_points_in_range</span><span class="p">(</span><span class="n">rotated_spots</span><span class="p">,</span> <span class="n">original_bounds</span><span class="p">)</span>
+            <span class="n">mapping</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">in_bounds_mask</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Keeping </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span><span class="si">}</span><span class="s2"> of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">rotated_spots</span><span class="p">)</span><span class="si">}</span><span class="s2"> spots within bounds&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mapping</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rotated_spots</span><span class="p">))</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating new AnnData with </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span><span class="si">}</span><span class="s2"> spots&quot;</span><span class="p">)</span>
+        <span class="n">new_adata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adata</span><span class="p">[</span><span class="n">mapping</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">new_adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="s1">&#39;spatial&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rotated_spots</span><span class="p">[</span><span class="n">mapping</span><span class="p">]</span>
+        <span class="n">new_adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="s1">&#39;spatial_original&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spatial_data</span><span class="p">[</span><span class="n">mapping</span><span class="p">]</span>
+        <span class="n">new_adata</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;transformation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;method&#39;</span><span class="p">:</span> <span class="s1">&#39;imaging_rotation&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;rotation_angle&#39;</span><span class="p">:</span> <span class="n">rotation_angle</span><span class="p">,</span>
+            <span class="s1">&#39;center_correction&#39;</span><span class="p">:</span> <span class="n">center_correction</span><span class="p">,</span>
+            <span class="s1">&#39;kept_bounds&#39;</span><span class="p">:</span> <span class="n">keep_bounds</span><span class="p">,</span>
+            <span class="s1">&#39;original_spots&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spatial_data</span><span class="p">),</span>
+            <span class="s1">&#39;remaining_spots&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span>
+        <span class="p">}</span>
+        
+        <span class="k">return</span> <span class="n">new_adata</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">WarpTransformer</span><span class="p">(</span><span class="n">SpatialTransformer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform spatial data using thin plate spline warping.&quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adata</span><span class="p">,</span> <span class="n">distort_level</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">grid_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">adata</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">distort_level</span> <span class="o">=</span> <span class="n">distort_level</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid_size</span> <span class="o">=</span> <span class="n">grid_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tps</span> <span class="o">=</span> <span class="n">ThinPlateSpline</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_min</span><span class="p">,</span> <span class="n">x_max</span><span class="p">,</span> <span class="n">y_min</span><span class="p">,</span> <span class="n">y_max</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a grid of control points with corners.&quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">x_min</span><span class="p">,</span> <span class="n">x_max</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_size</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_size</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">y_min</span><span class="p">,</span> <span class="n">y_max</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_size</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_size</span><span class="p">)</span>
+        <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">grid_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">xx</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">yy</span><span class="o">.</span><span class="n">ravel</span><span class="p">()))</span>
+        
+        <span class="n">margin</span> <span class="o">=</span> <span class="mf">0.05</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_max</span> <span class="o">-</span> <span class="n">x_min</span><span class="p">)</span> <span class="o">*</span> <span class="n">margin</span>
+        <span class="n">dy</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_max</span> <span class="o">-</span> <span class="n">y_min</span><span class="p">)</span> <span class="o">*</span> <span class="n">margin</span>
+        <span class="n">corner_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+            <span class="p">[</span><span class="n">x_min</span> <span class="o">+</span> <span class="n">dx</span><span class="p">,</span> <span class="n">y_min</span> <span class="o">+</span> <span class="n">dy</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">x_min</span> <span class="o">+</span> <span class="n">dx</span><span class="p">,</span> <span class="n">y_max</span> <span class="o">-</span> <span class="n">dy</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">x_max</span> <span class="o">-</span> <span class="n">dx</span><span class="p">,</span> <span class="n">y_min</span> <span class="o">+</span> <span class="n">dy</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">x_max</span> <span class="o">-</span> <span class="n">dx</span><span class="p">,</span> <span class="n">y_max</span> <span class="o">-</span> <span class="n">dy</span><span class="p">]</span>
+        <span class="p">])</span>
+        
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">grid_points</span><span class="p">,</span> <span class="n">corner_points</span><span class="p">))</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_noise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">is_corner</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add noise to control points with different levels for grid vs corners.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">is_corner</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">points</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">points</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        
+        <span class="n">h_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ptp</span><span class="p">(</span><span class="n">points</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">w_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ptp</span><span class="p">(</span><span class="n">points</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">variance</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distort_level</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">h_grid</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">w_grid</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">points</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">variance</span><span class="p">,</span> <span class="n">points</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_random_rotation_translation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply a random rotation and translation to points.&quot;&quot;&quot;</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">rotation_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+            <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)],</span>
+            <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)]</span>
+        <span class="p">])</span>
+        
+        <span class="n">range_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ptp</span><span class="p">(</span><span class="n">points</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">range_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ptp</span><span class="p">(</span><span class="n">points</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">max_translation</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">range_x</span><span class="p">,</span> <span class="n">range_y</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.1</span>
+        <span class="n">translation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="n">max_translation</span><span class="p">,</span> <span class="n">max_translation</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">points</span> <span class="o">@</span> <span class="n">rotation_matrix</span> <span class="o">+</span> <span class="n">translation</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">apply_rotation</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply TPS warping transformation with optional rotation/translation.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">x_min</span><span class="p">,</span> <span class="n">x_max</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spatial_data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">spatial_data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+            <span class="n">y_min</span><span class="p">,</span> <span class="n">y_max</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spatial_data</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">spatial_data</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+            <span class="n">source_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_grid</span><span class="p">(</span><span class="n">x_min</span><span class="p">,</span> <span class="n">x_max</span><span class="p">,</span> <span class="n">y_min</span><span class="p">,</span> <span class="n">y_max</span><span class="p">)</span>
+            <span class="n">source_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">source_points</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            
+            <span class="n">n_grid_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_size</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_size</span>
+            <span class="n">target_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_add_noise</span><span class="p">(</span><span class="n">source_points</span><span class="p">[:</span><span class="n">n_grid_points</span><span class="p">],</span> <span class="kc">False</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_add_noise</span><span class="p">(</span><span class="n">source_points</span><span class="p">[</span><span class="n">n_grid_points</span><span class="p">:],</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="p">))</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">tps</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">source_points</span><span class="p">,</span> <span class="n">target_points</span><span class="p">)</span>
+            <span class="n">warped_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tps</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spatial_data</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">apply_rotation</span><span class="p">:</span>
+                <span class="n">warped_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_random_rotation_translation</span><span class="p">(</span><span class="n">warped_coords</span><span class="p">)</span>
+            
+            <span class="n">warped_adata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">warped_adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="s1">&#39;spatial&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">warped_coords</span>
+            <span class="n">warped_adata</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;transformation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;method&#39;</span><span class="p">:</span> <span class="s1">&#39;TPS&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;distort_level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">distort_level</span><span class="p">,</span>
+                <span class="s1">&#39;grid_size&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_size</span><span class="p">,</span>
+                <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tps</span><span class="o">.</span><span class="n">alpha</span>
+            <span class="p">}</span>
+            
+            <span class="k">return</span> <span class="n">warped_adata</span>
+            
+        <span class="k">except</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinAlgError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinAlgError</span><span class="p">(</span>
+                <span class="s2">&quot;TPS fitting failed: the control point configuration is degenerate. &quot;</span>
+                <span class="s2">&quot;Try reducing distort_level, increasing grid_size, or using different spatial data.&quot;</span>
+            <span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Yiru CHEN &amp; Maizie Zhou Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

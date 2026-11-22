@@ -1,0 +1,565 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FEAST.de_novo.transport &mdash; FEAST 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=c546c3da" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            FEAST
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#published-package">Published package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#editable-conda-installation">Editable Conda installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#documentation">Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/00_single_slice_graphst.html">00 · Simulate a slice and find spatial clusters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/00_single_slice_graphst.html#Load-the-reference">Load the reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/00_single_slice_graphst.html#Simulate-counts">Simulate counts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/00_single_slice_graphst.html#Prepare-the-GraphST-input">Prepare the GraphST input</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/00_single_slice_graphst.html#Cluster-the-simulated-slice">Cluster the simulated slice</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/02_alignment.html">02 · Create an alignment pair</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/02_alignment.html#Simulate-and-rotate">Simulate and rotate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/02_alignment.html#Recover-the-known-matches">Recover the known matches</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/03_deconvolution.html">03 · Create mixed spots with known cell-class proportions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/03_deconvolution.html#Simulate-single-cell-counts">Simulate single-cell counts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/03_deconvolution.html#Aggregate-cells-into-spots">Aggregate cells into spots</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/03_deconvolution.html#Plot-cell-class-proportions">Plot cell-class proportions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/04_batch_effect_removal.html">04 · Simulate a batch effect and correct it with scVI</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/04_batch_effect_removal.html#Generate-paired-batches">Generate paired batches</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/04_batch_effect_removal.html#Prepare-raw-counts-for-scVI">Prepare raw counts for scVI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/04_batch_effect_removal.html#Correct-the-batch-effect">Correct the batch effect</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/04_batch_effect_removal.html#Compare-batch-mixing-and-tissue-layers">Compare batch mixing and tissue layers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/05_2d_conditional_transfer.html">05 · Generate expression on another slice’s anatomy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/05_2d_conditional_transfer.html#Build-the-target-blueprint">Build the target blueprint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/05_2d_conditional_transfer.html#Generate-counts">Generate counts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/05_2d_conditional_transfer.html#Compare-with-measured-expression">Compare with measured expression</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/07_3d_transfer.html">07 · Generate expression on a developmental brain atlas</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/07_3d_transfer.html#Load-the-five-references-and-select-atlas-sections">Load the five references and select atlas sections</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/07_3d_transfer.html#Generate-counts-on-each-section">Generate counts on each section</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/07_3d_transfer.html#Compare-atlas-anatomy-and-generated-Reln-expression">Compare atlas anatomy and generated Reln expression</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials.html#de-novo-virtual-slice-generation">De novo virtual slice generation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#simulation-and-fitting">Simulation and fitting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.simulate"><code class="docutils literal notranslate"><span class="pre">simulate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.generate"><code class="docutils literal notranslate"><span class="pre">generate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.fit"><code class="docutils literal notranslate"><span class="pre">fit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.de_novo.fit_reference"><code class="docutils literal notranslate"><span class="pre">fit_reference()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.estimate_assignment_randomness"><code class="docutils literal notranslate"><span class="pre">estimate_assignment_randomness()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.GeneParameterSimulator"><code class="docutils literal notranslate"><span class="pre">GeneParameterSimulator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#configuration">Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.Alteration"><code class="docutils literal notranslate"><span class="pre">Alteration</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.TransportConfig"><code class="docutils literal notranslate"><span class="pre">TransportConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.ReferenceFitConfig"><code class="docutils literal notranslate"><span class="pre">ReferenceFitConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.SimulationConfig"><code class="docutils literal notranslate"><span class="pre">SimulationConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.SimulationReference"><code class="docutils literal notranslate"><span class="pre">SimulationReference</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#de-novo-builders">De novo builders</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.SliceBlueprint"><code class="docutils literal notranslate"><span class="pre">SliceBlueprint</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.de_novo.SimulationBlueprintBuilder"><code class="docutils literal notranslate"><span class="pre">SimulationBlueprintBuilder</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.de_novo.SimulationParameterBuilder"><code class="docutils literal notranslate"><span class="pre">SimulationParameterBuilder</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.de_novo.SimulationPatternBuilder"><code class="docutils literal notranslate"><span class="pre">SimulationPatternBuilder</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#alignment-and-deconvolution">Alignment and deconvolution</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.alignment.rotate_spatial"><code class="docutils literal notranslate"><span class="pre">rotate_spatial()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.alignment.apply_spatial_transform"><code class="docutils literal notranslate"><span class="pre">apply_spatial_transform()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.alignment.simulate_alignment_rotation"><code class="docutils literal notranslate"><span class="pre">simulate_alignment_rotation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.alignment.simulate_alignment_warp"><code class="docutils literal notranslate"><span class="pre">simulate_alignment_warp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.deconvolution.create_deconvolution_benchmark_data"><code class="docutils literal notranslate"><span class="pre">create_deconvolution_benchmark_data()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#batch-simulation">Batch simulation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.BatchDeformation"><code class="docutils literal notranslate"><span class="pre">BatchDeformation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.characterize_batch"><code class="docutils literal notranslate"><span class="pre">characterize_batch()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.simulate_batch_effect"><code class="docutils literal notranslate"><span class="pre">simulate_batch_effect()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#parameter-utilities">Parameter utilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.stats_to_theta"><code class="docutils literal notranslate"><span class="pre">stats_to_theta()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.theta_to_stats"><code class="docutils literal notranslate"><span class="pre">theta_to_stats()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#compatibility">Compatibility</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#local-multi-reference-3d-generation">Local multi-reference 3D generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.simulate_local_references"><code class="docutils literal notranslate"><span class="pre">simulate_local_references()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.simulate_stack"><code class="docutils literal notranslate"><span class="pre">simulate_stack()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.calibrate_local_references"><code class="docutils literal notranslate"><span class="pre">calibrate_local_references()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">FEAST</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../FEAST.html">FEAST</a></li>
+      <li class="breadcrumb-item active">FEAST.de_novo.transport</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for FEAST.de_novo.transport</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Shared spatial optimal-transport backbone for FEAST simulation.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">._ot_transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">sinkhorn_transport</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.quantile_field</span><span class="w"> </span><span class="kn">import</span> <span class="n">quantiles_to_normal_scores</span><span class="p">,</span> <span class="n">transport_latent_scores</span>
+
+
+<span class="n">DEFAULT_MAX_TRANSPORT_PAIRS</span> <span class="o">=</span> <span class="mi">25_000_000</span>
+<span class="n">TRANSPORT_MEMORY_BYTES_PER_PAIR</span> <span class="o">=</span> <span class="mi">64</span>
+
+
+<div class="viewcode-block" id="TransportConfig">
+<a class="viewcode-back" href="../../../api.html#FEAST.TransportConfig">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TransportConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Configuration for the shared reference-to-target OT field transport.</span>
+
+<span class="sd">    ``transport_dtype`` selects ``&quot;float64&quot;`` (default) or ``&quot;float32&quot;`` solver</span>
+<span class="sd">    arithmetic on either backend. Coordinate/cost preparation, returned plans</span>
+<span class="sd">    and latent fields retain their existing float32 representation. Precision</span>
+<span class="sd">    does not change the iteration limit, tolerance or nonconvergence policy.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">epsilon</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span>
+    <span class="n">sinkhorn_iter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span>
+    <span class="n">sinkhorn_tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-5</span>
+    <span class="n">unbalanced_transport</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">reg_m</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span>
+    <span class="n">transport_nonconvergence</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;raise&quot;</span>
+    <span class="n">geometry_weight</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">boundary_weight</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.25</span>
+    <span class="n">assignment_randomness</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">latent_clip_eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span>
+    <span class="n">gene_chunk_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">512</span>
+    <span class="n">max_transport_pairs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">DEFAULT_MAX_TRANSPORT_PAIRS</span>
+    <span class="n">sinkhorn_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;sinkhorn&quot;</span>
+    <span class="n">transport_backend</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;numpy&quot;</span>
+    <span class="n">transport_device</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">transport_dtype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;float64&quot;</span></div>
+
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TransportResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transported latent field and auditable solver diagnostics.&quot;&quot;&quot;</span>
+
+    <span class="n">latent_scores</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">diagnostics</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">max_pairs_from_memory_budget</span><span class="p">(</span><span class="n">memory_budget_gb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert an optional memory budget to a dense source-target pair cap.&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">memory_budget_gb</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">budget</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">memory_budget_gb</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">budget</span><span class="p">)</span> <span class="ow">or</span> <span class="n">budget</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;memory_budget_gb must be a positive finite number.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">((</span><span class="n">budget</span> <span class="o">*</span> <span class="mi">1024</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span> <span class="o">//</span> <span class="n">TRANSPORT_MEMORY_BYTES_PER_PAIR</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">normalize_coordinates</span><span class="p">(</span><span class="n">coordinates</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Center and scale coordinates independently along each spatial axis.&quot;&quot;&quot;</span>
+
+    <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">coords</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;coordinates must be a 2D array.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">coords</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">center</span> <span class="o">=</span> <span class="n">coords</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">scale</span> <span class="o">=</span> <span class="n">coords</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">scale</span><span class="p">[</span><span class="n">scale</span> <span class="o">&lt;=</span> <span class="mf">1e-6</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">coords</span> <span class="o">-</span> <span class="n">center</span><span class="p">)</span> <span class="o">/</span> <span class="n">scale</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">transport_reference_field</span><span class="p">(</span>
+    <span class="n">source_coordinates</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">target_coordinates</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">source_quantiles</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">source_boundary</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">target_boundary</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TransportConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">random_seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TransportResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transport a reference quantile field onto target coordinates.</span>
+
+<span class="sd">    Dense and blocked execution use the same cost, solver, latent-score</span>
+<span class="sd">    transport, and assignment-randomness definition. Blocking partitions only</span>
+<span class="sd">    the target columns while retaining the full reference support.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">cfg</span> <span class="o">=</span> <span class="n">config</span> <span class="ow">or</span> <span class="n">TransportConfig</span><span class="p">()</span>
+    <span class="n">_validate_config</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+
+    <span class="n">source_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">source_coordinates</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">target_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">target_coordinates</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">quantiles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">source_quantiles</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">source_coords</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">target_coords</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;source_coordinates and target_coordinates must be 2D arrays.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">source_coords</span><span class="p">))</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">target_coords</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;source and target coordinates must be finite.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">source_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">target_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;source and target coordinate dimensionality must match.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">quantiles</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">quantiles</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">source_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;source_quantiles rows must match source_coordinates rows.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">quantiles</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;source_quantiles must be finite.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">quantiles</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">quantiles</span> <span class="o">&gt;</span> <span class="mf">1.0</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;source_quantiles must lie in [0, 1].&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">source_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;source_coordinates must contain at least one spot.&quot;</span><span class="p">)</span>
+
+    <span class="n">source_boundary_arr</span> <span class="o">=</span> <span class="n">_boundary_array</span><span class="p">(</span><span class="n">source_boundary</span><span class="p">,</span> <span class="n">source_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;source_boundary&quot;</span><span class="p">)</span>
+    <span class="n">target_boundary_arr</span> <span class="o">=</span> <span class="n">_boundary_array</span><span class="p">(</span><span class="n">target_boundary</span><span class="p">,</span> <span class="n">target_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;target_boundary&quot;</span><span class="p">)</span>
+    <span class="n">n_target</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">target_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">n_genes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">quantiles</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">n_target</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">TransportResult</span><span class="p">(</span>
+            <span class="n">latent_scores</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_genes</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+            <span class="n">diagnostics</span><span class="o">=</span><span class="n">_aggregate_diagnostics</span><span class="p">([],</span> <span class="n">cfg</span><span class="p">,</span> <span class="n">blocked</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="n">source_scores</span> <span class="o">=</span> <span class="n">quantiles_to_normal_scores</span><span class="p">(</span>
+        <span class="n">quantiles</span><span class="p">,</span>
+        <span class="n">clip_eps</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">latent_clip_eps</span><span class="p">),</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">target_blocks</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+        <span class="n">_target_blocks</span><span class="p">(</span>
+            <span class="n">source_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">target_coords</span><span class="p">,</span>
+            <span class="n">cfg</span><span class="o">.</span><span class="n">max_transport_pairs</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">transported</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_target</span><span class="p">,</span> <span class="n">n_genes</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">block_diagnostics</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">block_index</span><span class="p">,</span> <span class="n">target_indices</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">target_blocks</span><span class="p">):</span>
+        <span class="n">plan</span><span class="p">,</span> <span class="n">diagnostics</span> <span class="o">=</span> <span class="n">_solve_transport_plan</span><span class="p">(</span>
+            <span class="n">source_coords</span><span class="p">,</span>
+            <span class="n">target_coords</span><span class="p">[</span><span class="n">target_indices</span><span class="p">],</span>
+            <span class="n">source_boundary_arr</span><span class="p">,</span>
+            <span class="n">target_boundary_arr</span><span class="p">[</span><span class="n">target_indices</span><span class="p">],</span>
+            <span class="n">cfg</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">start</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_genes</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">gene_chunk_size</span><span class="p">))):</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">start</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">gene_chunk_size</span><span class="p">)),</span> <span class="n">n_genes</span><span class="p">)</span>
+            <span class="n">transported</span><span class="p">[</span><span class="n">target_indices</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span> <span class="o">=</span> <span class="n">transport_latent_scores</span><span class="p">(</span>
+                <span class="n">plan</span><span class="p">,</span>
+                <span class="n">source_scores</span><span class="p">[:,</span> <span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">],</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">block_diagnostics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="o">**</span><span class="n">diagnostics</span><span class="p">,</span>
+                <span class="s2">&quot;block_index&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">block_index</span><span class="p">),</span>
+                <span class="s2">&quot;source_spots&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">source_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                <span class="s2">&quot;target_spots&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">target_indices</span><span class="o">.</span><span class="n">size</span><span class="p">),</span>
+                <span class="s2">&quot;transport_mass&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">plan</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)),</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+    <span class="n">randomness</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">assignment_randomness</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">randomness</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">random_seed</span><span class="p">)</span>
+        <span class="n">sampled_indices</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">source_scores</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">size</span><span class="o">=</span><span class="n">n_target</span><span class="p">)</span>
+        <span class="n">transported</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">randomness</span><span class="p">)</span> <span class="o">*</span> <span class="n">transported</span>
+            <span class="o">+</span> <span class="n">randomness</span> <span class="o">*</span> <span class="n">source_scores</span><span class="p">[</span><span class="n">sampled_indices</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">TransportResult</span><span class="p">(</span>
+        <span class="n">latent_scores</span><span class="o">=</span><span class="n">transported</span><span class="p">,</span>
+        <span class="n">diagnostics</span><span class="o">=</span><span class="n">_aggregate_diagnostics</span><span class="p">(</span>
+            <span class="n">block_diagnostics</span><span class="p">,</span>
+            <span class="n">cfg</span><span class="p">,</span>
+            <span class="n">blocked</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">target_blocks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_config</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">TransportConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="mf">0.0</span> <span class="o">&lt;=</span> <span class="nb">float</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">assignment_randomness</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">1.0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;assignment_randomness must be between 0 and 1 inclusive.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">latent_clip_eps</span><span class="p">))</span>
+        <span class="ow">or</span> <span class="ow">not</span> <span class="mf">0.0</span> <span class="o">&lt;</span> <span class="nb">float</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">latent_clip_eps</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.5</span>
+    <span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;latent_clip_eps must be finite and in (0, 0.5).&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">epsilon</span><span class="p">))</span> <span class="ow">or</span> <span class="nb">float</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">epsilon</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;epsilon must be positive and finite.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">sinkhorn_iter</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sinkhorn_iter must be a positive integer.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">sinkhorn_tol</span><span class="p">))</span> <span class="ow">or</span> <span class="nb">float</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">sinkhorn_tol</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sinkhorn_tol must be positive and finite.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">transport_nonconvergence</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;raise&quot;</span><span class="p">,</span> <span class="s2">&quot;warn&quot;</span><span class="p">}:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;transport_nonconvergence must be &#39;raise&#39; or &#39;warn&#39;.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">geometry_weight</span><span class="p">))</span> <span class="ow">or</span> <span class="nb">float</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">geometry_weight</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;geometry_weight must be a non-negative finite number.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">boundary_weight</span><span class="p">))</span> <span class="ow">or</span> <span class="nb">float</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">boundary_weight</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;boundary_weight must be a non-negative finite number.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">unbalanced_transport</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+        <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">reg_m</span><span class="p">))</span> <span class="ow">or</span> <span class="nb">float</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">reg_m</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">0.0</span>
+    <span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;reg_m must be positive and finite for unbalanced transport.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">gene_chunk_size</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;gene_chunk_size must be a positive integer.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">max_transport_pairs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">int</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">max_transport_pairs</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;max_transport_pairs must be a positive integer or None.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">sinkhorn_method</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;sinkhorn&quot;</span><span class="p">,</span> <span class="s2">&quot;sinkhorn_log&quot;</span><span class="p">,</span> <span class="s2">&quot;sinkhorn_stabilized&quot;</span><span class="p">,</span> <span class="s2">&quot;sinkhorn_translation_invariant&quot;</span><span class="p">}:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sinkhorn_method must be &#39;sinkhorn&#39;, &#39;sinkhorn_log&#39;, &#39;sinkhorn_stabilized&#39;, or &#39;sinkhorn_translation_invariant&#39;.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">transport_backend</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;numpy&quot;</span><span class="p">,</span> <span class="s2">&quot;torch&quot;</span><span class="p">}:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;transport_backend must be &#39;numpy&#39; or &#39;torch&#39;.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">transport_dtype</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span> <span class="s2">&quot;float64&quot;</span><span class="p">}:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;transport_dtype must be &#39;float32&#39; or &#39;float64&#39;.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">transport_backend</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;numpy&quot;</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">transport_device</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;cpu&quot;</span><span class="p">}:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;transport_device must be None or &#39;cpu&#39; for the NumPy backend.&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_boundary_array</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">values</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">size</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> length must match its coordinate row count.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">array</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> must be finite.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">array</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_target_blocks</span><span class="p">(</span>
+    <span class="n">n_source</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">target_coordinates</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">max_transport_pairs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+<span class="p">):</span>
+    <span class="n">n_target</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">target_coordinates</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">max_transport_pairs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">n_source</span> <span class="o">*</span> <span class="n">n_target</span> <span class="o">&lt;=</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_transport_pairs</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_target</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">target_block_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_transport_pairs</span><span class="p">)</span> <span class="o">//</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_source</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">target_block_size</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;max_transport_pairs is smaller than the number of reference spots; &quot;</span>
+            <span class="s2">&quot;increase the pair cap or memory budget.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">axis</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ptp</span><span class="p">(</span><span class="n">target_coordinates</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)))</span>
+    <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">target_coordinates</span><span class="p">[:,</span> <span class="n">axis</span><span class="p">],</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;mergesort&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">start</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_target</span><span class="p">,</span> <span class="n">target_block_size</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="n">order</span><span class="p">[</span><span class="n">start</span> <span class="p">:</span> <span class="n">start</span> <span class="o">+</span> <span class="n">target_block_size</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_solve_transport_plan</span><span class="p">(</span>
+    <span class="n">source_coordinates</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">target_coordinates</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">source_boundary</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">target_boundary</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">TransportConfig</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">source_sq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">source_coordinates</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">target_sq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">target_coordinates</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">distance_squared</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span>
+        <span class="n">source_sq</span> <span class="o">+</span> <span class="n">target_sq</span> <span class="o">-</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">source_coordinates</span> <span class="o">@</span> <span class="n">target_coordinates</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+        <span class="mf">0.0</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">boundary_cost</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">source_boundary</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">-</span> <span class="n">target_boundary</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:])</span>
+    <span class="n">cost</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="nb">float</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">geometry_weight</span><span class="p">)</span> <span class="o">*</span> <span class="n">distance_squared</span>
+        <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">boundary_weight</span><span class="p">)</span> <span class="o">*</span> <span class="n">boundary_cost</span>
+    <span class="p">)</span>
+    <span class="n">source_mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span>
+        <span class="n">source_coordinates</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="mf">1.0</span> <span class="o">/</span> <span class="n">source_coordinates</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">target_mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span>
+        <span class="n">target_coordinates</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="mf">1.0</span> <span class="o">/</span> <span class="n">target_coordinates</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">transport_backend</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;torch&quot;</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+        <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># pragma: no cover - torch is a package dependency</span>
+            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;transport_backend=&#39;torch&#39; requires PyTorch.&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+        <span class="n">device</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span> <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">transport_device</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">transport_device</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">device</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;requested POT transport device </span><span class="si">{</span><span class="n">device</span><span class="si">!r}</span><span class="s2"> is unavailable&quot;</span><span class="p">)</span>
+        <span class="n">dtype</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">float32</span> <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">transport_dtype</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;float32&quot;</span> <span class="k">else</span> <span class="n">torch</span><span class="o">.</span><span class="n">float64</span>
+        <span class="n">cost_input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">cost</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">source_mass_input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">source_mass</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">target_mass_input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">target_mass</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span> <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">transport_dtype</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;float32&quot;</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span>
+        <span class="n">cost_input</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">cost</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="n">source_mass_input</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">source_mass</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="n">target_mass_input</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">target_mass</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sinkhorn_transport</span><span class="p">(</span>
+        <span class="n">M</span><span class="o">=</span><span class="n">cost_input</span><span class="p">,</span>
+        <span class="n">a</span><span class="o">=</span><span class="n">source_mass_input</span><span class="p">,</span>
+        <span class="n">b</span><span class="o">=</span><span class="n">target_mass_input</span><span class="p">,</span>
+        <span class="n">reg</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">epsilon</span><span class="p">),</span>
+        <span class="n">numItermax</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">sinkhorn_iter</span><span class="p">),</span>
+        <span class="n">stopThr</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">sinkhorn_tol</span><span class="p">),</span>
+        <span class="n">unbalanced</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">unbalanced_transport</span><span class="p">),</span>
+        <span class="n">reg_m</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">reg_m</span><span class="p">),</span>
+        <span class="n">method</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">sinkhorn_method</span><span class="p">),</span>
+        <span class="n">nonconvergence</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">transport_nonconvergence</span><span class="p">),</span>
+        <span class="n">return_diagnostics</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_aggregate_diagnostics</span><span class="p">(</span>
+    <span class="n">blocks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">TransportConfig</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">blocked</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="n">final_errors</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="nb">float</span><span class="p">(</span><span class="n">block</span><span class="p">[</span><span class="s2">&quot;final_error&quot;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">blocks</span>
+        <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;final_error&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">block</span><span class="p">[</span><span class="s2">&quot;final_error&quot;</span><span class="p">]))</span>
+    <span class="p">]</span>
+    <span class="n">iterations</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="nb">int</span><span class="p">(</span><span class="n">block</span><span class="p">[</span><span class="s2">&quot;iterations&quot;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">blocks</span>
+        <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;iterations&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;converged&quot;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">all</span><span class="p">(</span><span class="nb">bool</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;converged&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span> <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">blocks</span><span class="p">)),</span>
+        <span class="s2">&quot;iterations&quot;</span><span class="p">:</span> <span class="nb">max</span><span class="p">(</span><span class="n">iterations</span><span class="p">)</span> <span class="k">if</span> <span class="n">iterations</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">&quot;final_error&quot;</span><span class="p">:</span> <span class="nb">max</span><span class="p">(</span><span class="n">final_errors</span><span class="p">)</span> <span class="k">if</span> <span class="n">final_errors</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;stop_threshold&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">sinkhorn_tol</span><span class="p">),</span>
+        <span class="s2">&quot;max_iterations&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">sinkhorn_iter</span><span class="p">),</span>
+        <span class="s2">&quot;unbalanced&quot;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">unbalanced_transport</span><span class="p">),</span>
+        <span class="s2">&quot;epsilon&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">epsilon</span><span class="p">),</span>
+        <span class="s2">&quot;reg_m&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">reg_m</span><span class="p">),</span>
+        <span class="s2">&quot;geometry_weight&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">geometry_weight</span><span class="p">),</span>
+        <span class="s2">&quot;boundary_weight&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">boundary_weight</span><span class="p">),</span>
+        <span class="s2">&quot;assignment_randomness&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">assignment_randomness</span><span class="p">),</span>
+        <span class="s2">&quot;field_space&quot;</span><span class="p">:</span> <span class="s2">&quot;normal_score&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;blocked&quot;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="n">blocked</span><span class="p">),</span>
+        <span class="s2">&quot;n_blocks&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">blocks</span><span class="p">)),</span>
+        <span class="s2">&quot;max_transport_pairs&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">max_transport_pairs</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">max_transport_pairs</span><span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;transport_mass&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="nb">sum</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;transport_mass&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span> <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">blocks</span><span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;solver_method&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">sinkhorn_method</span><span class="p">),</span>
+        <span class="s2">&quot;transport_backend&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">transport_backend</span><span class="p">),</span>
+        <span class="s2">&quot;transport_device&quot;</span><span class="p">:</span> <span class="s2">&quot;cpu&quot;</span> <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">transport_device</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">transport_device</span><span class="p">),</span>
+        <span class="s2">&quot;transport_dtype&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">transport_dtype</span><span class="p">),</span>
+        <span class="s2">&quot;blocks&quot;</span><span class="p">:</span> <span class="n">blocks</span><span class="p">,</span>
+    <span class="p">}</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Yiru CHEN &amp; Maizie Zhou Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

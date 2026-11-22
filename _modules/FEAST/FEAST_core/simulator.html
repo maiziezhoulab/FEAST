@@ -1,0 +1,1018 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FEAST.FEAST_core.simulator &mdash; FEAST 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=c546c3da" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            FEAST
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#published-package">Published package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#editable-conda-installation">Editable Conda installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#documentation">Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/00_single_slice_graphst.html">00 · Simulate a slice and find spatial clusters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/00_single_slice_graphst.html#Load-the-reference">Load the reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/00_single_slice_graphst.html#Simulate-counts">Simulate counts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/00_single_slice_graphst.html#Prepare-the-GraphST-input">Prepare the GraphST input</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/00_single_slice_graphst.html#Cluster-the-simulated-slice">Cluster the simulated slice</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/02_alignment.html">02 · Create an alignment pair</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/02_alignment.html#Simulate-and-rotate">Simulate and rotate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/02_alignment.html#Recover-the-known-matches">Recover the known matches</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/03_deconvolution.html">03 · Create mixed spots with known cell-class proportions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/03_deconvolution.html#Simulate-single-cell-counts">Simulate single-cell counts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/03_deconvolution.html#Aggregate-cells-into-spots">Aggregate cells into spots</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/03_deconvolution.html#Plot-cell-class-proportions">Plot cell-class proportions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/04_batch_effect_removal.html">04 · Simulate a batch effect and correct it with scVI</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/04_batch_effect_removal.html#Generate-paired-batches">Generate paired batches</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/04_batch_effect_removal.html#Prepare-raw-counts-for-scVI">Prepare raw counts for scVI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/04_batch_effect_removal.html#Correct-the-batch-effect">Correct the batch effect</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/04_batch_effect_removal.html#Compare-batch-mixing-and-tissue-layers">Compare batch mixing and tissue layers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/05_2d_conditional_transfer.html">05 · Generate expression on another slice’s anatomy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/05_2d_conditional_transfer.html#Build-the-target-blueprint">Build the target blueprint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/05_2d_conditional_transfer.html#Generate-counts">Generate counts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/05_2d_conditional_transfer.html#Compare-with-measured-expression">Compare with measured expression</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/07_3d_transfer.html">07 · Generate expression on a developmental brain atlas</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/07_3d_transfer.html#Load-the-five-references-and-select-atlas-sections">Load the five references and select atlas sections</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/07_3d_transfer.html#Generate-counts-on-each-section">Generate counts on each section</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/07_3d_transfer.html#Compare-atlas-anatomy-and-generated-Reln-expression">Compare atlas anatomy and generated Reln expression</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials.html#de-novo-virtual-slice-generation">De novo virtual slice generation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#simulation-and-fitting">Simulation and fitting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.simulate"><code class="docutils literal notranslate"><span class="pre">simulate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.generate"><code class="docutils literal notranslate"><span class="pre">generate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.fit"><code class="docutils literal notranslate"><span class="pre">fit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.de_novo.fit_reference"><code class="docutils literal notranslate"><span class="pre">fit_reference()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.estimate_assignment_randomness"><code class="docutils literal notranslate"><span class="pre">estimate_assignment_randomness()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.GeneParameterSimulator"><code class="docutils literal notranslate"><span class="pre">GeneParameterSimulator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#configuration">Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.Alteration"><code class="docutils literal notranslate"><span class="pre">Alteration</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.TransportConfig"><code class="docutils literal notranslate"><span class="pre">TransportConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.ReferenceFitConfig"><code class="docutils literal notranslate"><span class="pre">ReferenceFitConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.SimulationConfig"><code class="docutils literal notranslate"><span class="pre">SimulationConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.SimulationReference"><code class="docutils literal notranslate"><span class="pre">SimulationReference</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#de-novo-builders">De novo builders</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.SliceBlueprint"><code class="docutils literal notranslate"><span class="pre">SliceBlueprint</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.de_novo.SimulationBlueprintBuilder"><code class="docutils literal notranslate"><span class="pre">SimulationBlueprintBuilder</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.de_novo.SimulationParameterBuilder"><code class="docutils literal notranslate"><span class="pre">SimulationParameterBuilder</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.de_novo.SimulationPatternBuilder"><code class="docutils literal notranslate"><span class="pre">SimulationPatternBuilder</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#alignment-and-deconvolution">Alignment and deconvolution</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.alignment.rotate_spatial"><code class="docutils literal notranslate"><span class="pre">rotate_spatial()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.alignment.apply_spatial_transform"><code class="docutils literal notranslate"><span class="pre">apply_spatial_transform()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.alignment.simulate_alignment_rotation"><code class="docutils literal notranslate"><span class="pre">simulate_alignment_rotation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.alignment.simulate_alignment_warp"><code class="docutils literal notranslate"><span class="pre">simulate_alignment_warp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.deconvolution.create_deconvolution_benchmark_data"><code class="docutils literal notranslate"><span class="pre">create_deconvolution_benchmark_data()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#batch-simulation">Batch simulation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.BatchDeformation"><code class="docutils literal notranslate"><span class="pre">BatchDeformation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.characterize_batch"><code class="docutils literal notranslate"><span class="pre">characterize_batch()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.simulate_batch_effect"><code class="docutils literal notranslate"><span class="pre">simulate_batch_effect()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#parameter-utilities">Parameter utilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.stats_to_theta"><code class="docutils literal notranslate"><span class="pre">stats_to_theta()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.theta_to_stats"><code class="docutils literal notranslate"><span class="pre">theta_to_stats()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#compatibility">Compatibility</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#local-multi-reference-3d-generation">Local multi-reference 3D generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.simulate_local_references"><code class="docutils literal notranslate"><span class="pre">simulate_local_references()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.simulate_stack"><code class="docutils literal notranslate"><span class="pre">simulate_stack()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.calibrate_local_references"><code class="docutils literal notranslate"><span class="pre">calibrate_local_references()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">FEAST</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../FEAST.html">FEAST</a></li>
+      <li class="breadcrumb-item active">FEAST.FEAST_core.simulator</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for FEAST.FEAST_core.simulator</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">anndata</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ad</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scanpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sc</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.count_decoding</span><span class="w"> </span><span class="kn">import</span> <span class="n">decode_counts_by_spatial_intensity</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.parameter_cloud</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BatchDeformation</span><span class="p">,</span>
+    <span class="n">GeneParameterSimulator</span><span class="p">,</span>
+    <span class="n">alteration_config_to_dict</span><span class="p">,</span>
+    <span class="n">calculate_fold_change</span><span class="p">,</span>
+    <span class="n">convert_params_for_new_simulator</span><span class="p">,</span>
+    <span class="n">resolve_simulation_mode</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..de_novo._metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">records_to_h5ad_uns</span>
+
+<span class="n">PARAMETER_MODES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;hungarian&quot;</span><span class="p">,</span> <span class="s2">&quot;reference_stats&quot;</span><span class="p">)</span>
+<span class="n">SPATIAL_MODES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;reference_rank&quot;</span><span class="p">,</span> <span class="s2">&quot;ot_spatial&quot;</span><span class="p">)</span>
+
+<span class="c1"># Internal translation: public parameter_mode ↔ internal simulation_mode</span>
+<span class="n">_PARAMETER_TO_SIMULATION</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;hungarian&quot;</span><span class="p">:</span> <span class="s2">&quot;generative&quot;</span><span class="p">,</span> <span class="s2">&quot;reference_stats&quot;</span><span class="p">:</span> <span class="s2">&quot;empirical&quot;</span><span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_translate_parameter_mode</span><span class="p">(</span><span class="n">parameter_mode</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Translate public parameter_mode to internal simulation_mode string.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">parameter_mode</span> <span class="ow">in</span> <span class="n">_PARAMETER_TO_SIMULATION</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_PARAMETER_TO_SIMULATION</span><span class="p">[</span><span class="n">parameter_mode</span><span class="p">]</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;parameter_mode must be one of </span><span class="si">{</span><span class="n">PARAMETER_MODES</span><span class="si">}</span><span class="s2">, got &#39;</span><span class="si">{</span><span class="n">parameter_mode</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_translate_spatial_mode</span><span class="p">(</span><span class="n">spatial_mode</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate and normalize spatial_mode.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">spatial_mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SPATIAL_MODES</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;spatial_mode must be one of </span><span class="si">{</span><span class="n">SPATIAL_MODES</span><span class="si">}</span><span class="s2">, got &#39;</span><span class="si">{</span><span class="n">spatial_mode</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">spatial_mode</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">safe_calculate_qc_metrics</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">adata</span><span class="o">.</span><span class="n">n_vars</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">adata</span><span class="o">.</span><span class="n">n_obs</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">sc</span><span class="o">.</span><span class="n">pp</span><span class="o">.</span><span class="n">calculate_qc_metrics</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">percent_top</span><span class="o">=</span><span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">]</span> <span class="k">if</span> <span class="n">adata</span><span class="o">.</span><span class="n">n_vars</span> <span class="o">&gt;</span> <span class="mi">100</span> <span class="k">else</span> <span class="p">[</span><span class="mi">50</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">log1p</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ImportError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: QC calculation failed (</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">), using basic metrics only&quot;</span><span class="p">)</span>
+        <span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;total_counts&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;n_genes_by_counts&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">((</span><span class="n">adata</span><span class="o">.</span><span class="n">X</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="n">adata</span><span class="o">.</span><span class="n">var</span><span class="p">[</span><span class="s1">&#39;total_counts&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="n">adata</span><span class="o">.</span><span class="n">var</span><span class="p">[</span><span class="s1">&#39;n_cells_by_counts&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">((</span><span class="n">adata</span><span class="o">.</span><span class="n">X</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_dense_matrix</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="s1">&#39;toarray&#39;</span><span class="p">):</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
+    <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">arr</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">arr</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_gene_stats_from_matrix</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">gene_names</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">issparse</span>
+    <span class="k">if</span> <span class="n">issparse</span><span class="p">(</span><span class="n">matrix</span><span class="p">):</span>
+        <span class="n">means</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="n">X_sq</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">X_sq</span><span class="o">.</span><span class="n">data</span> <span class="o">**=</span> <span class="mi">2</span>
+        <span class="n">variances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">X_sq</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span> <span class="o">-</span> <span class="n">means</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="n">n_obs</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">nz</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">getnnz</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="s1">&#39;getnnz&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">tocsc</span><span class="p">()</span><span class="o">.</span><span class="n">indptr</span><span class="p">)</span>
+        <span class="n">zero_prop</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">nz</span> <span class="o">/</span> <span class="n">n_obs</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+            <span class="s1">&#39;mean&#39;</span><span class="p">:</span> <span class="n">means</span><span class="p">,</span>
+            <span class="s1">&#39;variance&#39;</span><span class="p">:</span> <span class="n">variances</span><span class="p">,</span>
+            <span class="s1">&#39;zero_prop&#39;</span><span class="p">:</span> <span class="n">zero_prop</span><span class="p">,</span>
+        <span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">gene_names</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;gene_id&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">lower</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">)</span>
+    <span class="n">mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">n_obs</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+        <span class="s1">&#39;mean&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+        <span class="s1">&#39;variance&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+        <span class="s1">&#39;zero_prop&#39;</span><span class="p">:</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_obs</span><span class="p">),</span>
+    <span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">gene_names</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;gene_id&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">lower</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_model_selection_counts</span><span class="p">(</span><span class="n">model_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="n">selected</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">model_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;model_selected&#39;</span><span class="p">,</span> <span class="p">[]),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">model</span><span class="p">):</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">selected</span> <span class="o">==</span> <span class="n">model</span><span class="p">))</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">selected</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_hdf5_safe_metadata</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;none&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">_hdf5_safe_metadata</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">_hdf5_safe_metadata</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">generic</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">value</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">run_parameter_cloud_fitting</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">visualize_fits</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assignment_weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alteration_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">simulation_mode</span><span class="o">=</span><span class="s1">&#39;generative&#39;</span><span class="p">,</span> <span class="n">assignment_method</span><span class="o">=</span><span class="s1">&#39;hybrid&#39;</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hybrid_alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">use_distributional_alteration</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ppf_method</span><span class="o">=</span><span class="s1">&#39;interp&#39;</span><span class="p">,</span> <span class="n">beta_n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">beta_early_stopping_patience</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">assignment_solver</span><span class="o">=</span><span class="s1">&#39;scipy&#39;</span><span class="p">,</span> <span class="n">assignment_blocks</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">assignment_block_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">assignment_block_multiplier</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">convert_n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build an integrated FEAST gene-parameter table and convert it to count-model parameters.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        alteration_config (AlterationConfig or dict, optional): Configuration for altering marginal distributions</span>
+<span class="sd">        hybrid_alpha (float): Weight for log-space distance in hybrid OT cost (0.2 = 20% log, 80% raw).</span>
+<span class="sd">                              Set to 1.0 for old pure-log-space behavior.</span>
+<span class="sd">        use_distributional_alteration (bool): If True, alter marginal model parameters (θ → θ&#39;)</span>
+<span class="sd">            before sampling.  If False (default), apply scalar fold-change after sampling (legacy).</span>
+<span class="sd">        ppf_method (str): &#39;interp&#39; (fast, default) or &#39;exact&#39; (bit-identical fsolve)</span>
+<span class="sd">        beta_n_jobs (int): parallel workers for Beta component search (1=sequential)</span>
+<span class="sd">        beta_early_stopping_patience (int): patience for Beta mixture early stopping (0 = no early stop)</span>
+<span class="sd">        assignment_blocks (bool): use batched Hungarian assignment. Set False for</span>
+<span class="sd">            the original full-matrix global Hungarian assignment.</span>
+<span class="sd">        convert_n_jobs (int): parallel workers for count-model parameter conversion.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&gt;&gt;&gt; Entering STANDARD fitting pipeline: parameter_cloud &lt;&lt;&lt;&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">assignment_weights</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">assignment_weights</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;mean&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;variance&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;zero_prop&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}</span>
+    <span class="n">mode</span> <span class="o">=</span> <span class="n">resolve_simulation_mode</span><span class="p">(</span><span class="n">simulation_mode</span><span class="p">)</span>
+
+    <span class="n">simulator</span> <span class="o">=</span> <span class="n">GeneParameterSimulator</span><span class="p">(</span>
+        <span class="n">ppf_method</span><span class="o">=</span><span class="n">ppf_method</span><span class="p">,</span>
+        <span class="n">beta_n_jobs</span><span class="o">=</span><span class="n">beta_n_jobs</span><span class="p">,</span>
+        <span class="n">beta_early_stopping_patience</span><span class="o">=</span><span class="n">beta_early_stopping_patience</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">simulator</span><span class="o">.</span><span class="n">hybrid_alpha</span> <span class="o">=</span> <span class="n">hybrid_alpha</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;empirical&#39;</span><span class="p">:</span>
+        <span class="n">simulator</span><span class="o">.</span><span class="n">fit_statistics_only</span><span class="p">(</span><span class="n">adata</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">simulator</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">visualize_fits</span><span class="o">=</span><span class="n">visualize_fits</span><span class="p">)</span>
+
+    <span class="n">assigned_synthetic_params</span><span class="p">,</span> <span class="n">diagnostics</span> <span class="o">=</span> <span class="n">simulator</span><span class="o">.</span><span class="n">build_gene_parameter_table</span><span class="p">(</span>
+        <span class="n">alteration_config</span><span class="o">=</span><span class="n">alteration_config</span><span class="p">,</span>
+        <span class="n">simulation_mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span>
+        <span class="n">assignment_weights</span><span class="o">=</span><span class="n">assignment_weights</span><span class="p">,</span>
+        <span class="n">random_seed</span><span class="o">=</span><span class="n">random_seed</span><span class="p">,</span>
+        <span class="n">assignment_method</span><span class="o">=</span><span class="n">assignment_method</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">use_distributional_alteration</span><span class="o">=</span><span class="n">use_distributional_alteration</span><span class="p">,</span>
+        <span class="n">assignment_solver</span><span class="o">=</span><span class="n">assignment_solver</span><span class="p">,</span>
+        <span class="n">assignment_blocks</span><span class="o">=</span><span class="n">assignment_blocks</span><span class="p">,</span>
+        <span class="n">assignment_block_size</span><span class="o">=</span><span class="n">assignment_block_size</span><span class="p">,</span>
+        <span class="n">assignment_block_multiplier</span><span class="o">=</span><span class="n">assignment_block_multiplier</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">model_params</span> <span class="o">=</span> <span class="n">convert_params_for_new_simulator</span><span class="p">(</span>
+        <span class="n">assigned_synthetic_params</span><span class="p">,</span>
+        <span class="n">n_spots</span><span class="o">=</span><span class="n">adata</span><span class="o">.</span><span class="n">n_obs</span><span class="p">,</span>
+        <span class="n">n_jobs</span><span class="o">=</span><span class="n">convert_n_jobs</span><span class="p">,</span>
+        <span class="n">random_seed</span><span class="o">=</span><span class="n">random_seed</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">model_params</span><span class="p">[</span><span class="s1">&#39;simulation_evaluation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;source&#39;</span><span class="p">:</span> <span class="s1">&#39;integrated_parameter_cloud&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;simulation_mode&#39;</span><span class="p">:</span> <span class="n">mode</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">model_params</span><span class="p">[</span><span class="s1">&#39;simulation_mode&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mode</span>
+    <span class="n">model_params</span><span class="p">[</span><span class="s1">&#39;random_seed&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">random_seed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">random_seed</span><span class="p">)</span>
+    <span class="n">model_params</span><span class="p">[</span><span class="s1">&#39;target_stats&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">assigned_synthetic_params</span>
+    <span class="n">model_params</span><span class="p">[</span><span class="s1">&#39;parameter_diagnostics&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">diagnostics</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&gt;&gt;&gt; Exiting parameter_cloud pipeline &lt;&lt;&lt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model_params</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">run_direct_fitting_from_real_stats</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run diagnostic pipeline using real stats directly.&quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&gt;&gt;&gt; Entering DIAGNOSTIC fitting pipeline: Using REAL stats directly &lt;&lt;&lt;&quot;</span><span class="p">)</span>
+    <span class="n">simulator</span> <span class="o">=</span> <span class="n">GeneParameterSimulator</span><span class="p">()</span>
+    <span class="n">simulator</span><span class="o">.</span><span class="n">fit_statistics_only</span><span class="p">(</span><span class="n">adata</span><span class="p">)</span>
+    <span class="n">real_stats_for_conversion</span> <span class="o">=</span> <span class="n">simulator</span><span class="o">.</span><span class="n">original_stats</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="s1">&#39;gene_id&#39;</span><span class="p">})</span>
+    <span class="n">model_params</span> <span class="o">=</span> <span class="n">convert_params_for_new_simulator</span><span class="p">(</span>
+        <span class="n">real_stats_for_conversion</span><span class="p">,</span>
+        <span class="n">n_spots</span><span class="o">=</span><span class="n">adata</span><span class="o">.</span><span class="n">n_obs</span><span class="p">,</span>
+        <span class="n">random_seed</span><span class="o">=</span><span class="n">random_seed</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">model_params</span><span class="p">[</span><span class="s1">&#39;simulation_evaluation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;source&#39;</span><span class="p">:</span> <span class="s1">&#39;direct_from_real_stats&#39;</span><span class="p">,</span> <span class="s1">&#39;simulation_mode&#39;</span><span class="p">:</span> <span class="s1">&#39;empirical&#39;</span><span class="p">}</span>
+    <span class="n">model_params</span><span class="p">[</span><span class="s1">&#39;simulation_mode&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;empirical&#39;</span>
+    <span class="n">model_params</span><span class="p">[</span><span class="s1">&#39;target_stats&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">real_stats_for_conversion</span>
+    <span class="n">model_params</span><span class="p">[</span><span class="s1">&#39;random_seed&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">random_seed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">random_seed</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&gt;&gt;&gt; Diagnostic fitting complete &lt;&lt;&lt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model_params</span>
+
+
+<div class="viewcode-block" id="simulate_batch_effect">
+<a class="viewcode-back" href="../../../api.html#FEAST.simulate_batch_effect">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">simulate_batch_effect</span><span class="p">(</span>
+    <span class="n">adata_ref</span><span class="p">,</span>
+    <span class="n">D</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">b</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">random_seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">boundary_multiplier</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.1</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ad.AnnData&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Simulate a batch-affected slice from a reference AnnData.</span>
+
+<span class="sd">    Pipeline:</span>
+<span class="sd">      1. Extract per-gene stats from reference   -&gt; _gene_stats_from_matrix()</span>
+<span class="sd">      2. Convert stats to theta                   -&gt; stats_to_theta()</span>
+<span class="sd">      3. Apply affine deformation                 -&gt; apply_batch_deformation()</span>
+<span class="sd">      4. Convert back to stats                    -&gt; theta_to_stats()</span>
+<span class="sd">      5. Convert stats to count-model params      -&gt; convert_params_for_new_simulator()</span>
+<span class="sd">      6. Decode counts from reference intensity   -&gt; decode_counts_by_spatial_intensity()</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    adata_ref : AnnData   -- reference (clean) slice</span>
+<span class="sd">    D : (3,) ndarray      -- diagonal scaling coefficients</span>
+<span class="sd">    b : (3,) ndarray      -- shift vector</span>
+<span class="sd">    alpha : float         -- interpolation strength (0 = no effect, 1 = full)</span>
+<span class="sd">    random_seed : int, optional</span>
+<span class="sd">    boundary_multiplier : float</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    adata_sim : AnnData   -- batch-affected slice with preserved spatial pattern</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">issparse</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.theta_transform</span><span class="w"> </span><span class="kn">import</span> <span class="n">stats_to_theta</span><span class="p">,</span> <span class="n">theta_to_stats</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.parameter_cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply_batch_deformation</span><span class="p">,</span> <span class="n">convert_params_for_new_simulator</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.count_decoding</span><span class="w"> </span><span class="kn">import</span> <span class="n">decode_counts_by_spatial_intensity</span>
+
+    <span class="n">ref_matrix</span> <span class="o">=</span> <span class="n">adata_ref</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span> <span class="k">if</span> <span class="n">issparse</span><span class="p">(</span><span class="n">adata_ref</span><span class="o">.</span><span class="n">X</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+        <span class="n">adata_ref</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span>
+    <span class="p">)</span>
+    <span class="n">n_obs</span> <span class="o">=</span> <span class="n">ref_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">gene_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">adata_ref</span><span class="o">.</span><span class="n">var_names</span><span class="p">)</span>
+
+    <span class="n">stats_ref</span> <span class="o">=</span> <span class="n">_gene_stats_from_matrix</span><span class="p">(</span><span class="n">ref_matrix</span><span class="p">,</span> <span class="n">gene_names</span><span class="p">)</span>
+    <span class="n">theta_ref</span> <span class="o">=</span> <span class="n">stats_to_theta</span><span class="p">(</span><span class="n">stats_ref</span><span class="p">)</span>
+    <span class="n">theta_batch</span> <span class="o">=</span> <span class="n">apply_batch_deformation</span><span class="p">(</span><span class="n">theta_ref</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">alpha</span><span class="p">)</span>
+    <span class="n">stats_batch</span> <span class="o">=</span> <span class="n">theta_to_stats</span><span class="p">(</span><span class="n">theta_batch</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">lower</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">)</span>
+
+    <span class="n">stats_for_conversion</span> <span class="o">=</span> <span class="n">stats_batch</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">stats_for_conversion</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">gene_names</span>
+    <span class="n">stats_for_conversion</span> <span class="o">=</span> <span class="n">stats_for_conversion</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="s2">&quot;gene_id&quot;</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">model_params</span> <span class="o">=</span> <span class="n">convert_params_for_new_simulator</span><span class="p">(</span>
+        <span class="n">stats_for_conversion</span><span class="p">,</span>
+        <span class="n">n_spots</span><span class="o">=</span><span class="n">n_obs</span><span class="p">,</span>
+        <span class="n">boundary_multiplier</span><span class="o">=</span><span class="n">boundary_multiplier</span><span class="p">,</span>
+        <span class="n">random_seed</span><span class="o">=</span><span class="n">random_seed</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">model_params</span><span class="p">[</span><span class="s2">&quot;simulation_mode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;empirical&quot;</span>
+    <span class="n">model_params</span><span class="p">[</span><span class="s2">&quot;target_stats&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stats_batch</span><span class="p">[[</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="s2">&quot;variance&quot;</span><span class="p">,</span> <span class="s2">&quot;zero_prop&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">theta_delta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">theta_batch</span> <span class="o">-</span> <span class="n">theta_ref</span><span class="p">)</span>
+    <span class="n">model_params</span><span class="p">[</span><span class="s2">&quot;parameter_diagnostics&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;requested_config&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;apply_to_variance&quot;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">theta_delta</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">1e-8</span><span class="p">)),</span>
+            <span class="s2">&quot;apply_to_zero_prop&quot;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">theta_delta</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">1e-8</span><span class="p">)),</span>
+            <span class="s2">&quot;mean_variance_coupling&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="n">simulated_matrix</span> <span class="o">=</span> <span class="n">decode_counts_by_spatial_intensity</span><span class="p">(</span>
+        <span class="n">ref_matrix</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+        <span class="n">model_params</span><span class="p">,</span>
+        <span class="n">boundary_multiplier</span><span class="o">=</span><span class="n">boundary_multiplier</span><span class="p">,</span>
+        <span class="n">reference_X</span><span class="o">=</span><span class="n">ref_matrix</span><span class="p">,</span>
+        <span class="n">random_seed</span><span class="o">=</span><span class="n">random_seed</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">sim_adata</span> <span class="o">=</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">(</span>
+        <span class="n">X</span><span class="o">=</span><span class="n">simulated_matrix</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+        <span class="n">obs</span><span class="o">=</span><span class="n">adata_ref</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+        <span class="n">var</span><span class="o">=</span><span class="n">adata_ref</span><span class="o">.</span><span class="n">var</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+        <span class="n">obsm</span><span class="o">=</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">adata_ref</span><span class="o">.</span><span class="n">obsm</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">adata_ref</span><span class="p">,</span> <span class="s2">&quot;uns&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">adata_ref</span><span class="o">.</span><span class="n">uns</span><span class="p">:</span>
+        <span class="n">sim_adata</span><span class="o">.</span><span class="n">uns</span> <span class="o">=</span> <span class="n">adata_ref</span><span class="o">.</span><span class="n">uns</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sim_adata</span><span class="o">.</span><span class="n">uns</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">sim_adata</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s2">&quot;batch_deformation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;D&quot;</span><span class="p">:</span> <span class="n">D</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+        <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="n">b</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+        <span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="n">alpha</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">sim_adata</span><span class="o">.</span><span class="n">var</span><span class="p">[</span><span class="s2">&quot;theta_mu_ref&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">theta_ref</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">sim_adata</span><span class="o">.</span><span class="n">var</span><span class="p">[</span><span class="s2">&quot;theta_omega_ref&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">theta_ref</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">sim_adata</span><span class="o">.</span><span class="n">var</span><span class="p">[</span><span class="s2">&quot;theta_pi0_ref&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">theta_ref</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+    <span class="n">sim_adata</span><span class="o">.</span><span class="n">var</span><span class="p">[</span><span class="s2">&quot;theta_mu_batch&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">theta_batch</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">sim_adata</span><span class="o">.</span><span class="n">var</span><span class="p">[</span><span class="s2">&quot;theta_omega_batch&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">theta_batch</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">sim_adata</span><span class="o">.</span><span class="n">var</span><span class="p">[</span><span class="s2">&quot;theta_pi0_batch&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">theta_batch</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">sim_adata</span></div>
+
+
+
+<div class="viewcode-block" id="characterize_batch">
+<a class="viewcode-back" href="../../../api.html#FEAST.characterize_batch">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">characterize_batch</span><span class="p">(</span>
+    <span class="n">adata_ref</span><span class="p">,</span>
+    <span class="n">adata_query</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;BatchDeformation&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Estimate batch deformation (D, b) from two real slices via OLS in theta space.</span>
+
+<span class="sd">    For each dimension k in {log_mu, log_omega, logit_pi0}:</span>
+<span class="sd">        theta_query[:, k] = d_k * theta_ref[:, k] + b_k  (+ epsilon)</span>
+
+<span class="sd">    This is the empirical-characterisation counterpart to simulate_batch_effect().</span>
+<span class="sd">    Once (D, b) are estimated, they can be fed to simulate_batch_effect() with</span>
+<span class="sd">    alpha in [0, 1] to generate interpolated batch-effect ladder.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    adata_ref : AnnData    -- reference (clean) slice</span>
+<span class="sd">    adata_query : AnnData  -- batch-affected slice</span>
+<span class="sd">    name : str             -- optional label for the deformation</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    BatchDeformation with additional diagnostic attributes:</span>
+<span class="sd">        .r2          : (3,) ndarray  — per-dimension R²</span>
+<span class="sd">        .residual_std: (3,) ndarray  — per-dimension residual std dev</span>
+<span class="sd">        .n_genes     : int           — number of common genes used</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">issparse</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.theta_transform</span><span class="w"> </span><span class="kn">import</span> <span class="n">stats_to_theta</span>
+
+    <span class="n">X_ref</span> <span class="o">=</span> <span class="n">adata_ref</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span> <span class="k">if</span> <span class="n">issparse</span><span class="p">(</span><span class="n">adata_ref</span><span class="o">.</span><span class="n">X</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+        <span class="n">adata_ref</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span>
+    <span class="p">)</span>
+    <span class="n">X_qry</span> <span class="o">=</span> <span class="n">adata_query</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span> <span class="k">if</span> <span class="n">issparse</span><span class="p">(</span><span class="n">adata_query</span><span class="o">.</span><span class="n">X</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+        <span class="n">adata_query</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Restrict to genes present in both</span>
+    <span class="n">common_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">intersect1d</span><span class="p">(</span><span class="n">adata_ref</span><span class="o">.</span><span class="n">var_names</span><span class="p">,</span> <span class="n">adata_query</span><span class="o">.</span><span class="n">var_names</span><span class="p">,</span> <span class="n">return_indices</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">gene_idx_r</span><span class="p">,</span> <span class="n">gene_idx_q</span> <span class="o">=</span> <span class="n">common_mask</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">common_mask</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gene_idx_r</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fewer than 3 common genes found (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">gene_idx_r</span><span class="p">)</span><span class="si">}</span><span class="s2">).&quot;</span><span class="p">)</span>
+
+    <span class="n">stats_ref</span> <span class="o">=</span> <span class="n">_gene_stats_from_matrix</span><span class="p">(</span>
+        <span class="n">X_ref</span><span class="p">[:,</span> <span class="n">gene_idx_r</span><span class="p">],</span> <span class="nb">list</span><span class="p">(</span><span class="n">adata_ref</span><span class="o">.</span><span class="n">var_names</span><span class="p">[</span><span class="n">gene_idx_r</span><span class="p">])</span>
+    <span class="p">)</span>
+    <span class="n">stats_qry</span> <span class="o">=</span> <span class="n">_gene_stats_from_matrix</span><span class="p">(</span>
+        <span class="n">X_qry</span><span class="p">[:,</span> <span class="n">gene_idx_q</span><span class="p">],</span> <span class="nb">list</span><span class="p">(</span><span class="n">adata_query</span><span class="o">.</span><span class="n">var_names</span><span class="p">[</span><span class="n">gene_idx_q</span><span class="p">])</span>
+    <span class="p">)</span>
+
+    <span class="n">theta_ref</span> <span class="o">=</span> <span class="n">stats_to_theta</span><span class="p">(</span><span class="n">stats_ref</span><span class="p">)</span>
+    <span class="n">theta_qry</span> <span class="o">=</span> <span class="n">stats_to_theta</span><span class="p">(</span><span class="n">stats_qry</span><span class="p">)</span>
+
+    <span class="n">D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">r2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">resid_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">theta_ref</span><span class="p">[:,</span> <span class="n">k</span><span class="p">]</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">theta_qry</span><span class="p">[:,</span> <span class="n">k</span><span class="p">]</span>
+
+        <span class="n">ss_xx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">x</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ss_xx</span> <span class="o">&lt;</span> <span class="mf">1e-15</span><span class="p">:</span>
+            <span class="n">D</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">y</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">-</span> <span class="n">x</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+            <span class="n">r2</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">resid_std</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">y</span><span class="o">.</span><span class="n">mean</span><span class="p">()))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">D</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">x</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">*</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">y</span><span class="o">.</span><span class="n">mean</span><span class="p">()))</span> <span class="o">/</span> <span class="n">ss_xx</span>
+            <span class="n">b</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">-</span> <span class="n">D</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+            <span class="n">y_pred</span> <span class="o">=</span> <span class="n">D</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">b</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="n">ss_res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">y</span> <span class="o">-</span> <span class="n">y_pred</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">ss_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">y</span> <span class="o">-</span> <span class="n">y</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">r2</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">ss_res</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">ss_tot</span><span class="p">,</span> <span class="mf">1e-15</span><span class="p">)))</span>
+            <span class="n">resid_std</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ss_res</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)))</span>
+
+    <span class="n">deform</span> <span class="o">=</span> <span class="n">BatchDeformation</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">deform</span><span class="o">.</span><span class="n">r2</span> <span class="o">=</span> <span class="n">r2</span>
+    <span class="n">deform</span><span class="o">.</span><span class="n">residual_std</span> <span class="o">=</span> <span class="n">resid_std</span>
+    <span class="n">deform</span><span class="o">.</span><span class="n">n_genes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">gene_idx_r</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">deform</span></div>
+
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">SpatialSimulator</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference_adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">model_params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;spatial&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">reference_adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Reference AnnData must contain &#39;spatial&#39; coordinates.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reference_adata</span> <span class="o">=</span> <span class="n">reference_adata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">reference_adata</span><span class="o">.</span><span class="n">var_names_make_unique</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reference_adata</span><span class="o">.</span><span class="n">obs_names_make_unique</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model_params</span> <span class="o">=</span> <span class="n">model_params</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visualize_fits</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">use_real_stats_directly</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">assignment_weights</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">alteration_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">simulation_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;generative&#39;</span><span class="p">,</span> <span class="n">assignment_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;hybrid&#39;</span><span class="p">,</span> <span class="n">random_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">hybrid_alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">use_distributional_alteration</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">ppf_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;interp&#39;</span><span class="p">,</span> <span class="n">beta_n_jobs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">beta_early_stopping_patience</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">assignment_solver</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;scipy&#39;</span><span class="p">,</span> <span class="n">assignment_blocks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">assignment_block_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">assignment_block_multiplier</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span> <span class="n">convert_n_jobs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;SpatialSimulator&#39;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fit marginal distribution and count-model parameters.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            alteration_config (AlterationConfig or dict, optional): Configuration for altering marginal distributions</span>
+<span class="sd">            use_distributional_alteration (bool): If True, alter marginal model parameters before sampling.</span>
+<span class="sd">            ppf_method (str): &#39;interp&#39; (fast) or &#39;exact&#39; (bit-identical fsolve)</span>
+<span class="sd">            beta_n_jobs (int): parallel workers for Beta component search</span>
+<span class="sd">            beta_early_stopping_patience (int): patience for Beta mixture early stopping (0 = no early stop)</span>
+<span class="sd">            assignment_blocks (bool): use batched Hungarian assignment. Set False</span>
+<span class="sd">                for the original full-matrix global Hungarian assignment.</span>
+<span class="sd">            convert_n_jobs (int): parallel workers for count-model conversion.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">adata_for_fitting</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_adata</span><span class="o">.</span><span class="n">copy</span><span class="p">();</span> <span class="n">safe_calculate_qc_metrics</span><span class="p">(</span><span class="n">adata_for_fitting</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">use_real_stats_directly</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model_params</span> <span class="o">=</span> <span class="n">run_direct_fitting_from_real_stats</span><span class="p">(</span>
+                <span class="n">adata_for_fitting</span><span class="p">,</span>
+                <span class="n">random_seed</span><span class="o">=</span><span class="n">random_seed</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model_params</span> <span class="o">=</span> <span class="n">run_parameter_cloud_fitting</span><span class="p">(</span>
+                <span class="n">adata_for_fitting</span><span class="p">,</span>
+                <span class="n">visualize_fits</span><span class="o">=</span><span class="n">visualize_fits</span><span class="p">,</span>
+                <span class="n">assignment_weights</span><span class="o">=</span><span class="n">assignment_weights</span><span class="p">,</span>
+                <span class="n">alteration_config</span><span class="o">=</span><span class="n">alteration_config</span><span class="p">,</span>
+                <span class="n">simulation_mode</span><span class="o">=</span><span class="n">simulation_mode</span><span class="p">,</span>
+                <span class="n">assignment_method</span><span class="o">=</span><span class="n">assignment_method</span><span class="p">,</span>
+                <span class="n">random_seed</span><span class="o">=</span><span class="n">random_seed</span><span class="p">,</span>
+                <span class="n">hybrid_alpha</span><span class="o">=</span><span class="n">hybrid_alpha</span><span class="p">,</span>
+                <span class="n">use_distributional_alteration</span><span class="o">=</span><span class="n">use_distributional_alteration</span><span class="p">,</span>
+                <span class="n">ppf_method</span><span class="o">=</span><span class="n">ppf_method</span><span class="p">,</span>
+                <span class="n">beta_n_jobs</span><span class="o">=</span><span class="n">beta_n_jobs</span><span class="p">,</span>
+                <span class="n">beta_early_stopping_patience</span><span class="o">=</span><span class="n">beta_early_stopping_patience</span><span class="p">,</span>
+                <span class="n">assignment_solver</span><span class="o">=</span><span class="n">assignment_solver</span><span class="p">,</span>
+                <span class="n">assignment_blocks</span><span class="o">=</span><span class="n">assignment_blocks</span><span class="p">,</span>
+                <span class="n">assignment_block_size</span><span class="o">=</span><span class="n">assignment_block_size</span><span class="p">,</span>
+                <span class="n">assignment_block_multiplier</span><span class="o">=</span><span class="n">assignment_block_multiplier</span><span class="p">,</span>
+                <span class="n">convert_n_jobs</span><span class="o">=</span><span class="n">convert_n_jobs</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_model_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set model parameters directly.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model_params</span> <span class="o">=</span> <span class="n">model_params</span>
+        <span class="k">return</span> <span class="bp">self</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_model_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get current model parameters.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_params</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">clip_overshoot_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">boundary_multiplier</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.1</span><span class="p">,</span> <span class="n">random_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">spatial_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;reference_rank&#39;</span><span class="p">,</span> <span class="n">target_adata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">transport_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ot_block_max_pairs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ot_memory_budget_gb</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            verbose (bool): If True, prints progress updates.</span>
+<span class="sd">            clip_overshoot_factor (float): Factor to clip max expression values relative to reference.</span>
+<span class="sd">            boundary_multiplier (float): Multiplier for maximum count boundary constraint (default 1.1 = 110% of reference max).</span>
+<span class="sd">            random_seed (int, optional): Seed for reproducible sampling.</span>
+<span class="sd">            spatial_mode: &#39;reference_rank&#39; or &#39;ot_spatial&#39;.</span>
+<span class="sd">            target_adata: Required when spatial_mode=&#39;ot_spatial&#39;.</span>
+<span class="sd">            transport_config: Shared latent/rank OT configuration.</span>
+<span class="sd">            ot_block_max_pairs: Optional hard cap for dense source-target pairs</span>
+<span class="sd">                in each target-column block. Prefer</span>
+<span class="sd">                ``transport_config.max_transport_pairs``.</span>
+<span class="sd">            ot_memory_budget_gb: Optional memory budget converted to an OT</span>
+<span class="sd">                target-column block pair cap.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Model parameters not set. Call fit_model() first or provide model_params in constructor.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Generating simulated data with quantile count decoding...&quot;</span><span class="p">)</span>
+
+        <span class="n">simulated_adata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_quantile_count_decoding</span><span class="p">(</span>
+            <span class="n">reference_adata</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">reference_adata</span><span class="p">,</span>
+            <span class="n">model_params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_model_params</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+            <span class="n">clip_overshoot_factor</span><span class="o">=</span><span class="n">clip_overshoot_factor</span><span class="p">,</span>
+            <span class="n">boundary_multiplier</span><span class="o">=</span><span class="n">boundary_multiplier</span><span class="p">,</span>
+            <span class="n">random_seed</span><span class="o">=</span><span class="n">random_seed</span><span class="p">,</span>
+            <span class="n">spatial_mode</span><span class="o">=</span><span class="n">spatial_mode</span><span class="p">,</span>
+            <span class="n">target_adata</span><span class="o">=</span><span class="n">target_adata</span><span class="p">,</span>
+            <span class="n">transport_config</span><span class="o">=</span><span class="n">transport_config</span><span class="p">,</span>
+            <span class="n">ot_block_max_pairs</span><span class="o">=</span><span class="n">ot_block_max_pairs</span><span class="p">,</span>
+            <span class="n">ot_memory_budget_gb</span><span class="o">=</span><span class="n">ot_memory_budget_gb</span><span class="p">,</span>
+        <span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Quantile simulation complete for </span><span class="si">{</span><span class="n">simulated_adata</span><span class="o">.</span><span class="n">n_obs</span><span class="si">}</span><span class="s2"> spots and </span><span class="si">{</span><span class="n">simulated_adata</span><span class="o">.</span><span class="n">n_vars</span><span class="si">}</span><span class="s2"> genes&quot;</span><span class="p">)</span>
+        
+        <span class="n">safe_calculate_qc_metrics</span><span class="p">(</span><span class="n">simulated_adata</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">simulated_adata</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_quantile_count_decoding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference_adata</span><span class="p">,</span> <span class="n">model_params</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">clip_overshoot_factor</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">boundary_multiplier</span><span class="o">=</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">spatial_mode</span><span class="o">=</span><span class="s1">&#39;reference_rank&#39;</span><span class="p">,</span> <span class="n">target_adata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">transport_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ot_block_max_pairs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ot_memory_budget_gb</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate counts from model parameters through rank-based count decoding.&quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">issparse</span>
+        <span class="n">reference_sparse</span> <span class="o">=</span> <span class="n">reference_adata</span><span class="o">.</span><span class="n">X</span> <span class="k">if</span> <span class="n">issparse</span><span class="p">(</span><span class="n">reference_adata</span><span class="o">.</span><span class="n">X</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">reference_matrix</span> <span class="o">=</span> <span class="n">_dense_matrix</span><span class="p">(</span><span class="n">reference_adata</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">n_spots</span><span class="p">,</span> <span class="n">n_genes</span> <span class="o">=</span> <span class="n">reference_matrix</span><span class="o">.</span><span class="n">shape</span>
+
+        <span class="n">mode</span> <span class="o">=</span> <span class="n">resolve_simulation_mode</span><span class="p">(</span><span class="n">model_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;simulation_mode&#39;</span><span class="p">,</span> <span class="s1">&#39;empirical&#39;</span><span class="p">))</span>
+        <span class="n">diagnostics_seed</span> <span class="o">=</span> <span class="n">model_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;random_seed&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">seed</span> <span class="o">=</span> <span class="n">random_seed</span> <span class="k">if</span> <span class="n">random_seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">diagnostics_seed</span>
+        <span class="k">if</span> <span class="n">spatial_mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SPATIAL_MODES</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;spatial_mode must be one of </span><span class="si">{</span><span class="n">SPATIAL_MODES</span><span class="si">}</span><span class="s2">, got &#39;</span><span class="si">{</span><span class="n">spatial_mode</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+        <span class="n">transport_diagnostics</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">spatial_mode</span> <span class="o">==</span> <span class="s1">&#39;ot_spatial&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">target_adata</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;target_adata is required when spatial_mode=&#39;ot_spatial&#39;.&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s1">&#39;spatial&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">target_adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;target_adata must contain &#39;spatial&#39; coordinates when spatial_mode=&#39;ot_spatial&#39;.&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">reference_adata</span><span class="o">.</span><span class="n">var_names</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">target_adata</span><span class="o">.</span><span class="n">var_names</span><span class="p">):</span>
+                <span class="n">missing</span> <span class="o">=</span> <span class="n">reference_adata</span><span class="o">.</span><span class="n">var_names</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">target_adata</span><span class="o">.</span><span class="n">var_names</span><span class="p">)</span>
+                <span class="n">extra</span> <span class="o">=</span> <span class="n">target_adata</span><span class="o">.</span><span class="n">var_names</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">reference_adata</span><span class="o">.</span><span class="n">var_names</span><span class="p">)</span>
+                <span class="n">order_only</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">extra</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;target_adata.var_names must exactly match reference_adata.var_names &quot;</span>
+                    <span class="s2">&quot;in both membership and order for spatial_mode=&#39;ot_spatial&#39; &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;(missing=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span><span class="si">}</span><span class="s2">, extra=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">extra</span><span class="p">)</span><span class="si">}</span><span class="s2">, order_only=</span><span class="si">{</span><span class="n">order_only</span><span class="si">}</span><span class="s2">).&quot;</span>
+                <span class="p">)</span>
+            <span class="n">target_coords</span> <span class="o">=</span> <span class="n">target_adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="s1">&#39;spatial&#39;</span><span class="p">]</span>
+            <span class="n">n_target</span> <span class="o">=</span> <span class="n">target_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">source_coords</span> <span class="o">=</span> <span class="n">reference_adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="s1">&#39;spatial&#39;</span><span class="p">]</span>
+            <span class="n">clip_ref</span> <span class="o">=</span> <span class="n">reference_sparse</span> <span class="k">if</span> <span class="n">reference_sparse</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">reference_matrix</span>
+
+            <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">replace</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">..de_novo.quantile_field</span><span class="w"> </span><span class="kn">import</span> <span class="n">midpoint_rank_normalize</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">..de_novo.transport</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+                <span class="n">TransportConfig</span><span class="p">,</span>
+                <span class="n">max_pairs_from_memory_budget</span><span class="p">,</span>
+                <span class="n">normalize_coordinates</span><span class="p">,</span>
+                <span class="n">transport_reference_field</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">active_transport_config</span> <span class="o">=</span> <span class="n">transport_config</span> <span class="ow">or</span> <span class="n">TransportConfig</span><span class="p">()</span>
+            <span class="n">pair_limits</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">limit</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">limit</span> <span class="ow">in</span> <span class="p">(</span>
+                    <span class="n">active_transport_config</span><span class="o">.</span><span class="n">max_transport_pairs</span><span class="p">,</span>
+                    <span class="n">ot_block_max_pairs</span><span class="p">,</span>
+                    <span class="n">max_pairs_from_memory_budget</span><span class="p">(</span><span class="n">ot_memory_budget_gb</span><span class="p">),</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">limit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="p">]</span>
+            <span class="k">if</span> <span class="n">pair_limits</span><span class="p">:</span>
+                <span class="n">active_transport_config</span> <span class="o">=</span> <span class="n">replace</span><span class="p">(</span>
+                    <span class="n">active_transport_config</span><span class="p">,</span>
+                    <span class="n">max_transport_pairs</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="n">pair_limits</span><span class="p">),</span>
+                <span class="p">)</span>
+            <span class="n">source_quantiles</span> <span class="o">=</span> <span class="n">midpoint_rank_normalize</span><span class="p">(</span>
+                <span class="n">reference_matrix</span><span class="p">,</span>
+                <span class="n">tie_policy</span><span class="o">=</span><span class="s1">&#39;stable_ordinal&#39;</span><span class="p">,</span>
+                <span class="n">clip_eps</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">active_transport_config</span><span class="o">.</span><span class="n">latent_clip_eps</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="n">transport_result</span> <span class="o">=</span> <span class="n">transport_reference_field</span><span class="p">(</span>
+                <span class="n">normalize_coordinates</span><span class="p">(</span><span class="n">source_coords</span><span class="p">),</span>
+                <span class="n">normalize_coordinates</span><span class="p">(</span><span class="n">target_coords</span><span class="p">),</span>
+                <span class="n">source_quantiles</span><span class="p">,</span>
+                <span class="n">config</span><span class="o">=</span><span class="n">active_transport_config</span><span class="p">,</span>
+                <span class="n">random_seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">quantile_input</span> <span class="o">=</span> <span class="n">midpoint_rank_normalize</span><span class="p">(</span>
+                <span class="n">transport_result</span><span class="o">.</span><span class="n">latent_scores</span><span class="p">,</span>
+                <span class="n">tie_policy</span><span class="o">=</span><span class="s1">&#39;stable_ordinal&#39;</span><span class="p">,</span>
+                <span class="n">clip_eps</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">active_transport_config</span><span class="o">.</span><span class="n">latent_clip_eps</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="n">transport_diagnostics</span> <span class="o">=</span> <span class="n">transport_result</span><span class="o">.</span><span class="n">diagnostics</span>
+            <span class="n">spatial_coords</span> <span class="o">=</span> <span class="n">target_coords</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">n_spots</span> <span class="o">=</span> <span class="n">n_target</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">spatial_coords</span> <span class="o">=</span> <span class="n">reference_adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="s1">&#39;spatial&#39;</span><span class="p">]</span>
+            <span class="n">clip_ref</span> <span class="o">=</span> <span class="n">reference_sparse</span> <span class="k">if</span> <span class="n">reference_sparse</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">reference_matrix</span>
+            <span class="n">quantile_input</span> <span class="o">=</span> <span class="n">reference_matrix</span>
+
+        <span class="n">simulated_matrix</span> <span class="o">=</span> <span class="n">decode_counts_by_spatial_intensity</span><span class="p">(</span>
+            <span class="n">quantile_input</span><span class="p">,</span>
+            <span class="n">model_params</span><span class="p">,</span>
+            <span class="n">boundary_multiplier</span><span class="o">=</span><span class="n">boundary_multiplier</span><span class="p">,</span>
+            <span class="n">reference_X</span><span class="o">=</span><span class="n">clip_ref</span><span class="p">,</span>
+            <span class="n">random_seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">boundary_clipped_gene_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">clip_overshoot_factor</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">issparse</span>
+            <span class="k">if</span> <span class="n">issparse</span><span class="p">(</span><span class="n">clip_ref</span><span class="p">):</span>
+                <span class="n">max_ref_counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">clip_ref</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">toarray</span><span class="p">())</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">max_ref_counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">clip_ref</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">clip_max</span> <span class="o">=</span> <span class="n">max_ref_counts</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">clip_overshoot_factor</span><span class="p">)</span>
+            <span class="n">before</span> <span class="o">=</span> <span class="n">simulated_matrix</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">simulated_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">simulated_matrix</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">clip_max</span><span class="p">)</span>
+            <span class="n">boundary_clipped_gene_count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">before</span> <span class="o">-</span> <span class="n">simulated_matrix</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1e-12</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+
+        <span class="n">obs</span> <span class="o">=</span> <span class="n">target_adata</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">if</span> <span class="n">spatial_mode</span> <span class="o">==</span> <span class="s1">&#39;ot_spatial&#39;</span> <span class="k">else</span> <span class="n">reference_adata</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">var</span> <span class="o">=</span> <span class="n">target_adata</span><span class="o">.</span><span class="n">var</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">if</span> <span class="n">spatial_mode</span> <span class="o">==</span> <span class="s1">&#39;ot_spatial&#39;</span> <span class="k">else</span> <span class="n">reference_adata</span><span class="o">.</span><span class="n">var</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">simulated_adata</span> <span class="o">=</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">(</span>
+            <span class="n">X</span><span class="o">=</span><span class="n">simulated_matrix</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+            <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span>
+            <span class="n">var</span><span class="o">=</span><span class="n">var</span><span class="p">,</span>
+            <span class="n">obsm</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;spatial&#39;</span><span class="p">:</span> <span class="n">spatial_coords</span><span class="o">.</span><span class="n">copy</span><span class="p">()}</span>
+        <span class="p">)</span>
+        <span class="n">simulated_adata</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;simulation_method&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Quantile_Count_Decoding&#39;</span>
+        <span class="n">simulated_adata</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;simulation_params&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;clip_overshoot_factor&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">clip_overshoot_factor</span><span class="p">),</span>
+            <span class="s1">&#39;boundary_multiplier&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">boundary_multiplier</span><span class="p">),</span>
+            <span class="s1">&#39;simulation_mode&#39;</span><span class="p">:</span> <span class="n">mode</span><span class="p">,</span>
+            <span class="s1">&#39;spatial_mode&#39;</span><span class="p">:</span> <span class="n">spatial_mode</span><span class="p">,</span>
+            <span class="s1">&#39;random_seed&#39;</span><span class="p">:</span> <span class="s2">&quot;none&quot;</span> <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">seed</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="n">simulated_adata</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;simulation_diagnostics&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_hdf5_safe_metadata</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_build_simulation_diagnostics</span><span class="p">(</span>
+            <span class="n">reference_matrix</span><span class="o">=</span><span class="n">reference_matrix</span><span class="p">,</span>
+            <span class="n">simulated_matrix</span><span class="o">=</span><span class="n">simulated_matrix</span><span class="p">,</span>
+            <span class="n">model_params</span><span class="o">=</span><span class="n">model_params</span><span class="p">,</span>
+            <span class="n">simulation_mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span>
+            <span class="n">spatial_mode</span><span class="o">=</span><span class="n">spatial_mode</span><span class="p">,</span>
+            <span class="n">random_seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
+            <span class="n">boundary_clipped_gene_count</span><span class="o">=</span><span class="n">boundary_clipped_gene_count</span><span class="p">,</span>
+            <span class="n">clip_overshoot_factor</span><span class="o">=</span><span class="n">clip_overshoot_factor</span><span class="p">,</span>
+        <span class="p">))</span>
+        <span class="k">if</span> <span class="n">transport_diagnostics</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">simulated_adata</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s1">&#39;feast_quantiles&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+                <span class="n">quantile_input</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">safe_transport_diagnostics</span> <span class="o">=</span> <span class="n">_hdf5_safe_metadata</span><span class="p">(</span><span class="n">transport_diagnostics</span><span class="p">)</span>
+            <span class="n">safe_transport_diagnostics</span><span class="p">[</span><span class="s1">&#39;blocks&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">records_to_h5ad_uns</span><span class="p">(</span>
+                <span class="n">transport_diagnostics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;blocks&#39;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="p">)</span>
+            <span class="n">simulated_adata</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;simulation_diagnostics&#39;</span><span class="p">][</span><span class="s1">&#39;transport&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">safe_transport_diagnostics</span>
+            <span class="n">simulated_adata</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;simulation_diagnostics&#39;</span><span class="p">][</span><span class="s1">&#39;method_version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;unified_latent_ot_v1&#39;</span>
+            <span class="n">simulated_adata</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;simulation_diagnostics&#39;</span><span class="p">][</span><span class="s1">&#39;marginal_model&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;parameter_cloud&#39;</span>
+        <span class="k">if</span> <span class="n">model_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;parameter_diagnostics&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;requested_config&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">simulated_adata</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;alteration_diagnostics&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_hdf5_safe_metadata</span><span class="p">({</span>
+                <span class="s1">&#39;requested_config&#39;</span><span class="p">:</span> <span class="n">model_params</span><span class="p">[</span><span class="s1">&#39;parameter_diagnostics&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;requested_config&#39;</span><span class="p">),</span>
+                <span class="s1">&#39;target_stage_achieved_change&#39;</span><span class="p">:</span> <span class="n">model_params</span><span class="p">[</span><span class="s1">&#39;parameter_diagnostics&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;target_stage_achieved_change&#39;</span><span class="p">),</span>
+                <span class="s1">&#39;realized_stage_achieved_change&#39;</span><span class="p">:</span> <span class="n">simulated_adata</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;simulation_diagnostics&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;realized_stage_achieved_change&#39;</span><span class="p">),</span>
+            <span class="p">})</span>
+        <span class="k">return</span> <span class="n">simulated_adata</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_simulation_diagnostics</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">reference_matrix</span><span class="p">,</span>
+        <span class="n">simulated_matrix</span><span class="p">,</span>
+        <span class="n">model_params</span><span class="p">,</span>
+        <span class="n">simulation_mode</span><span class="p">,</span>
+        <span class="n">spatial_mode</span><span class="p">,</span>
+        <span class="n">random_seed</span><span class="p">,</span>
+        <span class="n">boundary_clipped_gene_count</span><span class="p">,</span>
+        <span class="n">clip_overshoot_factor</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">reference_stats</span> <span class="o">=</span> <span class="n">_gene_stats_from_matrix</span><span class="p">(</span><span class="n">reference_matrix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_adata</span><span class="o">.</span><span class="n">var_names</span><span class="p">)</span>
+        <span class="n">realized_stats</span> <span class="o">=</span> <span class="n">_gene_stats_from_matrix</span><span class="p">(</span><span class="n">simulated_matrix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_adata</span><span class="o">.</span><span class="n">var_names</span><span class="p">)</span>
+        <span class="n">target_stats</span> <span class="o">=</span> <span class="n">model_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;target_stats&#39;</span><span class="p">)</span>
+        <span class="n">target_change</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target_stats</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="n">target_change</span> <span class="o">=</span> <span class="n">calculate_fold_change</span><span class="p">(</span><span class="n">reference_stats</span><span class="p">,</span> <span class="n">target_stats</span><span class="p">)</span>
+
+        <span class="n">parameter_diagnostics</span> <span class="o">=</span> <span class="n">model_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;parameter_diagnostics&#39;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">diagnostics</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;simulation_mode&#39;</span><span class="p">:</span> <span class="n">simulation_mode</span><span class="p">,</span>
+            <span class="s1">&#39;gene_parameter_engine&#39;</span><span class="p">:</span> <span class="n">parameter_diagnostics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;gene_parameter_engine&#39;</span><span class="p">,</span> <span class="n">simulation_mode</span><span class="p">),</span>
+            <span class="s1">&#39;assignment_method&#39;</span><span class="p">:</span> <span class="n">parameter_diagnostics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s1">&#39;assignment_method&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;identity&#39;</span> <span class="k">if</span> <span class="n">simulation_mode</span> <span class="o">==</span> <span class="s1">&#39;empirical&#39;</span> <span class="k">else</span> <span class="s1">&#39;copula_rank&#39;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="s1">&#39;spatial_mode&#39;</span><span class="p">:</span> <span class="n">spatial_mode</span><span class="p">,</span>
+            <span class="s1">&#39;random_seed&#39;</span><span class="p">:</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">random_seed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">random_seed</span><span class="p">),</span>
+            <span class="s1">&#39;requested_config&#39;</span><span class="p">:</span> <span class="n">parameter_diagnostics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;requested_config&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;target_fold_change&#39;</span><span class="p">:</span> <span class="n">parameter_diagnostics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;target_fold_change&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;target_stage_achieved_change&#39;</span><span class="p">:</span> <span class="n">target_change</span> <span class="ow">or</span> <span class="n">parameter_diagnostics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;target_stage_achieved_change&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;realized_stage_achieved_change&#39;</span><span class="p">:</span> <span class="n">calculate_fold_change</span><span class="p">(</span><span class="n">reference_stats</span><span class="p">,</span> <span class="n">realized_stats</span><span class="p">),</span>
+            <span class="s1">&#39;copula_rank_diagnostics&#39;</span><span class="p">:</span> <span class="n">parameter_diagnostics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;copula_rank_diagnostics&#39;</span><span class="p">,</span> <span class="p">{}),</span>
+            <span class="s1">&#39;moment_feasibility&#39;</span><span class="p">:</span> <span class="n">parameter_diagnostics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;moment_feasibility&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;infeasible_gene_count&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}),</span>
+            <span class="s1">&#39;boundary_clipping&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;clip_overshoot_factor&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">clip_overshoot_factor</span><span class="p">),</span>
+                <span class="s1">&#39;clipped_gene_count&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">boundary_clipped_gene_count</span><span class="p">),</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;model_selection_counts&#39;</span><span class="p">:</span> <span class="n">_model_selection_counts</span><span class="p">(</span><span class="n">model_params</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">diagnostics</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">simulate_by_annotation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">annotation_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compatibility path for annotation-key callers.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">annotation_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_adata</span><span class="o">.</span><span class="n">obs</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;annotation_key &#39;</span><span class="si">{</span><span class="n">annotation_key</span><span class="si">}</span><span class="s2">&#39; not found in adata.obs.&quot;</span><span class="p">)</span>
+        <span class="n">fit_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;visualize_fits&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;visualize_fits&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+            <span class="s2">&quot;use_real_stats_directly&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;use_real_stats_directly&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+            <span class="s2">&quot;assignment_weights&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;assignment_weights&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;alteration_config&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;alteration_config&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;simulation_mode&quot;</span><span class="p">:</span> <span class="n">_translate_parameter_mode</span><span class="p">(</span>
+                <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;parameter_mode&quot;</span><span class="p">,</span> <span class="s2">&quot;hungarian&quot;</span><span class="p">)</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;assignment_method&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;assignment_method&quot;</span><span class="p">,</span> <span class="s2">&quot;hybrid&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;random_seed&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;random_seed&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;hybrid_alpha&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;hybrid_alpha&quot;</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">),</span>
+            <span class="s2">&quot;use_distributional_alteration&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;use_distributional_alteration&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+            <span class="s2">&quot;ppf_method&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ppf_method&quot;</span><span class="p">,</span> <span class="s2">&quot;interp&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;beta_n_jobs&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;beta_n_jobs&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="s2">&quot;beta_early_stopping_patience&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;beta_early_stopping_patience&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="s2">&quot;assignment_solver&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;assignment_solver&quot;</span><span class="p">,</span> <span class="s2">&quot;scipy&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;assignment_blocks&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;assignment_blocks&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+            <span class="s2">&quot;assignment_block_size&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;assignment_block_size&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;assignment_block_multiplier&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;assignment_block_multiplier&quot;</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
+            <span class="s2">&quot;convert_n_jobs&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;convert_n_jobs&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit_model</span><span class="p">(</span><span class="o">**</span><span class="n">fit_kwargs</span><span class="p">)</span>
+        <span class="n">simulated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;verbose&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+            <span class="n">clip_overshoot_factor</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;clip_overshoot_factor&quot;</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span>
+            <span class="n">boundary_multiplier</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;boundary_multiplier&quot;</span><span class="p">,</span> <span class="mf">1.1</span><span class="p">),</span>
+            <span class="n">random_seed</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;random_seed&quot;</span><span class="p">),</span>
+            <span class="n">spatial_mode</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;spatial_mode&quot;</span><span class="p">,</span> <span class="s2">&quot;reference_rank&quot;</span><span class="p">),</span>
+            <span class="n">target_adata</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;target_adata&quot;</span><span class="p">),</span>
+            <span class="n">transport_config</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;transport_config&quot;</span><span class="p">),</span>
+            <span class="n">ot_block_max_pairs</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ot_block_max_pairs&quot;</span><span class="p">),</span>
+            <span class="n">ot_memory_budget_gb</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ot_memory_budget_gb&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">simulated</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s2">&quot;annotation_key&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">annotation_key</span>
+        <span class="k">return</span> <span class="n">simulated</span>
+    
+
+<span class="k">def</span><span class="w"> </span><span class="nf">simulate_single_slice</span><span class="p">(</span><span class="n">adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">visualize_fits</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">clip_overshoot_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">use_real_stats_directly</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">annotation_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">assignment_weights</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">alteration_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">boundary_multiplier</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.1</span><span class="p">,</span> <span class="n">parameter_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;hungarian&#39;</span><span class="p">,</span> <span class="n">spatial_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;reference_rank&#39;</span><span class="p">,</span> <span class="n">target_adata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">assignment_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;hybrid&#39;</span><span class="p">,</span> <span class="n">random_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">hybrid_alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">use_distributional_alteration</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">ppf_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;interp&#39;</span><span class="p">,</span> <span class="n">beta_n_jobs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">beta_early_stopping_patience</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">assignment_solver</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;scipy&#39;</span><span class="p">,</span> <span class="n">assignment_blocks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">assignment_block_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">assignment_block_multiplier</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span> <span class="n">convert_n_jobs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">transport_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ot_block_max_pairs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ot_memory_budget_gb</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run single-slice simulation.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        boundary_multiplier (float): Multiplier for maximum count boundary constraint (default 1.1 = 110% of reference max).</span>
+<span class="sd">        alteration_config (AlterationConfig or dict, optional): Configuration for altering marginal distributions.</span>
+<span class="sd">        parameter_mode: &#39;hungarian&#39; (copula + Hungarian assignment) or &#39;reference_stats&#39; (direct reference stats).</span>
+<span class="sd">        spatial_mode: &#39;reference_rank&#39; (rank-preserving) or &#39;ot_spatial&#39; (OT transport, requires target_adata).</span>
+<span class="sd">        target_adata: Target AnnData for ot_spatial mode (required when spatial_mode=&#39;ot_spatial&#39;).</span>
+<span class="sd">        transport_config: Shared latent/rank OT configuration.</span>
+<span class="sd">        assignment_method: &#39;hybrid&#39; or &#39;copula_rank&#39; — only meaningful when parameter_mode=&#39;hungarian&#39;.</span>
+<span class="sd">        random_seed: Optional seed for reproducible generative sampling.</span>
+<span class="sd">        use_distributional_alteration: If True, alter marginal model parameters (θ → θ&#39;).</span>
+<span class="sd">        ppf_method: &#39;interp&#39; (fast, default) or &#39;exact&#39; (bit-identical fsolve).</span>
+<span class="sd">        beta_n_jobs: parallel workers for Beta component search (1=sequential).</span>
+<span class="sd">        beta_early_stopping_patience: patience for Beta mixture early stopping (0 = no early stop).</span>
+<span class="sd">        assignment_blocks: use batched Hungarian (True, default) or full global (False).</span>
+<span class="sd">        assignment_block_multiplier: candidates per gene in each batch (default 8).</span>
+<span class="sd">        convert_n_jobs: parallel workers for count-model parameter conversion (1=sequential).</span>
+<span class="sd">        ot_block_max_pairs: Optional hard cap for dense source-target pairs</span>
+<span class="sd">            in each target-column block. Prefer</span>
+<span class="sd">            ``transport_config.max_transport_pairs``.</span>
+<span class="sd">        ot_memory_budget_gb: Optional memory budget converted to an OT</span>
+<span class="sd">            target-column block pair cap.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">simulation_mode</span> <span class="o">=</span> <span class="n">_translate_parameter_mode</span><span class="p">(</span><span class="n">parameter_mode</span><span class="p">)</span>
+    <span class="n">spatial_mode</span> <span class="o">=</span> <span class="n">_translate_spatial_mode</span><span class="p">(</span><span class="n">spatial_mode</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">spatial_mode</span> <span class="o">==</span> <span class="s2">&quot;ot_spatial&quot;</span> <span class="ow">and</span> <span class="n">target_adata</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;target_adata is required when spatial_mode=&#39;ot_spatial&#39;.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">simulation_mode</span> <span class="o">==</span> <span class="s1">&#39;empirical&#39;</span> <span class="ow">and</span> <span class="n">assignment_method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;hybrid&#39;</span><span class="p">,</span> <span class="s1">&#39;identity&#39;</span><span class="p">):</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;assignment_method=&#39;</span><span class="si">{</span><span class="n">assignment_method</span><span class="si">}</span><span class="s2">&#39; is ignored when &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;parameter_mode=&#39;reference_stats&#39;. Assignment is always &#39;identity&#39;.&quot;</span><span class="p">,</span>
+            <span class="ne">UserWarning</span><span class="p">,</span>
+            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Starting comprehensive single slice simulation...&quot;</span><span class="p">)</span>
+    <span class="n">adata</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">safe_calculate_qc_metrics</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+    <span class="n">simulator</span> <span class="o">=</span> <span class="n">SpatialSimulator</span><span class="p">(</span><span class="n">adata</span><span class="p">)</span>
+    
+    <span class="n">fit_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;assignment_weights&#39;</span><span class="p">:</span> <span class="n">assignment_weights</span><span class="p">,</span>
+        <span class="s1">&#39;simulation_mode&#39;</span><span class="p">:</span> <span class="n">simulation_mode</span><span class="p">,</span>
+        <span class="s1">&#39;assignment_method&#39;</span><span class="p">:</span> <span class="n">assignment_method</span><span class="p">,</span>
+        <span class="s1">&#39;random_seed&#39;</span><span class="p">:</span> <span class="n">random_seed</span><span class="p">,</span>
+        <span class="s1">&#39;hybrid_alpha&#39;</span><span class="p">:</span> <span class="n">hybrid_alpha</span><span class="p">,</span>
+        <span class="s1">&#39;use_distributional_alteration&#39;</span><span class="p">:</span> <span class="n">use_distributional_alteration</span><span class="p">,</span>
+        <span class="s1">&#39;ppf_method&#39;</span><span class="p">:</span> <span class="n">ppf_method</span><span class="p">,</span>
+        <span class="s1">&#39;beta_n_jobs&#39;</span><span class="p">:</span> <span class="n">beta_n_jobs</span><span class="p">,</span>
+        <span class="s1">&#39;beta_early_stopping_patience&#39;</span><span class="p">:</span> <span class="n">beta_early_stopping_patience</span><span class="p">,</span>
+        <span class="s1">&#39;assignment_solver&#39;</span><span class="p">:</span> <span class="n">assignment_solver</span><span class="p">,</span>
+        <span class="s1">&#39;assignment_blocks&#39;</span><span class="p">:</span> <span class="n">assignment_blocks</span><span class="p">,</span>
+        <span class="s1">&#39;assignment_block_size&#39;</span><span class="p">:</span> <span class="n">assignment_block_size</span><span class="p">,</span>
+        <span class="s1">&#39;assignment_block_multiplier&#39;</span><span class="p">:</span> <span class="n">assignment_block_multiplier</span><span class="p">,</span>
+        <span class="s1">&#39;convert_n_jobs&#39;</span><span class="p">:</span> <span class="n">convert_n_jobs</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">annotation_key</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">use_real_stats_directly</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: `use_real_stats_directly` is not implemented for annotation-based simulation. Running standard simulation.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using annotation-based simulation with key: &#39;</span><span class="si">{</span><span class="n">annotation_key</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+        <span class="n">simulated_adata</span> <span class="o">=</span> <span class="n">simulator</span><span class="o">.</span><span class="n">simulate_by_annotation</span><span class="p">(</span>
+            <span class="n">annotation_key</span><span class="o">=</span><span class="n">annotation_key</span><span class="p">,</span>
+            <span class="n">visualize_fits</span><span class="o">=</span><span class="n">visualize_fits</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+            <span class="n">clip_overshoot_factor</span><span class="o">=</span><span class="n">clip_overshoot_factor</span><span class="p">,</span>
+            <span class="n">boundary_multiplier</span><span class="o">=</span><span class="n">boundary_multiplier</span><span class="p">,</span>
+            <span class="n">alteration_config</span><span class="o">=</span><span class="n">alteration_config</span><span class="p">,</span>
+            <span class="n">target_adata</span><span class="o">=</span><span class="n">target_adata</span><span class="p">,</span>
+            <span class="n">transport_config</span><span class="o">=</span><span class="n">transport_config</span><span class="p">,</span>
+            <span class="n">ot_block_max_pairs</span><span class="o">=</span><span class="n">ot_block_max_pairs</span><span class="p">,</span>
+            <span class="n">ot_memory_budget_gb</span><span class="o">=</span><span class="n">ot_memory_budget_gb</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">fit_kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">use_real_stats_directly</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--- RUNNING IN DIAGNOSTIC MODE (USING REAL STATS) ---&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--- RUNNING IN STANDARD DETERMINISTIC MODE ---&quot;</span><span class="p">)</span>
+        
+        <span class="n">simulator</span><span class="o">.</span><span class="n">fit_model</span><span class="p">(</span>
+            <span class="n">visualize_fits</span><span class="o">=</span><span class="n">visualize_fits</span><span class="p">,</span> 
+            <span class="n">use_real_stats_directly</span><span class="o">=</span><span class="n">use_real_stats_directly</span><span class="p">,</span>
+            <span class="n">alteration_config</span><span class="o">=</span><span class="n">alteration_config</span><span class="p">,</span>  <span class="c1"># Pass alteration configuration</span>
+            <span class="o">**</span><span class="n">fit_kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">simulated_adata</span> <span class="o">=</span> <span class="n">simulator</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+            <span class="n">clip_overshoot_factor</span><span class="o">=</span><span class="n">clip_overshoot_factor</span><span class="p">,</span>
+            <span class="n">boundary_multiplier</span><span class="o">=</span><span class="n">boundary_multiplier</span><span class="p">,</span>
+            <span class="n">random_seed</span><span class="o">=</span><span class="n">random_seed</span><span class="p">,</span>
+            <span class="n">spatial_mode</span><span class="o">=</span><span class="n">spatial_mode</span><span class="p">,</span>
+            <span class="n">target_adata</span><span class="o">=</span><span class="n">target_adata</span><span class="p">,</span>
+            <span class="n">transport_config</span><span class="o">=</span><span class="n">transport_config</span><span class="p">,</span>
+            <span class="n">ot_block_max_pairs</span><span class="o">=</span><span class="n">ot_block_max_pairs</span><span class="p">,</span>
+            <span class="n">ot_memory_budget_gb</span><span class="o">=</span><span class="n">ot_memory_budget_gb</span><span class="p">,</span>
+        <span class="p">)</span>
+        
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Simulation completed successfully!&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">simulated_adata</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Yiru CHEN &amp; Maizie Zhou Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

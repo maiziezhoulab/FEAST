@@ -1,0 +1,663 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FEAST &mdash; FEAST 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=c546c3da" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            FEAST
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#published-package">Published package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#editable-conda-installation">Editable Conda installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#documentation">Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/00_single_slice_graphst.html">00 · Simulate a slice and find spatial clusters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../notebooks/00_single_slice_graphst.html#Load-the-reference">Load the reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../notebooks/00_single_slice_graphst.html#Simulate-counts">Simulate counts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../notebooks/00_single_slice_graphst.html#Prepare-the-GraphST-input">Prepare the GraphST input</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../notebooks/00_single_slice_graphst.html#Cluster-the-simulated-slice">Cluster the simulated slice</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/02_alignment.html">02 · Create an alignment pair</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../notebooks/02_alignment.html#Simulate-and-rotate">Simulate and rotate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../notebooks/02_alignment.html#Recover-the-known-matches">Recover the known matches</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/03_deconvolution.html">03 · Create mixed spots with known cell-class proportions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../notebooks/03_deconvolution.html#Simulate-single-cell-counts">Simulate single-cell counts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../notebooks/03_deconvolution.html#Aggregate-cells-into-spots">Aggregate cells into spots</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../notebooks/03_deconvolution.html#Plot-cell-class-proportions">Plot cell-class proportions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/04_batch_effect_removal.html">04 · Simulate a batch effect and correct it with scVI</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../notebooks/04_batch_effect_removal.html#Generate-paired-batches">Generate paired batches</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../notebooks/04_batch_effect_removal.html#Prepare-raw-counts-for-scVI">Prepare raw counts for scVI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../notebooks/04_batch_effect_removal.html#Correct-the-batch-effect">Correct the batch effect</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../notebooks/04_batch_effect_removal.html#Compare-batch-mixing-and-tissue-layers">Compare batch mixing and tissue layers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/05_2d_conditional_transfer.html">05 · Generate expression on another slice’s anatomy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../notebooks/05_2d_conditional_transfer.html#Build-the-target-blueprint">Build the target blueprint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../notebooks/05_2d_conditional_transfer.html#Generate-counts">Generate counts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../notebooks/05_2d_conditional_transfer.html#Compare-with-measured-expression">Compare with measured expression</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/07_3d_transfer.html">07 · Generate expression on a developmental brain atlas</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../notebooks/07_3d_transfer.html#Load-the-five-references-and-select-atlas-sections">Load the five references and select atlas sections</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../notebooks/07_3d_transfer.html#Generate-counts-on-each-section">Generate counts on each section</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../notebooks/07_3d_transfer.html#Compare-atlas-anatomy-and-generated-Reln-expression">Compare atlas anatomy and generated Reln expression</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials.html#de-novo-virtual-slice-generation">De novo virtual slice generation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#simulation-and-fitting">Simulation and fitting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.simulate"><code class="docutils literal notranslate"><span class="pre">simulate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.generate"><code class="docutils literal notranslate"><span class="pre">generate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.fit"><code class="docutils literal notranslate"><span class="pre">fit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.de_novo.fit_reference"><code class="docutils literal notranslate"><span class="pre">fit_reference()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.estimate_assignment_randomness"><code class="docutils literal notranslate"><span class="pre">estimate_assignment_randomness()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.GeneParameterSimulator"><code class="docutils literal notranslate"><span class="pre">GeneParameterSimulator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#configuration">Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.Alteration"><code class="docutils literal notranslate"><span class="pre">Alteration</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.TransportConfig"><code class="docutils literal notranslate"><span class="pre">TransportConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.ReferenceFitConfig"><code class="docutils literal notranslate"><span class="pre">ReferenceFitConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.SimulationConfig"><code class="docutils literal notranslate"><span class="pre">SimulationConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.SimulationReference"><code class="docutils literal notranslate"><span class="pre">SimulationReference</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#de-novo-builders">De novo builders</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.SliceBlueprint"><code class="docutils literal notranslate"><span class="pre">SliceBlueprint</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.de_novo.SimulationBlueprintBuilder"><code class="docutils literal notranslate"><span class="pre">SimulationBlueprintBuilder</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.de_novo.SimulationParameterBuilder"><code class="docutils literal notranslate"><span class="pre">SimulationParameterBuilder</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.de_novo.SimulationPatternBuilder"><code class="docutils literal notranslate"><span class="pre">SimulationPatternBuilder</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#alignment-and-deconvolution">Alignment and deconvolution</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.alignment.rotate_spatial"><code class="docutils literal notranslate"><span class="pre">rotate_spatial()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.alignment.apply_spatial_transform"><code class="docutils literal notranslate"><span class="pre">apply_spatial_transform()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.alignment.simulate_alignment_rotation"><code class="docutils literal notranslate"><span class="pre">simulate_alignment_rotation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.alignment.simulate_alignment_warp"><code class="docutils literal notranslate"><span class="pre">simulate_alignment_warp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.deconvolution.create_deconvolution_benchmark_data"><code class="docutils literal notranslate"><span class="pre">create_deconvolution_benchmark_data()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#batch-simulation">Batch simulation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.BatchDeformation"><code class="docutils literal notranslate"><span class="pre">BatchDeformation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.characterize_batch"><code class="docutils literal notranslate"><span class="pre">characterize_batch()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.simulate_batch_effect"><code class="docutils literal notranslate"><span class="pre">simulate_batch_effect()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#parameter-utilities">Parameter utilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.stats_to_theta"><code class="docutils literal notranslate"><span class="pre">stats_to_theta()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.theta_to_stats"><code class="docutils literal notranslate"><span class="pre">theta_to_stats()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#compatibility">Compatibility</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#local-multi-reference-3d-generation">Local multi-reference 3D generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.simulate_local_references"><code class="docutils literal notranslate"><span class="pre">simulate_local_references()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.simulate_stack"><code class="docutils literal notranslate"><span class="pre">simulate_stack()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#FEAST.calibrate_local_references"><code class="docutils literal notranslate"><span class="pre">calibrate_local_references()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">FEAST</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">FEAST</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for FEAST</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;FEAST | Feature-space-based modeling of Spatial Transcriptomics.</span>
+
+<span class="sd">Primary API</span>
+<span class="sd">-----------</span>
+<span class="sd">:func:`simulate`      — produce synthetic ST data from a reference slice.</span>
+<span class="sd">:func:`generate`      — create a virtual ST slice from a blueprint + parameter cloud.</span>
+<span class="sd">:func:`generate_from` — deprecated compatibility alias for conditioned simulation.</span>
+<span class="sd">:func:`fit`           — learn a parameter-cloud model from real data.</span>
+
+<span class="sd">Alteration</span>
+<span class="sd">----------</span>
+<span class="sd">:class:`Alteration`   — expression alteration configuration for :func:`simulate`.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">fields</span> <span class="k">as</span> <span class="n">_dataclass_fields</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">importlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">import_module</span> <span class="k">as</span> <span class="n">_import_module</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">importlib.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_spec</span> <span class="k">as</span> <span class="n">_find_spec</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_warnings</span>
+
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.1.0&quot;</span>
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Primary verbs — thin wrappers that delegate to existing implementations</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.FEAST_core.simulator</span><span class="w"> </span><span class="kn">import</span> <span class="n">simulate_single_slice</span> <span class="k">as</span> <span class="n">_simulate_single_slice</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.FEAST_core.simulator</span><span class="w"> </span><span class="kn">import</span> <span class="n">simulate_batch_effect</span><span class="p">,</span> <span class="n">characterize_batch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.FEAST_core.parameter_cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeneParameterSimulator</span><span class="p">,</span> <span class="n">BatchDeformation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.FEAST_core.theta_transform</span><span class="w"> </span><span class="kn">import</span> <span class="n">stats_to_theta</span><span class="p">,</span> <span class="n">theta_to_stats</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.modeling.marginal_alteration</span><span class="w"> </span><span class="kn">import</span> <span class="n">AlterationConfig</span> <span class="k">as</span> <span class="n">_AlterationConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.de_novo.builder</span><span class="w"> </span><span class="kn">import</span> <span class="n">simulate_from_design</span> <span class="k">as</span> <span class="n">_simulate_from_design</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.de_novo.conditional</span><span class="w"> </span><span class="kn">import</span> <span class="n">fit_reference</span> <span class="k">as</span> <span class="n">_fit_reference</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.de_novo.conditional</span><span class="w"> </span><span class="kn">import</span> <span class="n">simulate_from_reference</span> <span class="k">as</span> <span class="n">_simulate_from_reference</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.de_novo.conditional</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ReferenceFitConfig</span><span class="p">,</span>
+    <span class="n">SimulationConfig</span><span class="p">,</span>
+    <span class="n">SimulationReference</span><span class="p">,</span>
+    <span class="n">estimate_assignment_randomness</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.de_novo.local</span><span class="w"> </span><span class="kn">import</span> <span class="n">simulate_local_references</span><span class="p">,</span> <span class="n">calibrate_local_references</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.de_novo.stack</span><span class="w"> </span><span class="kn">import</span> <span class="n">simulate_stack</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.de_novo.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">SliceBlueprint</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.de_novo.transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">TransportConfig</span>
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Alteration — public name for the former AlterationConfig class</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+
+<span class="n">Alteration</span> <span class="o">=</span> <span class="n">_AlterationConfig</span>
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Public functions</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+
+
+<div class="viewcode-block" id="simulate">
+<a class="viewcode-back" href="../api.html#FEAST.simulate">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">simulate</span><span class="p">(</span>
+    <span class="n">reference</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">condition_on</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">marginal_model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;parameter_cloud&quot;</span><span class="p">,</span>
+    <span class="n">parameter_cloud</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">transport</span><span class="p">:</span> <span class="n">TransportConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fit_config</span><span class="p">:</span> <span class="n">ReferenceFitConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">alteration</span><span class="p">:</span> <span class="n">_AlterationConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">parameter_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;hungarian&quot;</span><span class="p">,</span>
+    <span class="n">spatial_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Simulate an ST slice through one reference-to-target field backbone.</span>
+
+<span class="sd">    Reference-based parameter-cloud simulation and label-conditioned transfer</span>
+<span class="sd">    share the same public function and OT field implementation.  ``target=None``</span>
+<span class="sd">    means the reference geometry is the target.  Set ``condition_on`` and</span>
+<span class="sd">    ``marginal_model=&#39;empirical_reference&#39;`` for conditional empirical-rank</span>
+<span class="sd">    transfer.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    reference:</span>
+<span class="sd">        Reference AnnData, sequence of AnnData objects, or a fitted</span>
+<span class="sd">        :class:`SimulationReference`.</span>
+<span class="sd">    target:</span>
+<span class="sd">        Optional target AnnData or :class:`SliceBlueprint`. Target expression</span>
+<span class="sd">        is not read by the conditional path.</span>
+<span class="sd">    condition_on:</span>
+<span class="sd">        Reference and target ``.obs`` column used for label conditioning.</span>
+<span class="sd">        Omit for global reference-based simulation.</span>
+<span class="sd">    marginal_model:</span>
+<span class="sd">        ``&quot;parameter_cloud&quot;`` or ``&quot;empirical_reference&quot;``.</span>
+<span class="sd">    parameter_cloud:</span>
+<span class="sd">        Optional global or label-specific parameter cloud for conditioned</span>
+<span class="sd">        parameter-cloud decoding.</span>
+<span class="sd">    transport:</span>
+<span class="sd">        Shared :class:`TransportConfig`. A :class:`SimulationConfig` may be</span>
+<span class="sd">        supplied when conditional quantile-field controls are also needed.</span>
+<span class="sd">    fit_config:</span>
+<span class="sd">        Reference fitting controls for conditioned generation.</span>
+<span class="sd">    alteration:</span>
+<span class="sd">        Optional :class:`Alteration` config to systematically modify</span>
+<span class="sd">        expression statistics (mean, variance, or sparsity).</span>
+<span class="sd">    seed:</span>
+<span class="sd">        Run-wide seed for reproducible fitting, assignment, transport, and</span>
+<span class="sd">        count generation. Seeded output is independent of ambient NumPy state.</span>
+<span class="sd">    parameter_mode:</span>
+<span class="sd">        ``&quot;hungarian&quot;`` (generative fitting) or ``&quot;reference_stats&quot;``</span>
+<span class="sd">        (use reference stats directly).</span>
+<span class="sd">    spatial_mode:</span>
+<span class="sd">        ``&quot;reference_rank&quot;`` (rank-based spatial assignment) or</span>
+<span class="sd">        ``&quot;ot_spatial&quot;`` (optimal-transport spatial assignment). When</span>
+<span class="sd">        omitted, FEAST selects OT if ``target`` or ``transport`` is provided</span>
+<span class="sd">        and reference-rank assignment otherwise.</span>
+<span class="sd">    verbose:</span>
+<span class="sd">        Print progress messages.</span>
+<span class="sd">    kwargs:</span>
+<span class="sd">        Advanced parameters passed through to the underlying simulator</span>
+<span class="sd">        (e.g. ``assignment_solver``, ``ppf_method``, ``beta_n_jobs``).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :class:`~anndata.AnnData`</span>
+<span class="sd">        Simulated slice with identical genes and spatial coordinates.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">legacy_reference</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;adata&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">reference</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">legacy_reference</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Provide reference or adata, not both.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">reference</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">reference</span> <span class="o">=</span> <span class="n">legacy_reference</span>
+        <span class="k">if</span> <span class="n">reference</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;simulate(adata=...) is deprecated; use simulate(reference=...) instead.&quot;</span><span class="p">,</span>
+                <span class="ne">DeprecationWarning</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">)</span>
+    <span class="k">if</span> <span class="n">reference</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;simulate() is missing the required reference input.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">marginal_model</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;parameter_cloud&quot;</span><span class="p">,</span> <span class="s2">&quot;empirical_reference&quot;</span><span class="p">}:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;marginal_model must be &#39;parameter_cloud&#39; or &#39;empirical_reference&#39;.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">transport</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">transport</span><span class="p">,</span> <span class="n">TransportConfig</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;transport must be a TransportConfig or SimulationConfig.&quot;</span><span class="p">)</span>
+
+    <span class="n">conditional</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="nb">isinstance</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">SimulationReference</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">condition_on</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="ow">or</span> <span class="n">marginal_model</span> <span class="o">==</span> <span class="s2">&quot;empirical_reference&quot;</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">conditional</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">condition_on</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">SimulationReference</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;condition_on is required for empirical-reference conditional generation.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">alteration</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;alteration is only supported with global parameter-cloud simulation.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">reference</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">SimulationReference</span><span class="p">)</span>
+            <span class="k">else</span> <span class="n">_fit_reference</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">label_key</span><span class="o">=</span><span class="n">condition_on</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">fit_config</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">condition_on</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">condition_on</span> <span class="o">!=</span> <span class="n">model</span><span class="o">.</span><span class="n">label_key</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;condition_on does not match the fitted SimulationReference label key &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">condition_on</span><span class="si">!r}</span><span class="s2"> != </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">label_key</span><span class="si">!r}</span><span class="s2">).&quot;</span>
+            <span class="p">)</span>
+        <span class="n">conditional_target</span> <span class="o">=</span> <span class="n">target</span>
+        <span class="k">if</span> <span class="n">conditional_target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">SimulationReference</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;target is required when reference is a fitted SimulationReference.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="s2">&quot;obsm&quot;</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;target is required when conditional generation uses multiple references.&quot;</span>
+                <span class="p">)</span>
+            <span class="n">conditional_target</span> <span class="o">=</span> <span class="n">reference</span>
+        <span class="k">return</span> <span class="n">_simulate_from_reference</span><span class="p">(</span>
+            <span class="n">model</span><span class="p">,</span>
+            <span class="n">conditional_target</span><span class="p">,</span>
+            <span class="n">parameter_cloud</span><span class="o">=</span><span class="n">parameter_cloud</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">_as_simulation_config</span><span class="p">(</span><span class="n">transport</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">),</span>
+            <span class="n">random_seed</span><span class="o">=</span><span class="mi">0</span> <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">seed</span><span class="p">),</span>
+            <span class="n">marginal_model</span><span class="o">=</span><span class="n">marginal_model</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">parameter_cloud</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;condition_on is required when supplying a parameter_cloud to simulate().&quot;</span>
+        <span class="p">)</span>
+    <span class="n">target_adata</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;target_adata&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">target_adata</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Provide target or target_adata, not both.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">target_adata</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">target_adata</span> <span class="o">=</span> <span class="n">target</span>
+    <span class="n">resolved_spatial_mode</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;ot_spatial&quot;</span>
+        <span class="k">if</span> <span class="n">target_adata</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">transport</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">else</span> <span class="s2">&quot;reference_rank&quot;</span>
+    <span class="p">)</span> <span class="k">if</span> <span class="n">spatial_mode</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">spatial_mode</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">resolved_spatial_mode</span> <span class="o">==</span> <span class="s2">&quot;ot_spatial&quot;</span> <span class="ow">and</span> <span class="n">target_adata</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">target_adata</span> <span class="o">=</span> <span class="n">reference</span>
+    <span class="k">if</span> <span class="n">resolved_spatial_mode</span> <span class="o">==</span> <span class="s2">&quot;reference_rank&quot;</span> <span class="ow">and</span> <span class="n">target_adata</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;target is only used with spatial_mode=&#39;ot_spatial&#39;; omit target or select OT.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">_simulate_single_slice</span><span class="p">(</span>
+        <span class="n">reference</span><span class="p">,</span>
+        <span class="n">alteration_config</span><span class="o">=</span><span class="n">alteration</span><span class="p">,</span>
+        <span class="n">random_seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
+        <span class="n">parameter_mode</span><span class="o">=</span><span class="n">parameter_mode</span><span class="p">,</span>
+        <span class="n">spatial_mode</span><span class="o">=</span><span class="n">resolved_spatial_mode</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+        <span class="n">target_adata</span><span class="o">=</span><span class="n">target_adata</span><span class="p">,</span>
+        <span class="n">transport_config</span><span class="o">=</span><span class="n">transport</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_as_simulation_config</span><span class="p">(</span>
+    <span class="n">transport</span><span class="p">:</span> <span class="n">TransportConfig</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SimulationConfig</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">transport</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">SimulationConfig</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">verbose</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">transport</span><span class="p">,</span> <span class="n">SimulationConfig</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">transport</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">transport</span><span class="p">,</span> <span class="n">TransportConfig</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;transport must be a TransportConfig or SimulationConfig.&quot;</span><span class="p">)</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">transport</span><span class="p">,</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">_dataclass_fields</span><span class="p">(</span><span class="n">TransportConfig</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">SimulationConfig</span><span class="p">(</span><span class="o">**</span><span class="n">values</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">verbose</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="generate">
+<a class="viewcode-back" href="../api.html#FEAST.generate">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate</span><span class="p">(</span>
+    <span class="n">blueprint</span><span class="p">,</span>
+    <span class="n">param_cloud</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">patterns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">SimulationConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate a virtual ST slice from a blueprint and parameter cloud.</span>
+
+<span class="sd">    Build a synthetic slice from scratch — no reference data needed.</span>
+<span class="sd">    Use :class:`SliceBlueprint` to define the spatial layout and</span>
+<span class="sd">    ``param_cloud`` to specify per-gene expression distributions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    blueprint:</span>
+<span class="sd">        :class:`SliceBlueprint` (or AnnData / dict / path to one) defining</span>
+<span class="sd">        spot coordinates and domain labels.</span>
+<span class="sd">    param_cloud:</span>
+<span class="sd">        DataFrame or dict with columns ``mean``, ``variance``, ``zero_prop``</span>
+<span class="sd">        for each gene.</span>
+<span class="sd">    patterns:</span>
+<span class="sd">        Optional spatial pattern specification (e.g. gradients, hotspots).</span>
+<span class="sd">    seed:</span>
+<span class="sd">        Random seed for reproducible output.</span>
+<span class="sd">    config:</span>
+<span class="sd">        :class:`SimulationConfig` for transport and quantile-field settings.</span>
+<span class="sd">    kwargs:</span>
+<span class="sd">        Passed through to :func:`~FEAST.de_novo.builder.simulate_from_design`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :class:`~anndata.AnnData`</span>
+<span class="sd">        Virtual slice.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_simulate_from_design</span><span class="p">(</span>
+        <span class="n">blueprint</span><span class="p">,</span>
+        <span class="n">param_cloud</span><span class="p">,</span>
+        <span class="n">pattern_spec</span><span class="o">=</span><span class="n">patterns</span><span class="p">,</span>
+        <span class="n">random_seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_from</span><span class="p">(</span>
+    <span class="n">reference</span><span class="p">,</span>
+    <span class="n">blueprint</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fit_config</span><span class="p">:</span> <span class="n">ReferenceFitConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">sim_config</span><span class="p">:</span> <span class="n">SimulationConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">label_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;domain&quot;</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate a virtual ST slice conditioned on a real reference.</span>
+
+<span class="sd">    Fits a reference model to the reference slice(s), then transports rank</span>
+<span class="sd">    scores to the blueprint layout to produce a conditional virtual slice.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    reference:</span>
+<span class="sd">        Reference :class:`~anndata.AnnData` (or list of them).</span>
+<span class="sd">    blueprint:</span>
+<span class="sd">        :class:`SliceBlueprint` defining target coordinates and domains.</span>
+<span class="sd">    seed:</span>
+<span class="sd">        Random seed for reproducible output.</span>
+<span class="sd">    fit_config:</span>
+<span class="sd">        :class:`ReferenceFitConfig` controlling gene filtering and scaling.</span>
+<span class="sd">    sim_config:</span>
+<span class="sd">        :class:`SimulationConfig` controlling transport and rank-field settings.</span>
+<span class="sd">    label_key:</span>
+<span class="sd">        Column in ``reference.obs`` with domain labels.</span>
+<span class="sd">    kwargs:</span>
+<span class="sd">        Passed through to :func:`~FEAST.de_novo.conditional.simulate_from_reference`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :class:`~anndata.AnnData`</span>
+<span class="sd">        Conditional virtual slice.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+        <span class="s2">&quot;generate_from() is deprecated; use simulate(..., target=..., &quot;</span>
+        <span class="s2">&quot;condition_on=..., marginal_model=&#39;empirical_reference&#39;) instead.&quot;</span><span class="p">,</span>
+        <span class="ne">DeprecationWarning</span><span class="p">,</span>
+        <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">simulate</span><span class="p">(</span>
+        <span class="n">reference</span><span class="p">,</span>
+        <span class="n">target</span><span class="o">=</span><span class="n">blueprint</span><span class="p">,</span>
+        <span class="n">condition_on</span><span class="o">=</span><span class="n">label_key</span><span class="p">,</span>
+        <span class="n">marginal_model</span><span class="o">=</span><span class="s2">&quot;empirical_reference&quot;</span><span class="p">,</span>
+        <span class="n">transport</span><span class="o">=</span><span class="n">sim_config</span><span class="p">,</span>
+        <span class="n">fit_config</span><span class="o">=</span><span class="n">fit_config</span><span class="p">,</span>
+        <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="fit">
+<a class="viewcode-back" href="../api.html#FEAST.fit">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span>
+    <span class="n">adata</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">max_zero_prop_components</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="n">beta_early_stopping_patience</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="n">beta_n_jobs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">ppf_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;interp&quot;</span><span class="p">,</span>
+    <span class="n">visualize_fits</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fit a parameter-cloud model to real ST data.</span>
+
+<span class="sd">    The returned :class:`GeneParameterSimulator` can be serialised, inspected,</span>
+<span class="sd">    altered, and used for repeated simulation without re-fitting.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    adata:</span>
+<span class="sd">        Reference :class:`~anndata.AnnData`.</span>
+<span class="sd">    max_zero_prop_components:</span>
+<span class="sd">        Maximum number of components considered for the zero-proportion</span>
+<span class="sd">        marginal model.</span>
+<span class="sd">    beta_early_stopping_patience:</span>
+<span class="sd">        Component-search patience for the beta mixture.</span>
+<span class="sd">    beta_n_jobs:</span>
+<span class="sd">        Parallel workers used by the beta-mixture component search.</span>
+<span class="sd">    ppf_method:</span>
+<span class="sd">        Student-t mixture inverse-CDF implementation, ``&quot;interp&quot;`` or</span>
+<span class="sd">        ``&quot;exact&quot;``.</span>
+<span class="sd">    visualize_fits:</span>
+<span class="sd">        Show diagnostic marginal-fit plots.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :class:`GeneParameterSimulator`</span>
+<span class="sd">        Fitted simulator ready for parameter inspection or count decoding.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sim</span> <span class="o">=</span> <span class="n">GeneParameterSimulator</span><span class="p">(</span>
+        <span class="n">max_zero_prop_components</span><span class="o">=</span><span class="n">max_zero_prop_components</span><span class="p">,</span>
+        <span class="n">beta_early_stopping_patience</span><span class="o">=</span><span class="n">beta_early_stopping_patience</span><span class="p">,</span>
+        <span class="n">beta_n_jobs</span><span class="o">=</span><span class="n">beta_n_jobs</span><span class="p">,</span>
+        <span class="n">ppf_method</span><span class="o">=</span><span class="n">ppf_method</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">visualize_fits</span><span class="o">=</span><span class="n">visualize_fits</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sim</span></div>
+
+
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Lazy subpackage loading</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_module_exists</span><span class="p">(</span><span class="n">absolute_module_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">_find_spec</span><span class="p">(</span><span class="n">absolute_module_name</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+
+<span class="n">ALIGNMENT_AVAILABLE</span> <span class="o">=</span> <span class="n">_module_exists</span><span class="p">(</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s2">&quot;.alignment&quot;</span><span class="p">)</span>
+<span class="n">DECONVOLUTION_AVAILABLE</span> <span class="o">=</span> <span class="n">_module_exists</span><span class="p">(</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s2">&quot;.deconvolution&quot;</span><span class="p">)</span>
+<span class="n">DE_NOVO_AVAILABLE</span> <span class="o">=</span> <span class="n">_module_exists</span><span class="p">(</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s2">&quot;.de_novo&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="fm">__getattr__</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="c1"># Lazy-load subpackages</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;alignment&quot;</span><span class="p">,</span> <span class="s2">&quot;deconvolution&quot;</span><span class="p">,</span> <span class="s2">&quot;de_novo&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_import_module</span><span class="p">(</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">name</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;module &#39;</span><span class="si">{</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&#39; has no attribute &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="fm">__dir__</span><span class="p">():</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">__all__</span><span class="p">)</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># Primary verbs</span>
+    <span class="s2">&quot;simulate&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;generate&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;generate_from&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fit&quot;</span><span class="p">,</span>
+    <span class="c1"># Batch effect</span>
+    <span class="s2">&quot;simulate_local_references&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;simulate_stack&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;calibrate_local_references&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;simulate_batch_effect&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;characterize_batch&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;BatchDeformation&quot;</span><span class="p">,</span>
+    <span class="c1"># Alteration</span>
+    <span class="s2">&quot;Alteration&quot;</span><span class="p">,</span>
+    <span class="c1"># Classes</span>
+    <span class="s2">&quot;GeneParameterSimulator&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SliceBlueprint&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ReferenceFitConfig&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SimulationReference&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SimulationConfig&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TransportConfig&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;estimate_assignment_randomness&quot;</span><span class="p">,</span>
+    <span class="c1"># Functions</span>
+    <span class="s2">&quot;stats_to_theta&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;theta_to_stats&quot;</span><span class="p">,</span>
+    <span class="c1"># Subpackages</span>
+    <span class="s2">&quot;alignment&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;deconvolution&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;de_novo&quot;</span><span class="p">,</span>
+    <span class="c1"># Availability flags</span>
+    <span class="s2">&quot;ALIGNMENT_AVAILABLE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DECONVOLUTION_AVAILABLE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DE_NOVO_AVAILABLE&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Yiru CHEN &amp; Maizie Zhou Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,970 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FEAST.alignment.alignment_simulator &mdash; FEAST 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=c546c3da" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            FEAST
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#published-package">Published package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#editable-conda-installation">Editable Conda installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#documentation">Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/00_single_slice_graphst.html">00 · Simulate a slice and find spatial clusters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/00_single_slice_graphst.html#Load-the-reference">Load the reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/00_single_slice_graphst.html#Simulate-counts">Simulate counts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/00_single_slice_graphst.html#Prepare-the-GraphST-input">Prepare the GraphST input</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/00_single_slice_graphst.html#Cluster-the-simulated-slice">Cluster the simulated slice</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/02_alignment.html">02 · Create an alignment pair</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/02_alignment.html#Simulate-and-rotate">Simulate and rotate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/02_alignment.html#Recover-the-known-matches">Recover the known matches</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/03_deconvolution.html">03 · Create mixed spots with known cell-class proportions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/03_deconvolution.html#Simulate-single-cell-counts">Simulate single-cell counts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/03_deconvolution.html#Aggregate-cells-into-spots">Aggregate cells into spots</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/03_deconvolution.html#Plot-cell-class-proportions">Plot cell-class proportions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/04_batch_effect_removal.html">04 · Simulate a batch effect and correct it with scVI</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/04_batch_effect_removal.html#Generate-paired-batches">Generate paired batches</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/04_batch_effect_removal.html#Prepare-raw-counts-for-scVI">Prepare raw counts for scVI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/04_batch_effect_removal.html#Correct-the-batch-effect">Correct the batch effect</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/04_batch_effect_removal.html#Compare-batch-mixing-and-tissue-layers">Compare batch mixing and tissue layers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/05_2d_conditional_transfer.html">05 · Generate expression on another slice’s anatomy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/05_2d_conditional_transfer.html#Build-the-target-blueprint">Build the target blueprint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/05_2d_conditional_transfer.html#Generate-counts">Generate counts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/05_2d_conditional_transfer.html#Compare-with-measured-expression">Compare with measured expression</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../notebooks/07_3d_transfer.html">07 · Generate expression on a developmental brain atlas</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/07_3d_transfer.html#Load-the-five-references-and-select-atlas-sections">Load the five references and select atlas sections</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/07_3d_transfer.html#Generate-counts-on-each-section">Generate counts on each section</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../notebooks/07_3d_transfer.html#Compare-atlas-anatomy-and-generated-Reln-expression">Compare atlas anatomy and generated Reln expression</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorials.html#de-novo-virtual-slice-generation">De novo virtual slice generation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#simulation-and-fitting">Simulation and fitting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.simulate"><code class="docutils literal notranslate"><span class="pre">simulate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.generate"><code class="docutils literal notranslate"><span class="pre">generate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.fit"><code class="docutils literal notranslate"><span class="pre">fit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.de_novo.fit_reference"><code class="docutils literal notranslate"><span class="pre">fit_reference()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.estimate_assignment_randomness"><code class="docutils literal notranslate"><span class="pre">estimate_assignment_randomness()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.GeneParameterSimulator"><code class="docutils literal notranslate"><span class="pre">GeneParameterSimulator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#configuration">Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.Alteration"><code class="docutils literal notranslate"><span class="pre">Alteration</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.TransportConfig"><code class="docutils literal notranslate"><span class="pre">TransportConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.ReferenceFitConfig"><code class="docutils literal notranslate"><span class="pre">ReferenceFitConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.SimulationConfig"><code class="docutils literal notranslate"><span class="pre">SimulationConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.SimulationReference"><code class="docutils literal notranslate"><span class="pre">SimulationReference</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#de-novo-builders">De novo builders</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.SliceBlueprint"><code class="docutils literal notranslate"><span class="pre">SliceBlueprint</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.de_novo.SimulationBlueprintBuilder"><code class="docutils literal notranslate"><span class="pre">SimulationBlueprintBuilder</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.de_novo.SimulationParameterBuilder"><code class="docutils literal notranslate"><span class="pre">SimulationParameterBuilder</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.de_novo.SimulationPatternBuilder"><code class="docutils literal notranslate"><span class="pre">SimulationPatternBuilder</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#alignment-and-deconvolution">Alignment and deconvolution</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.alignment.rotate_spatial"><code class="docutils literal notranslate"><span class="pre">rotate_spatial()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.alignment.apply_spatial_transform"><code class="docutils literal notranslate"><span class="pre">apply_spatial_transform()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.alignment.simulate_alignment_rotation"><code class="docutils literal notranslate"><span class="pre">simulate_alignment_rotation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.alignment.simulate_alignment_warp"><code class="docutils literal notranslate"><span class="pre">simulate_alignment_warp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.deconvolution.create_deconvolution_benchmark_data"><code class="docutils literal notranslate"><span class="pre">create_deconvolution_benchmark_data()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#batch-simulation">Batch simulation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.BatchDeformation"><code class="docutils literal notranslate"><span class="pre">BatchDeformation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.characterize_batch"><code class="docutils literal notranslate"><span class="pre">characterize_batch()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.simulate_batch_effect"><code class="docutils literal notranslate"><span class="pre">simulate_batch_effect()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#parameter-utilities">Parameter utilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.stats_to_theta"><code class="docutils literal notranslate"><span class="pre">stats_to_theta()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.theta_to_stats"><code class="docutils literal notranslate"><span class="pre">theta_to_stats()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#compatibility">Compatibility</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#local-multi-reference-3d-generation">Local multi-reference 3D generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.simulate_local_references"><code class="docutils literal notranslate"><span class="pre">simulate_local_references()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.simulate_stack"><code class="docutils literal notranslate"><span class="pre">simulate_stack()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api.html#FEAST.calibrate_local_references"><code class="docutils literal notranslate"><span class="pre">calibrate_local_references()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">FEAST</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../FEAST.html">FEAST</a></li>
+      <li class="breadcrumb-item active">FEAST.alignment.alignment_simulator</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for FEAST.alignment.alignment_simulator</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">anndata</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ad</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="c1"># Import core simulation functions from the main simulator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..FEAST_core.simulator</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SpatialSimulator</span><span class="p">,</span> 
+    <span class="n">simulate_single_slice</span><span class="p">,</span> 
+    <span class="n">safe_calculate_qc_metrics</span>
+<span class="p">)</span>
+
+<span class="c1"># Import alignment transformation classes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.spatial_align_alter</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpatialTransformer</span><span class="p">,</span> <span class="n">RotationTransformer</span><span class="p">,</span> <span class="n">WarpTransformer</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_sanitize_params_for_hdf5</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert AlterationConfig objects to dictionaries for HDF5 serialization.</span>
+<span class="sd">    </span>
+<span class="sd">    AnnData&#39;s HDF5 writer cannot serialize custom Python objects like AlterationConfig.</span>
+<span class="sd">    This function converts them to plain dictionaries that can be saved.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        params: Dictionary that may contain AlterationConfig objects</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Sanitized dictionary with AlterationConfig converted to dict, or None if input is None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    
+    <span class="c1"># Use deep copy to handle nested dictionaries properly</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
+    <span class="n">sanitized</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    
+    <span class="c1"># Check if alteration_config exists and is an AlterationConfig object</span>
+    <span class="k">if</span> <span class="s1">&#39;alteration_config&#39;</span> <span class="ow">in</span> <span class="n">sanitized</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">..modeling.marginal_alteration</span><span class="w"> </span><span class="kn">import</span> <span class="n">AlterationConfig</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sanitized</span><span class="p">[</span><span class="s1">&#39;alteration_config&#39;</span><span class="p">],</span> <span class="n">AlterationConfig</span><span class="p">):</span>
+                <span class="n">sanitized</span><span class="p">[</span><span class="s1">&#39;alteration_config&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sanitized</span><span class="p">[</span><span class="s1">&#39;alteration_config&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="k">pass</span>
+    
+    <span class="k">return</span> <span class="n">sanitized</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">AlignmentSimulator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Comprehensive spatial alignment simulator that combines expression simulation </span>
+<span class="sd">    with spatial transformations for benchmarking alignment algorithms.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference_adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">model_params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize alignment simulator with reference data.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            reference_adata: Reference spatial transcriptomics data</span>
+<span class="sd">            model_params: Pre-fitted model parameters (optional)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s1">&#39;spatial&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">reference_adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Reference AnnData must contain &#39;spatial&#39; coordinates.&quot;</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">reference_adata</span> <span class="o">=</span> <span class="n">reference_adata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reference_adata</span><span class="o">.</span><span class="n">var_names_make_unique</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reference_adata</span><span class="o">.</span><span class="n">obs_names_make_unique</span><span class="p">()</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">core_simulator</span> <span class="o">=</span> <span class="n">SpatialSimulator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reference_adata</span><span class="p">,</span> <span class="n">model_params</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fitted</span> <span class="o">=</span> <span class="kc">False</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;AlignmentSimulator&#39;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fit the underlying expression simulation model.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            **kwargs: Arguments passed to SpatialSimulator.fit_model()</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Self for method chaining</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fitting expression simulation model for alignment benchmarking...&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">core_simulator</span><span class="o">.</span><span class="n">fit_model</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fitted</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="bp">self</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">simulate_with_rotation</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> 
+        <span class="n">rotation_angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">30.0</span><span class="p">,</span>
+        <span class="n">data_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;imaging&#39;</span><span class="p">,</span>
+        <span class="n">center_correction</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">keep_bounds</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">min_space</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">expression_params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate a pair of aligned datasets: original and rotated with expression simulation.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            rotation_angle: Rotation angle in degrees</span>
+<span class="sd">            data_type: &#39;imaging&#39; or &#39;sequencing&#39; - determines transformation method</span>
+<span class="sd">            center_correction: Center point for rotation</span>
+<span class="sd">            keep_bounds: Whether to keep only spots within original bounds</span>
+<span class="sd">            min_space: Minimal spacing for sequencing data (auto-calculated if None)</span>
+<span class="sd">            expression_params: Parameters for expression simulation</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple of (original_simulated, rotated_simulated) AnnData objects</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fitted</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Model not fitted. Call fit_model() first.&quot;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">expression_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">expression_params</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;verbose&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="s1">&#39;boundary_multiplier&#39;</span><span class="p">:</span> <span class="mf">1.1</span>
+            <span class="p">}</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generating alignment dataset with </span><span class="si">{</span><span class="n">rotation_angle</span><span class="si">}</span><span class="s2">° rotation (</span><span class="si">{</span><span class="n">data_type</span><span class="si">}</span><span class="s2"> method)&quot;</span><span class="p">)</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Simulating expression for original dataset...&quot;</span><span class="p">)</span>
+        <span class="n">original_simulated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">core_simulator</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="o">**</span><span class="n">expression_params</span><span class="p">)</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Applying </span><span class="si">{</span><span class="n">data_type</span><span class="si">}</span><span class="s2"> rotation transformation...&quot;</span><span class="p">)</span>
+        <span class="n">rotation_transformer</span> <span class="o">=</span> <span class="n">RotationTransformer</span><span class="p">(</span><span class="n">original_simulated</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">data_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;imaging&#39;</span><span class="p">:</span>
+            <span class="n">rotated_transformed</span> <span class="o">=</span> <span class="n">rotation_transformer</span><span class="o">.</span><span class="n">transform_imaging</span><span class="p">(</span>
+                <span class="n">rotation_angle</span><span class="o">=</span><span class="n">rotation_angle</span><span class="p">,</span>
+                <span class="n">center_correction</span><span class="o">=</span><span class="n">center_correction</span><span class="p">,</span>
+                <span class="n">keep_bounds</span><span class="o">=</span><span class="n">keep_bounds</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">data_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;sequencing&#39;</span><span class="p">:</span>
+            <span class="n">rotated_transformed</span> <span class="o">=</span> <span class="n">rotation_transformer</span><span class="o">.</span><span class="n">transform_sequencing</span><span class="p">(</span>
+                <span class="n">rotation_angle</span><span class="o">=</span><span class="n">rotation_angle</span><span class="p">,</span>
+                <span class="n">center_correction</span><span class="o">=</span><span class="n">center_correction</span><span class="p">,</span>
+                <span class="n">min_space</span><span class="o">=</span><span class="n">min_space</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;data_type must be &#39;imaging&#39; or &#39;sequencing&#39;&quot;</span><span class="p">)</span>
+        
+        <span class="n">original_simulated</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;alignment_simulation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;original&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;rotation_angle&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s1">&#39;data_type&#39;</span><span class="p">:</span> <span class="n">data_type</span><span class="p">,</span>
+            <span class="s1">&#39;expression_params&#39;</span><span class="p">:</span> <span class="n">_sanitize_params_for_hdf5</span><span class="p">(</span><span class="n">expression_params</span><span class="p">)</span>
+        <span class="p">}</span>
+        
+        <span class="n">rotated_transformed</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;alignment_simulation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;rotated&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;rotation_angle&#39;</span><span class="p">:</span> <span class="n">rotation_angle</span><span class="p">,</span>
+            <span class="s1">&#39;data_type&#39;</span><span class="p">:</span> <span class="n">data_type</span><span class="p">,</span>
+            <span class="s1">&#39;expression_params&#39;</span><span class="p">:</span> <span class="n">_sanitize_params_for_hdf5</span><span class="p">(</span><span class="n">expression_params</span><span class="p">)</span>
+        <span class="p">}</span>
+        
+        <span class="c1"># Calculate QC metrics for both datasets</span>
+        <span class="n">safe_calculate_qc_metrics</span><span class="p">(</span><span class="n">original_simulated</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">safe_calculate_qc_metrics</span><span class="p">(</span><span class="n">rotated_transformed</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✓ Alignment dataset generation complete:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Original: </span><span class="si">{</span><span class="n">original_simulated</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> spots&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Rotated: </span><span class="si">{</span><span class="n">rotated_transformed</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> spots&quot;</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">original_simulated</span><span class="p">,</span> <span class="n">rotated_transformed</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">simulate_with_warp</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">distort_level</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+        <span class="n">grid_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">apply_rotation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">expression_params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate a pair of datasets: original and warped using thin plate splines.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            distort_level: Level of spatial distortion</span>
+<span class="sd">            grid_size: Grid size for control points</span>
+<span class="sd">            alpha: TPS regularization parameter</span>
+<span class="sd">            apply_rotation: Whether to apply additional rotation/translation</span>
+<span class="sd">            expression_params: Parameters for expression simulation</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple of (original_simulated, warped_simulated) AnnData objects</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fitted</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Model not fitted. Call fit_model() first.&quot;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">expression_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">expression_params</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;verbose&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="s1">&#39;boundary_multiplier&#39;</span><span class="p">:</span> <span class="mf">1.1</span>
+            <span class="p">}</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generating alignment dataset with TPS warping (distort_level=</span><span class="si">{</span><span class="n">distort_level</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Simulating expression for original dataset...&quot;</span><span class="p">)</span>
+        <span class="n">original_simulated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">core_simulator</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="o">**</span><span class="n">expression_params</span><span class="p">)</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Applying TPS warping transformation...&quot;</span><span class="p">)</span>
+        <span class="n">warp_transformer</span> <span class="o">=</span> <span class="n">WarpTransformer</span><span class="p">(</span>
+            <span class="n">original_simulated</span><span class="p">,</span>
+            <span class="n">distort_level</span><span class="o">=</span><span class="n">distort_level</span><span class="p">,</span>
+            <span class="n">grid_size</span><span class="o">=</span><span class="n">grid_size</span><span class="p">,</span>
+            <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span>
+        <span class="p">)</span>
+        <span class="n">warped_transformed</span> <span class="o">=</span> <span class="n">warp_transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">apply_rotation</span><span class="o">=</span><span class="n">apply_rotation</span><span class="p">)</span>
+        
+        <span class="n">original_simulated</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;alignment_simulation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;original&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;transformation&#39;</span><span class="p">:</span> <span class="s1">&#39;none&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;expression_params&#39;</span><span class="p">:</span> <span class="n">_sanitize_params_for_hdf5</span><span class="p">(</span><span class="n">expression_params</span><span class="p">)</span>
+        <span class="p">}</span>
+        
+        <span class="n">warped_transformed</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;alignment_simulation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;warped&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;transformation&#39;</span><span class="p">:</span> <span class="s1">&#39;TPS&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;distort_level&#39;</span><span class="p">:</span> <span class="n">distort_level</span><span class="p">,</span>
+            <span class="s1">&#39;grid_size&#39;</span><span class="p">:</span> <span class="n">grid_size</span><span class="p">,</span>
+            <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="n">alpha</span><span class="p">,</span>
+            <span class="s1">&#39;apply_rotation&#39;</span><span class="p">:</span> <span class="n">apply_rotation</span><span class="p">,</span>
+            <span class="s1">&#39;expression_params&#39;</span><span class="p">:</span> <span class="n">_sanitize_params_for_hdf5</span><span class="p">(</span><span class="n">expression_params</span><span class="p">)</span>
+        <span class="p">}</span>
+        
+        <span class="c1"># Calculate QC metrics</span>
+        <span class="n">safe_calculate_qc_metrics</span><span class="p">(</span><span class="n">original_simulated</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">safe_calculate_qc_metrics</span><span class="p">(</span><span class="n">warped_transformed</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✓ TPS warping simulation complete:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Original: </span><span class="si">{</span><span class="n">original_simulated</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> spots&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Warped: </span><span class="si">{</span><span class="n">warped_transformed</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> spots&quot;</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">original_simulated</span><span class="p">,</span> <span class="n">warped_transformed</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">simulate_with_cut_move</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">cut_bounds</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+        <span class="n">move_offset</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+        <span class="n">expression_params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate datasets with cut-and-move transformation for alignment benchmarking.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            cut_bounds: (x_min, x_max, y_min, y_max) for cutting region</span>
+<span class="sd">            move_offset: (dx, dy) offset for moving the cut region</span>
+<span class="sd">            expression_params: Parameters for expression simulation</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple of (original_simulated, cut_moved_simulated) AnnData objects</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fitted</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Model not fitted. Call fit_model() first.&quot;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">expression_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">expression_params</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;verbose&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="s1">&#39;boundary_multiplier&#39;</span><span class="p">:</span> <span class="mf">1.1</span>
+            <span class="p">}</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generating cut-and-move alignment dataset&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Cut bounds: </span><span class="si">{</span><span class="n">cut_bounds</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Move offset: </span><span class="si">{</span><span class="n">move_offset</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Simulating expression for original dataset...&quot;</span><span class="p">)</span>
+        <span class="n">original_simulated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">core_simulator</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="o">**</span><span class="n">expression_params</span><span class="p">)</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Applying cut-and-move transformation...&quot;</span><span class="p">)</span>
+        <span class="n">spatial_transformer</span> <span class="o">=</span> <span class="n">SpatialTransformer</span><span class="p">(</span><span class="n">original_simulated</span><span class="p">)</span>
+        
+        <span class="n">x_min</span><span class="p">,</span> <span class="n">x_max</span><span class="p">,</span> <span class="n">y_min</span><span class="p">,</span> <span class="n">y_max</span> <span class="o">=</span> <span class="n">cut_bounds</span>
+        <span class="n">cut_region</span> <span class="o">=</span> <span class="n">spatial_transformer</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">x_min</span><span class="p">,</span> <span class="n">x_max</span><span class="p">,</span> <span class="n">y_min</span><span class="p">,</span> <span class="n">y_max</span><span class="p">)</span>
+        
+        <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span> <span class="o">=</span> <span class="n">move_offset</span>
+        <span class="n">cut_moved</span> <span class="o">=</span> <span class="n">spatial_transformer</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">)</span>
+        
+        <span class="n">original_simulated</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;alignment_simulation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;original&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;transformation&#39;</span><span class="p">:</span> <span class="s1">&#39;none&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;expression_params&#39;</span><span class="p">:</span> <span class="n">_sanitize_params_for_hdf5</span><span class="p">(</span><span class="n">expression_params</span><span class="p">)</span>
+        <span class="p">}</span>
+        
+        <span class="n">cut_moved</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;alignment_simulation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;cut_moved&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;transformation&#39;</span><span class="p">:</span> <span class="s1">&#39;cut_move&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;cut_bounds&#39;</span><span class="p">:</span> <span class="n">cut_bounds</span><span class="p">,</span>
+            <span class="s1">&#39;move_offset&#39;</span><span class="p">:</span> <span class="n">move_offset</span><span class="p">,</span>
+            <span class="s1">&#39;expression_params&#39;</span><span class="p">:</span> <span class="n">_sanitize_params_for_hdf5</span><span class="p">(</span><span class="n">expression_params</span><span class="p">)</span>
+        <span class="p">}</span>
+        
+        <span class="c1"># Calculate QC metrics</span>
+        <span class="n">safe_calculate_qc_metrics</span><span class="p">(</span><span class="n">original_simulated</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">safe_calculate_qc_metrics</span><span class="p">(</span><span class="n">cut_moved</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✓ Cut-and-move simulation complete:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Original: </span><span class="si">{</span><span class="n">original_simulated</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> spots&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Cut-moved: </span><span class="si">{</span><span class="n">cut_moved</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> spots&quot;</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">original_simulated</span><span class="p">,</span> <span class="n">cut_moved</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_benchmark_dataset</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">transformations</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span>
+        <span class="n">expression_params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">base_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;alignment_benchmark&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate a comprehensive benchmark dataset with multiple transformations.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            transformations: Dictionary of transformation configurations</span>
+<span class="sd">                Example:</span>
+<span class="sd">                {</span>
+<span class="sd">                    &#39;rotation_30&#39;: {&#39;type&#39;: &#39;rotation&#39;, &#39;angle&#39;: 30, &#39;data_type&#39;: &#39;imaging&#39;},</span>
+<span class="sd">                    &#39;rotation_60&#39;: {&#39;type&#39;: &#39;rotation&#39;, &#39;angle&#39;: 60, &#39;data_type&#39;: &#39;sequencing&#39;},</span>
+<span class="sd">                    &#39;warp_light&#39;: {&#39;type&#39;: &#39;warp&#39;, &#39;distort_level&#39;: 50, &#39;grid_size&#39;: 3},</span>
+<span class="sd">                    &#39;warp_heavy&#39;: {&#39;type&#39;: &#39;warp&#39;, &#39;distort_level&#39;: 200, &#39;grid_size&#39;: 4},</span>
+<span class="sd">                    &#39;cut_move&#39;: {&#39;type&#39;: &#39;cut_move&#39;, &#39;cut_bounds&#39;: (0, 100, 0, 100), &#39;move_offset&#39;: (20, 30)}</span>
+<span class="sd">                }</span>
+<span class="sd">            expression_params: Global expression parameters</span>
+<span class="sd">            base_name: Base name for dataset identification</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Dictionary mapping transformation names to (original, transformed) data pairs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fitted</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Model not fitted. Call fit_model() first.&quot;</span><span class="p">)</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generating comprehensive benchmark dataset with </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">transformations</span><span class="p">)</span><span class="si">}</span><span class="s2"> transformations&quot;</span><span class="p">)</span>
+        
+        <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+        
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">transformations</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">--- Processing transformation: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> ---&quot;</span><span class="p">)</span>
+            
+            <span class="n">transform_type</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            
+            <span class="k">if</span> <span class="n">transform_type</span> <span class="o">==</span> <span class="s1">&#39;rotation&#39;</span><span class="p">:</span>
+                <span class="n">original</span><span class="p">,</span> <span class="n">transformed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulate_with_rotation</span><span class="p">(</span>
+                    <span class="n">rotation_angle</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;angle&#39;</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span>
+                    <span class="n">data_type</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data_type&#39;</span><span class="p">,</span> <span class="s1">&#39;imaging&#39;</span><span class="p">),</span>
+                    <span class="n">center_correction</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;center_correction&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                    <span class="n">keep_bounds</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;keep_bounds&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+                    <span class="n">min_space</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;min_space&#39;</span><span class="p">),</span>
+                    <span class="n">expression_params</span><span class="o">=</span><span class="n">expression_params</span>
+                <span class="p">)</span>
+            
+            <span class="k">elif</span> <span class="n">transform_type</span> <span class="o">==</span> <span class="s1">&#39;warp&#39;</span><span class="p">:</span>
+                <span class="n">original</span><span class="p">,</span> <span class="n">transformed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulate_with_warp</span><span class="p">(</span>
+                    <span class="n">distort_level</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;distort_level&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+                    <span class="n">grid_size</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;grid_size&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+                    <span class="n">alpha</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;alpha&#39;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+                    <span class="n">apply_rotation</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;apply_rotation&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+                    <span class="n">expression_params</span><span class="o">=</span><span class="n">expression_params</span>
+                <span class="p">)</span>
+            
+            <span class="k">elif</span> <span class="n">transform_type</span> <span class="o">==</span> <span class="s1">&#39;cut_move&#39;</span><span class="p">:</span>
+                <span class="n">original</span><span class="p">,</span> <span class="n">transformed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulate_with_cut_move</span><span class="p">(</span>
+                    <span class="n">cut_bounds</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cut_bounds&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">)),</span>
+                    <span class="n">move_offset</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;move_offset&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">)),</span>
+                    <span class="n">expression_params</span><span class="o">=</span><span class="n">expression_params</span>
+                <span class="p">)</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: Unknown transformation type &#39;</span><span class="si">{</span><span class="n">transform_type</span><span class="si">}</span><span class="s2">&#39; for </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>
+            
+            <span class="c1"># Add benchmark metadata</span>
+            <span class="n">original</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;benchmark_info&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;dataset_name&#39;</span><span class="p">:</span> <span class="n">base_name</span><span class="p">,</span>
+                <span class="s1">&#39;transformation_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+                <span class="s1">&#39;is_reference&#39;</span><span class="p">:</span> <span class="kc">True</span>
+            <span class="p">}</span>
+            <span class="n">transformed</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;benchmark_info&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;dataset_name&#39;</span><span class="p">:</span> <span class="n">base_name</span><span class="p">,</span>
+                <span class="s1">&#39;transformation_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+                <span class="s1">&#39;is_reference&#39;</span><span class="p">:</span> <span class="kc">False</span>
+            <span class="p">}</span>
+            
+            <span class="n">results</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">original</span><span class="p">,</span> <span class="n">transformed</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✓ Completed </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: original=</span><span class="si">{</span><span class="n">original</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, transformed=</span><span class="si">{</span><span class="n">transformed</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">✓ Benchmark dataset generation complete with </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span><span class="si">}</span><span class="s2"> transformation pairs&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">results</span>
+
+
+<span class="c1"># Convenience functions for quick alignment simulation using single slice simulator directly</span>
+
+<div class="viewcode-block" id="simulate_alignment_rotation">
+<a class="viewcode-back" href="../../../api.html#FEAST.alignment.simulate_alignment_rotation">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">simulate_alignment_rotation</span><span class="p">(</span>
+    <span class="n">adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span>
+    <span class="n">rotation_angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">30.0</span><span class="p">,</span>
+    <span class="n">data_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;imaging&#39;</span><span class="p">,</span>
+    <span class="n">fit_params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">expression_params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">filter_edge_spots</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">edge_margin_ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.03</span><span class="p">,</span>
+    <span class="n">center_correction</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">keep_bounds</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">min_space</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Quick function to generate rotated alignment dataset using simulate_single_slice.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        adata: Input spatial transcriptomics data</span>
+<span class="sd">        rotation_angle: Rotation angle in degrees</span>
+<span class="sd">        data_type: &#39;imaging&#39; or &#39;sequencing&#39;</span>
+<span class="sd">        fit_params: Parameters for model fitting (passed to simulate_single_slice)</span>
+<span class="sd">        expression_params: Parameters for expression simulation (passed to simulate_single_slice)</span>
+<span class="sd">        center_correction: Center point for rotation</span>
+<span class="sd">        keep_bounds: Whether to keep only spots within original bounds for imaging data</span>
+<span class="sd">        min_space: Minimal spacing for sequencing data</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Tuple of (original_simulated, rotated_simulated) datasets</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Quick alignment simulation with </span><span class="si">{</span><span class="n">rotation_angle</span><span class="si">}</span><span class="s2">° rotation using simulate_single_slice&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Merge fit_params and expression_params for simulate_single_slice</span>
+    <span class="n">simulation_params</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">fit_params</span><span class="p">:</span>
+        <span class="n">simulation_params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">fit_params</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">expression_params</span><span class="p">:</span>
+        <span class="n">simulation_params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">expression_params</span><span class="p">)</span>
+    
+    <span class="c1"># Set defaults if not provided</span>
+    <span class="k">if</span> <span class="s1">&#39;verbose&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">simulation_params</span><span class="p">:</span>
+        <span class="n">simulation_params</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Generating original dataset using simulate_single_slice...&quot;</span><span class="p">)</span>
+    <span class="n">original_simulated</span> <span class="o">=</span> <span class="n">simulate_single_slice</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="o">**</span><span class="n">simulation_params</span><span class="p">)</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Applying </span><span class="si">{</span><span class="n">data_type</span><span class="si">}</span><span class="s2"> rotation transformation...&quot;</span><span class="p">)</span>
+    <span class="n">rotation_transformer</span> <span class="o">=</span> <span class="n">RotationTransformer</span><span class="p">(</span><span class="n">original_simulated</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">data_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;imaging&#39;</span><span class="p">:</span>
+        <span class="n">rotated_transformed</span> <span class="o">=</span> <span class="n">rotation_transformer</span><span class="o">.</span><span class="n">transform_imaging</span><span class="p">(</span>
+            <span class="n">rotation_angle</span><span class="o">=</span><span class="n">rotation_angle</span><span class="p">,</span>
+            <span class="n">center_correction</span><span class="o">=</span><span class="n">center_correction</span><span class="p">,</span>
+            <span class="n">keep_bounds</span><span class="o">=</span><span class="n">keep_bounds</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">data_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;sequencing&#39;</span><span class="p">:</span>
+        <span class="n">rotated_transformed</span> <span class="o">=</span> <span class="n">rotation_transformer</span><span class="o">.</span><span class="n">transform_sequencing</span><span class="p">(</span>
+            <span class="n">rotation_angle</span><span class="o">=</span><span class="n">rotation_angle</span><span class="p">,</span>
+            <span class="n">center_correction</span><span class="o">=</span><span class="n">center_correction</span><span class="p">,</span>
+            <span class="n">min_space</span><span class="o">=</span><span class="n">min_space</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;data_type must be &#39;imaging&#39; or &#39;sequencing&#39;&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Optional: filter edge spots from the transformed slice to remove cut edges</span>
+    <span class="k">if</span> <span class="n">filter_edge_spots</span><span class="p">:</span>
+        <span class="n">rotated_before</span> <span class="o">=</span> <span class="n">rotated_transformed</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">rotated_transformed</span> <span class="o">=</span> <span class="n">_filter_edge_spots</span><span class="p">(</span><span class="n">rotated_transformed</span><span class="p">,</span> <span class="n">margin_ratio</span><span class="o">=</span><span class="n">edge_margin_ratio</span><span class="p">)</span>
+        <span class="n">removed_n</span> <span class="o">=</span> <span class="n">rotated_before</span> <span class="o">-</span> <span class="n">rotated_transformed</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">removed_n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Filtered </span><span class="si">{</span><span class="n">removed_n</span><span class="si">}</span><span class="s2"> edge spots (margin_ratio=</span><span class="si">{</span><span class="n">edge_margin_ratio</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">) from rotated slice&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Convert AlterationConfig to dict if present (needed for HDF5 serialization)</span>
+    <span class="n">simulation_params_serializable</span> <span class="o">=</span> <span class="n">_sanitize_params_for_hdf5</span><span class="p">(</span><span class="n">simulation_params</span><span class="p">)</span>
+    
+    <span class="n">original_simulated</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;alignment_simulation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;original&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;rotation_angle&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s1">&#39;data_type&#39;</span><span class="p">:</span> <span class="n">data_type</span><span class="p">,</span>
+        <span class="s1">&#39;simulation_method&#39;</span><span class="p">:</span> <span class="s1">&#39;simulate_single_slice&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;simulation_params&#39;</span><span class="p">:</span> <span class="n">simulation_params_serializable</span>
+    <span class="p">}</span>
+    
+    <span class="n">rotated_transformed</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;alignment_simulation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;rotated&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;rotation_angle&#39;</span><span class="p">:</span> <span class="n">rotation_angle</span><span class="p">,</span>
+        <span class="s1">&#39;data_type&#39;</span><span class="p">:</span> <span class="n">data_type</span><span class="p">,</span>
+        <span class="s1">&#39;simulation_method&#39;</span><span class="p">:</span> <span class="s1">&#39;simulate_single_slice&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;simulation_params&#39;</span><span class="p">:</span> <span class="n">simulation_params_serializable</span><span class="p">,</span>
+        <span class="s1">&#39;edge_filter&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;enabled&#39;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="n">filter_edge_spots</span><span class="p">),</span> <span class="s1">&#39;margin_ratio&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">edge_margin_ratio</span><span class="p">)}</span>
+    <span class="p">}</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✓ Alignment dataset generation complete using simulate_single_slice:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Original: </span><span class="si">{</span><span class="n">original_simulated</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> spots&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Rotated: </span><span class="si">{</span><span class="n">rotated_transformed</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> spots&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">original_simulated</span><span class="p">,</span> <span class="n">rotated_transformed</span></div>
+
+
+
+<div class="viewcode-block" id="simulate_alignment_warp">
+<a class="viewcode-back" href="../../../api.html#FEAST.alignment.simulate_alignment_warp">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">simulate_alignment_warp</span><span class="p">(</span>
+    <span class="n">adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span>
+    <span class="n">distort_level</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="n">fit_params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">expression_params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">filter_edge_spots</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">edge_margin_ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.03</span><span class="p">,</span>
+    <span class="n">grid_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">apply_rotation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Quick function to generate TPS-warped alignment dataset using simulate_single_slice.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        adata: Input spatial transcriptomics data</span>
+<span class="sd">        distort_level: Level of spatial distortion</span>
+<span class="sd">        fit_params: Parameters for model fitting (passed to simulate_single_slice)</span>
+<span class="sd">        expression_params: Parameters for expression simulation (passed to simulate_single_slice)</span>
+<span class="sd">        grid_size: Grid size for control points</span>
+<span class="sd">        alpha: TPS regularization parameter</span>
+<span class="sd">        apply_rotation: Whether to apply additional rotation/translation</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Tuple of (original_simulated, warped_simulated) datasets</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Quick alignment simulation with TPS warping (distort_level=</span><span class="si">{</span><span class="n">distort_level</span><span class="si">}</span><span class="s2">) using simulate_single_slice&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Merge fit_params and expression_params for simulate_single_slice</span>
+    <span class="n">simulation_params</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">fit_params</span><span class="p">:</span>
+        <span class="n">simulation_params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">fit_params</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">expression_params</span><span class="p">:</span>
+        <span class="n">simulation_params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">expression_params</span><span class="p">)</span>
+    
+    <span class="c1"># Set defaults if not provided</span>
+    <span class="k">if</span> <span class="s1">&#39;verbose&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">simulation_params</span><span class="p">:</span>
+        <span class="n">simulation_params</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Generating original dataset using simulate_single_slice...&quot;</span><span class="p">)</span>
+    <span class="n">original_simulated</span> <span class="o">=</span> <span class="n">simulate_single_slice</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="o">**</span><span class="n">simulation_params</span><span class="p">)</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Applying TPS warping transformation...&quot;</span><span class="p">)</span>
+    <span class="n">warp_transformer</span> <span class="o">=</span> <span class="n">WarpTransformer</span><span class="p">(</span>
+        <span class="n">original_simulated</span><span class="p">,</span>
+        <span class="n">distort_level</span><span class="o">=</span><span class="n">distort_level</span><span class="p">,</span>
+        <span class="n">grid_size</span><span class="o">=</span><span class="n">grid_size</span><span class="p">,</span>
+        <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span>
+    <span class="p">)</span>
+    <span class="n">warped_transformed</span> <span class="o">=</span> <span class="n">warp_transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
+        <span class="n">apply_rotation</span><span class="o">=</span><span class="n">apply_rotation</span>
+    <span class="p">)</span>
+    
+    <span class="c1"># Optional: filter edge spots from the transformed slice to remove cut edges</span>
+    <span class="k">if</span> <span class="n">filter_edge_spots</span><span class="p">:</span>
+        <span class="n">warped_before</span> <span class="o">=</span> <span class="n">warped_transformed</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">warped_transformed</span> <span class="o">=</span> <span class="n">_filter_edge_spots</span><span class="p">(</span><span class="n">warped_transformed</span><span class="p">,</span> <span class="n">margin_ratio</span><span class="o">=</span><span class="n">edge_margin_ratio</span><span class="p">)</span>
+        <span class="n">removed_n</span> <span class="o">=</span> <span class="n">warped_before</span> <span class="o">-</span> <span class="n">warped_transformed</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">removed_n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Filtered </span><span class="si">{</span><span class="n">removed_n</span><span class="si">}</span><span class="s2"> edge spots (margin_ratio=</span><span class="si">{</span><span class="n">edge_margin_ratio</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">) from warped slice&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Convert AlterationConfig to dict if present (needed for HDF5 serialization)</span>
+    <span class="n">simulation_params_serializable</span> <span class="o">=</span> <span class="n">_sanitize_params_for_hdf5</span><span class="p">(</span><span class="n">simulation_params</span><span class="p">)</span>
+    
+    <span class="n">original_simulated</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;alignment_simulation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;original&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;transformation&#39;</span><span class="p">:</span> <span class="s1">&#39;none&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;simulation_method&#39;</span><span class="p">:</span> <span class="s1">&#39;simulate_single_slice&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;simulation_params&#39;</span><span class="p">:</span> <span class="n">simulation_params_serializable</span>
+    <span class="p">}</span>
+    
+    <span class="n">warped_transformed</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;alignment_simulation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;warped&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;transformation&#39;</span><span class="p">:</span> <span class="s1">&#39;TPS&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;distort_level&#39;</span><span class="p">:</span> <span class="n">distort_level</span><span class="p">,</span>
+        <span class="s1">&#39;grid_size&#39;</span><span class="p">:</span> <span class="n">grid_size</span><span class="p">,</span>
+        <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="n">alpha</span><span class="p">,</span>
+        <span class="s1">&#39;apply_rotation&#39;</span><span class="p">:</span> <span class="n">apply_rotation</span><span class="p">,</span>
+        <span class="s1">&#39;simulation_method&#39;</span><span class="p">:</span> <span class="s1">&#39;simulate_single_slice&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;simulation_params&#39;</span><span class="p">:</span> <span class="n">simulation_params_serializable</span><span class="p">,</span>
+        <span class="s1">&#39;edge_filter&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;enabled&#39;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="n">filter_edge_spots</span><span class="p">),</span> <span class="s1">&#39;margin_ratio&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">edge_margin_ratio</span><span class="p">)}</span>
+    <span class="p">}</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✓ TPS warping simulation complete using simulate_single_slice:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Original: </span><span class="si">{</span><span class="n">original_simulated</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> spots&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Warped: </span><span class="si">{</span><span class="n">warped_transformed</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> spots&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">original_simulated</span><span class="p">,</span> <span class="n">warped_transformed</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_alignment_benchmark_suite</span><span class="p">(</span>
+    <span class="n">adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span>
+    <span class="n">transformations</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fit_params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">expression_params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a comprehensive alignment benchmark suite using simulate_single_slice directly.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        adata: Input spatial transcriptomics data</span>
+<span class="sd">        transformations: Custom transformation configurations (uses defaults if None)</span>
+<span class="sd">        fit_params: Parameters for model fitting (passed to simulate_single_slice)</span>
+<span class="sd">        expression_params: Parameters for expression simulation (passed to simulate_single_slice)</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Dictionary of transformation name -&gt; (original, transformed) pairs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Generating comprehensive alignment benchmark suite using simulate_single_slice&quot;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">transformations</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">transformations</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="c1"># Rotation transformations</span>
+            <span class="s1">&#39;rotation_15_imaging&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;rotation&#39;</span><span class="p">,</span> <span class="s1">&#39;angle&#39;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="s1">&#39;data_type&#39;</span><span class="p">:</span> <span class="s1">&#39;imaging&#39;</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;rotation_30_imaging&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;rotation&#39;</span><span class="p">,</span> <span class="s1">&#39;angle&#39;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span> <span class="s1">&#39;data_type&#39;</span><span class="p">:</span> <span class="s1">&#39;imaging&#39;</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;rotation_45_imaging&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;rotation&#39;</span><span class="p">,</span> <span class="s1">&#39;angle&#39;</span><span class="p">:</span> <span class="mi">45</span><span class="p">,</span> <span class="s1">&#39;data_type&#39;</span><span class="p">:</span> <span class="s1">&#39;imaging&#39;</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;rotation_30_sequencing&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;rotation&#39;</span><span class="p">,</span> <span class="s1">&#39;angle&#39;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span> <span class="s1">&#39;data_type&#39;</span><span class="p">:</span> <span class="s1">&#39;sequencing&#39;</span>
+            <span class="p">},</span>
+            
+            <span class="c1"># Warping transformations</span>
+            <span class="s1">&#39;warp_light&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;warp&#39;</span><span class="p">,</span> <span class="s1">&#39;distort_level&#39;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span> <span class="s1">&#39;grid_size&#39;</span><span class="p">:</span> <span class="mi">3</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;warp_medium&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;warp&#39;</span><span class="p">,</span> <span class="s1">&#39;distort_level&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="s1">&#39;grid_size&#39;</span><span class="p">:</span> <span class="mi">3</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;warp_heavy&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;warp&#39;</span><span class="p">,</span> <span class="s1">&#39;distort_level&#39;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span> <span class="s1">&#39;grid_size&#39;</span><span class="p">:</span> <span class="mi">4</span>
+            <span class="p">},</span>
+        <span class="p">}</span>
+    
+    <span class="n">simulation_params</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">fit_params</span><span class="p">:</span>
+        <span class="n">simulation_params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">fit_params</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">expression_params</span><span class="p">:</span>
+        <span class="n">simulation_params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">expression_params</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="s1">&#39;verbose&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">simulation_params</span><span class="p">:</span>
+        <span class="n">simulation_params</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    
+    <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+    
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">transformations</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">--- Processing transformation: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> ---&quot;</span><span class="p">)</span>
+        
+        <span class="n">transform_type</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">transform_type</span> <span class="o">==</span> <span class="s1">&#39;rotation&#39;</span><span class="p">:</span>
+            <span class="n">original</span><span class="p">,</span> <span class="n">transformed</span> <span class="o">=</span> <span class="n">simulate_alignment_rotation</span><span class="p">(</span>
+                <span class="n">adata</span><span class="p">,</span>
+                <span class="n">rotation_angle</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;angle&#39;</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span>
+                <span class="n">data_type</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data_type&#39;</span><span class="p">,</span> <span class="s1">&#39;imaging&#39;</span><span class="p">),</span>
+                <span class="n">fit_params</span><span class="o">=</span><span class="n">fit_params</span><span class="p">,</span>
+                <span class="n">expression_params</span><span class="o">=</span><span class="n">expression_params</span><span class="p">,</span>
+                <span class="n">center_correction</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;center_correction&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                <span class="n">keep_bounds</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;keep_bounds&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+                <span class="n">min_space</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;min_space&#39;</span><span class="p">)</span>
+            <span class="p">)</span>
+        
+        <span class="k">elif</span> <span class="n">transform_type</span> <span class="o">==</span> <span class="s1">&#39;warp&#39;</span><span class="p">:</span>
+            <span class="n">original</span><span class="p">,</span> <span class="n">transformed</span> <span class="o">=</span> <span class="n">simulate_alignment_warp</span><span class="p">(</span>
+                <span class="n">adata</span><span class="p">,</span>
+                <span class="n">distort_level</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;distort_level&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+                <span class="n">fit_params</span><span class="o">=</span><span class="n">fit_params</span><span class="p">,</span>
+                <span class="n">expression_params</span><span class="o">=</span><span class="n">expression_params</span><span class="p">,</span>
+                <span class="n">grid_size</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;grid_size&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+                <span class="n">alpha</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;alpha&#39;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+                <span class="n">apply_rotation</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;apply_rotation&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="p">)</span>
+        
+        <span class="k">elif</span> <span class="n">transform_type</span> <span class="o">==</span> <span class="s1">&#39;cut_move&#39;</span><span class="p">:</span>
+            <span class="c1"># For cut_move, we need to use simulate_single_slice directly and then transform</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Generating original dataset using simulate_single_slice...&quot;</span><span class="p">)</span>
+            <span class="n">original</span> <span class="o">=</span> <span class="n">simulate_single_slice</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="o">**</span><span class="n">simulation_params</span><span class="p">)</span>
+            
+            <span class="c1"># Apply cut-and-move transformation</span>
+            <span class="n">spatial_transformer</span> <span class="o">=</span> <span class="n">SpatialTransformer</span><span class="p">(</span><span class="n">original</span><span class="p">)</span>
+            <span class="n">cut_bounds</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cut_bounds&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">))</span>
+            <span class="n">move_offset</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;move_offset&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">))</span>
+            
+            <span class="n">x_min</span><span class="p">,</span> <span class="n">x_max</span><span class="p">,</span> <span class="n">y_min</span><span class="p">,</span> <span class="n">y_max</span> <span class="o">=</span> <span class="n">cut_bounds</span>
+            <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span> <span class="o">=</span> <span class="n">move_offset</span>
+            
+            <span class="n">cut_region</span> <span class="o">=</span> <span class="n">spatial_transformer</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">x_min</span><span class="p">,</span> <span class="n">x_max</span><span class="p">,</span> <span class="n">y_min</span><span class="p">,</span> <span class="n">y_max</span><span class="p">)</span>
+            <span class="n">transformed</span> <span class="o">=</span> <span class="n">spatial_transformer</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">)</span>
+            
+            <span class="c1"># Add metadata</span>
+            <span class="c1"># Convert AlterationConfig to dict if present (needed for HDF5 serialization)</span>
+            <span class="n">simulation_params_serializable</span> <span class="o">=</span> <span class="n">_sanitize_params_for_hdf5</span><span class="p">(</span><span class="n">simulation_params</span><span class="p">)</span>
+            
+            <span class="n">original</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;alignment_simulation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;original&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;transformation&#39;</span><span class="p">:</span> <span class="s1">&#39;none&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;simulation_method&#39;</span><span class="p">:</span> <span class="s1">&#39;simulate_single_slice&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;simulation_params&#39;</span><span class="p">:</span> <span class="n">simulation_params_serializable</span>
+            <span class="p">}</span>
+            
+            <span class="n">transformed</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;alignment_simulation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;cut_moved&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;transformation&#39;</span><span class="p">:</span> <span class="s1">&#39;cut_move&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;cut_bounds&#39;</span><span class="p">:</span> <span class="n">cut_bounds</span><span class="p">,</span>
+                <span class="s1">&#39;move_offset&#39;</span><span class="p">:</span> <span class="n">move_offset</span><span class="p">,</span>
+                <span class="s1">&#39;simulation_method&#39;</span><span class="p">:</span> <span class="s1">&#39;simulate_single_slice&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;simulation_params&#39;</span><span class="p">:</span> <span class="n">simulation_params_serializable</span>
+            <span class="p">}</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: Unknown transformation type &#39;</span><span class="si">{</span><span class="n">transform_type</span><span class="si">}</span><span class="s2">&#39; for </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+        
+        <span class="c1"># Add benchmark metadata</span>
+        <span class="n">original</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;benchmark_info&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;dataset_name&#39;</span><span class="p">:</span> <span class="s1">&#39;alignment_benchmark_suite&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;transformation_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;is_reference&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s1">&#39;simulation_method&#39;</span><span class="p">:</span> <span class="s1">&#39;simulate_single_slice&#39;</span>
+        <span class="p">}</span>
+        <span class="n">transformed</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;benchmark_info&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;dataset_name&#39;</span><span class="p">:</span> <span class="s1">&#39;alignment_benchmark_suite&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;transformation_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;is_reference&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s1">&#39;simulation_method&#39;</span><span class="p">:</span> <span class="s1">&#39;simulate_single_slice&#39;</span>
+        <span class="p">}</span>
+        
+        <span class="n">results</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">original</span><span class="p">,</span> <span class="n">transformed</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✓ Completed </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: original=</span><span class="si">{</span><span class="n">original</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, transformed=</span><span class="si">{</span><span class="n">transformed</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">✓ Benchmark dataset generation complete using simulate_single_slice with </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span><span class="si">}</span><span class="s2"> transformation pairs&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">results</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_filter_edge_spots</span><span class="p">(</span><span class="n">adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">margin_ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.03</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remove spots that lie within a margin band along the bounding-box edges.</span>
+
+<span class="sd">    This helps discard edge-cut artifacts introduced by transformations</span>
+<span class="sd">    (rotation/warping) when the slice gets cropped by bounds.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - adata: AnnData with obsm[&#39;spatial&#39;] coordinates</span>
+<span class="sd">    - margin_ratio: Fraction of width/height to treat as an edge band to drop</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - Filtered AnnData copy with edge-band spots removed</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s1">&#39;spatial&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">adata</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="s1">&#39;spatial&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">coords</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">adata</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">coords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">x_min</span><span class="p">,</span> <span class="n">x_max</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">x</span><span class="p">)),</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    <span class="n">y_min</span><span class="p">,</span> <span class="n">y_max</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">y</span><span class="p">)),</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+    <span class="n">mx</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_max</span> <span class="o">-</span> <span class="n">x_min</span><span class="p">)</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">margin_ratio</span><span class="p">)</span>
+    <span class="n">my</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_max</span> <span class="o">-</span> <span class="n">y_min</span><span class="p">)</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">margin_ratio</span><span class="p">)</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="n">x_min</span> <span class="o">+</span> <span class="n">mx</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;</span> <span class="n">x_max</span> <span class="o">-</span> <span class="n">mx</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">y</span> <span class="o">&gt;</span> <span class="n">y_min</span> <span class="o">+</span> <span class="n">my</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">y</span> <span class="o">&lt;</span> <span class="n">y_max</span> <span class="o">-</span> <span class="n">my</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">mask</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">adata</span>
+    <span class="n">filtered</span> <span class="o">=</span> <span class="n">adata</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="c1"># Record simple, H5AD-friendly metadata</span>
+    <span class="n">filtered</span><span class="o">.</span><span class="n">uns</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;post_processing&#39;</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="n">filtered</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;post_processing&#39;</span><span class="p">][</span><span class="s1">&#39;edge_filter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;applied&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s1">&#39;margin_ratio&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">margin_ratio</span><span class="p">),</span>
+        <span class="s1">&#39;removed_n&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">((</span><span class="o">~</span><span class="n">mask</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">filtered</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Yiru CHEN &amp; Maizie Zhou Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
