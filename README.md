@@ -5,6 +5,10 @@
 
 **FEAST** simulates spatial transcriptomics counts by modeling each gene's mean, variance and sparsity. Use a measured slice to generate new counts on the same tissue layout, or design a virtual slice from a spatial blueprint. The package also supports alignment, deconvolution and batch-effect benchmarks.
 
+## Documentation
+
+[FEAST documentation](https://maiziezhoulab.github.io/FEAST/) · [Tutorials](https://maiziezhoulab.github.io/FEAST/tutorials.html) · [API reference](https://maiziezhoulab.github.io/FEAST/api.html)
+
 ## Installation
 
 FEAST-py 1.1.0 requires Python 3.11. In a Python 3.11 environment, install the published package and check which copy Python imports.
@@ -14,7 +18,7 @@ python -m pip install "FEAST-py==1.1.0"
 python -c "from importlib.metadata import version; import FEAST; print(version('FEAST-py'), FEAST.__file__)"
 ```
 
-For an editable Conda installation, follow the [source installation guide](https://github.com/maiziezhoulab/FEAST/blob/v1.1.0/docs/source/installation.rst).
+For an editable Conda installation, follow the [source installation guide](https://maiziezhoulab.github.io/FEAST/installation.html).
 
 ## Simulate a slice
 
