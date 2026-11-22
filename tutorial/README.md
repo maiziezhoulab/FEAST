@@ -11,14 +11,14 @@ Six concise, real-data notebooks explain the main simulation calls and how to in
 | [05 · 2D conditional transfer](05_2d_conditional_transfer.ipynb) | Transfer 151675 expression onto known 151676 anatomy | Observed and generated expression on matching spots |
 | [07 · 3D atlas transfer](07_3d_transfer.ipynb) | Transfer expression from five male E14 references to E15.5 DevCCF sections | Atlas regions and expression at three z levels |
 
-Run each notebook from top to bottom. Generated data and method logs are written under `tutorial/outputs/`.
+The saved outputs were verified with FEAST-py 1.0.6, which uses the same simulation code as 1.1.0. Run each notebook from top to bottom. Generated data and method logs are written under `tutorial/outputs/`.
 
 ## Setup
 
 Use the full `tutorial/` directory from a repository checkout so the notebooks can find their shared helpers. Install FEAST in Python 3.11, then add Jupyter, scikit-misc for variable-gene selection, and PyYAML for the atlas helper. [Installation instructions](../README.md#installation)
 
 ```bash
-python -m pip install "FEAST-py==1.0.6" jupyterlab ipykernel scikit-misc pyyaml
+python -m pip install "FEAST-py==1.1.0" jupyterlab ipykernel scikit-misc pyyaml
 python -m ipykernel install --user --name feast-tutorial --display-name "Python 3 (FEAST)"
 cd /path/to/FEAST
 jupyter lab tutorial/

@@ -7,14 +7,14 @@
 
 ## Installation
 
-FEAST-py 1.0.6 requires Python 3.11. In a Python 3.11 environment, install the published package and check which copy Python imports.
+FEAST-py 1.1.0 requires Python 3.11. In a Python 3.11 environment, install the published package and check which copy Python imports.
 
 ```bash
-python -m pip install "FEAST-py==1.0.6"
+python -m pip install "FEAST-py==1.1.0"
 python -c "from importlib.metadata import version; import FEAST; print(version('FEAST-py'), FEAST.__file__)"
 ```
 
-For an editable Conda installation, follow the [source installation guide](https://github.com/maiziezhoulab/FEAST/blob/main/docs/source/installation.rst).
+For an editable Conda installation, follow the [source installation guide](https://github.com/maiziezhoulab/FEAST/blob/v1.1.0/docs/source/installation.rst).
 
 ## Simulate a slice
 
@@ -34,11 +34,11 @@ The returned AnnData contains simulated counts in `.X` and retains the reference
 
 ## Tutorials
 
-The six notebooks cover single-slice simulation and GraphST clustering, alignment, deconvolution, scVI batch correction, 2D conditional transfer and 3D atlas transfer. The [tutorial guide](https://github.com/maiziezhoulab/FEAST/blob/main/tutorial/README.md) lists the input files and environment for each example.
+The six notebooks cover single-slice simulation and GraphST clustering, alignment, deconvolution, scVI batch correction, 2D conditional transfer and 3D atlas transfer. The [tutorial guide](https://github.com/maiziezhoulab/FEAST/blob/v1.1.0/tutorial/README.md) lists the input files and environment for each example.
 
 ## Article Reproduction
 
-The article's analysis and plotting scripts are in [figure_reproduce](https://github.com/maiziezhoulab/FEAST/tree/main/figure_reproduce).
+The article's analysis and plotting scripts are in [figure_reproduce](https://github.com/maiziezhoulab/FEAST/tree/v1.1.0/figure_reproduce).
 The `reproduce_code/` subdirectory contains the study and preprocessing scripts, and
 `reproduce_figures/Scripts/` contains the plotting scripts. To replay an article
 workflow, use the corresponding study configuration, inputs and results in the
