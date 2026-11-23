@@ -7,8 +7,19 @@ where omega = variance / mean (Fano factor).
 
 import numpy as np
 import pandas as pd
+from scipy.special import expit, logit
 
 EPS = 1e-10
+
+
+def affine_zero_probability(probability, scale, shift):
+    """Apply an affine transform to log odds, including its limits at 0 and 1."""
+    probability = np.clip(np.asarray(probability, dtype=np.float64), 0.0, 1.0)
+    if scale == 1.0 and shift == 0.0:
+        return probability
+    if scale == 0.0:
+        return np.full_like(probability, expit(shift))
+    return expit(scale * logit(probability) + shift)
 
 
 def stats_to_theta(stats_df: pd.DataFrame) -> np.ndarray:

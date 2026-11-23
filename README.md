@@ -10,10 +10,10 @@
 
 ## Installation
 
-FEAST-py 1.1.0 requires Python 3.11. In a Python 3.11 environment, install the published package and check which copy Python imports.
+FEAST-py 1.1.2 requires Python 3.11. In a Python 3.11 environment, install the published package and check which copy Python imports.
 
 ```bash
-python -m pip install "FEAST-py==1.1.0"
+python -m pip install "FEAST-py==1.1.2"
 python -c "from importlib.metadata import version; import FEAST; print(version('FEAST-py'), FEAST.__file__)"
 ```
 

@@ -384,6 +384,8 @@ def simulate_from_reference(
 
         if count_model_params is not None:
             label_cloud = aligned_count_models[label]['target_stats']
+            if 'final_zero_prop' in aligned_count_models[label]:
+                label_cloud = label_cloud.assign(zero_prop=aligned_count_models[label]['final_zero_prop'])
         else:
             label_cloud = _resolve_parameter_cloud(
                 parameter_cloud=parameter_cloud,
@@ -456,7 +458,7 @@ def simulate_from_reference(
                 ),
                 random_seed=int(random_seed if count_seed is None else count_seed) + label_index,
                 show_progress=bool(gen_cfg.verbose),
-                diagnostics=count_diagnostics[label] if count_model_params is not None else None,
+                diagnostics=count_diagnostics[label],
             )
         decode_seconds += time.perf_counter() - decode_started
         counts[target_mask, :] = np.asarray(decoded, dtype=np.int32)
@@ -627,18 +629,18 @@ def _sparse_gene_stats(matrix, gene_names) -> "pd.DataFrame":
         X_sq.data **= 2
         variances = np.asarray(X_sq.mean(axis=0)).ravel() - means ** 2
         n_obs = matrix.shape[0]
-        nz = matrix.getnnz(axis=0) if hasattr(matrix, 'getnnz') else np.diff(matrix.tocsc().indptr)
+        nz = np.asarray((matrix > 0).sum(axis=0)).ravel()
         zero_prop = 1.0 - nz / n_obs
         out = pd.DataFrame(index=list(map(str, gene_names)))
         out["mean"] = np.clip(means, 1e-8, None)
         out["variance"] = np.clip(variances, 1e-8, None)
-        out["zero_prop"] = np.clip(zero_prop, 0.0, 0.99)
+        out["zero_prop"] = zero_prop
         return out
     mat = np.asarray(matrix, dtype=np.float64)
     out = pd.DataFrame(index=list(map(str, gene_names)))
     out["mean"] = np.clip(mat.mean(axis=0), 1e-8, None)
     out["variance"] = np.clip(mat.var(axis=0), 1e-8, None)
-    out["zero_prop"] = np.clip(np.mean(mat <= 0, axis=0), 0.0, 0.99)
+    out["zero_prop"] = np.mean(mat <= 0, axis=0)
     return out
 
 
@@ -657,7 +659,7 @@ def _stats_dataframe(matrix: np.ndarray, gene_names: Sequence[str]) -> pd.DataFr
     out = pd.DataFrame(index=list(map(str, gene_names)))
     out["mean"] = np.clip(matrix.mean(axis=0), 1e-8, None)
     out["variance"] = np.clip(matrix.var(axis=0), 1e-8, None)
-    out["zero_prop"] = np.clip(np.mean(matrix <= 0, axis=0), 0.0, 0.99)
+    out["zero_prop"] = np.mean(matrix <= 0, axis=0)
     return out
 
 
@@ -969,7 +971,7 @@ def _weighted_stats(
         out["zero_prop"] += float(weight) * aligned["zero_prop"].to_numpy(dtype=float)
     out["mean"] = np.clip(out["mean"], 1e-8, None)
     out["variance"] = np.clip(out["variance"], 1e-8, None)
-    out["zero_prop"] = np.clip(out["zero_prop"], 0.0, 0.99)
+    out["zero_prop"] = np.clip(out["zero_prop"], 0.0, 1.0)
     return out
 
 
@@ -1013,7 +1015,7 @@ def _aggregate_label_parameter_clouds(
             "zero_prop": np.clip(
                 np.sum(weights[:, None] * zero_props, axis=0),
                 0.0,
-                0.99,
+                1.0,
             ),
         },
         index=list(gene_names),
@@ -1040,7 +1042,7 @@ def _normalize_stats_frame(frame: pd.DataFrame, gene_names: Sequence[str]) -> pd
     aligned = _align_stats_frame(frame, gene_names)
     aligned["mean"] = np.clip(aligned["mean"].astype(float), 1e-8, None)
     aligned["variance"] = np.clip(aligned["variance"].astype(float), 1e-8, None)
-    aligned["zero_prop"] = np.clip(aligned["zero_prop"].astype(float), 0.0, 0.99)
+    aligned["zero_prop"] = np.clip(aligned["zero_prop"].astype(float), 0.0, 1.0)
     return aligned
 
 
@@ -1058,6 +1060,7 @@ def _stats_frame_to_model_params(stats: pd.DataFrame) -> dict:
     for _, row in stats.iterrows():
         mean = max(float(row["mean"]), 1e-8)
         variance = max(float(row["variance"]), 1e-8)
+        # Bound the starting mixture weight independently of the final zero target.
         pi0 = float(np.clip(row["zero_prop"], 0.0, 0.99))
         active_mean = max(mean / max(1.0 - pi0, 1e-8), 1e-8)
         if variance > active_mean + 1e-8:

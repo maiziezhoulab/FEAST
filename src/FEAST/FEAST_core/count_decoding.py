@@ -316,6 +316,7 @@ def generate_count_bag_from_model_params(
 
 
 def _match_zero_count_and_mean(gene_bag: np.ndarray, target_zero: float, target_mean: float) -> np.ndarray:
+    """Honor rounded zero support first, then the nearest feasible integer total."""
     counts = np.asarray(gene_bag, dtype=np.float64).copy()
     n_spots = counts.shape[0]
     if n_spots == 0 or not np.isfinite(target_zero) or not np.isfinite(target_mean):
@@ -332,11 +333,16 @@ def _match_zero_count_and_mean(gene_bag: np.ndarray, target_zero: float, target_
     positive_sum = float(counts[target_zero_count:].sum())
     target_sum = max(float(target_mean) * n_spots, 0.0)
     n_positive = n_spots - target_zero_count
-    if positive_sum > 1e-12 and target_sum > 0.0 and n_positive > 0:
+    if positive_sum > 1e-12 and n_positive > 0:
         target_total = max(int(np.rint(target_sum)), n_positive)
         remaining = target_total - n_positive
-        weights = counts[target_zero_count:] / positive_sum
-        allocation_float = weights * remaining
+        # One count per positive spot is already reserved.
+        excess = counts[target_zero_count:] - 1.0
+        excess_sum = excess.sum()
+        if excess_sum > 0.0:
+            allocation_float = excess * (remaining / excess_sum)
+        else:
+            allocation_float = np.full(n_positive, remaining / n_positive)
         allocation = np.floor(allocation_float).astype(np.int64)
         remainder = int(remaining - int(allocation.sum()))
         if remainder > 0:
@@ -394,6 +400,7 @@ def decode_counts_by_spatial_intensity(
     boundary = _boundary_per_gene(reference_X, n_genes, model_params, boundary_multiplier)
     final_counts = np.zeros((n_spots, n_genes), dtype=np.float32)
     preserve_variance_floor, preserve_reference_zero = _reference_preservation_policy(model_params)
+    final_zero_prop = model_params.get("final_zero_prop")
 
     iterator = range(n_genes)
     if show_progress:
@@ -402,14 +409,17 @@ def decode_counts_by_spatial_intensity(
         iterator = tqdm(iterator)
 
     if diagnostics is not None:
-        diagnostics.update(intensity_variance_ratio=[], clipped_positions=[], generated_mean=[], generated_variance=[], generated_zero_prop=[])
+        diagnostics.update(intensity_variance_ratio=[], clipped_positions=[], generated_mean=[], generated_variance=[],
+                           generated_zero_prop=[], target_zero_prop=[], requested_total=[], total_adjustment=[])
     for gene_idx in iterator:
         model_type, pi0, r, mu = _model_type_and_params(model_params, gene_idx)
         target_mean, target_var, target_zero = _target_gene_stats(
             model_params, gene_idx, model_type, pi0, r, mu
         )
         if not np.isfinite(target_var) or target_var <= 0.0:
-            _, target_var, target_zero = _theoretical_gene_stats(model_type, pi0, r, mu)
+            _, target_var, theoretical_zero = _theoretical_gene_stats(model_type, pi0, r, mu)
+            if not np.isfinite(target_zero):
+                target_zero = theoretical_zero
 
         ref_values = _gene_values(intensity, gene_idx, n_spots)
         if preserve_reference_zero:
@@ -460,7 +470,8 @@ def decode_counts_by_spatial_intensity(
         if np.isfinite(gene_boundary):
             gene_bag = np.minimum(gene_bag, gene_boundary)
         gene_bag.sort()
-        gene_bag = _match_zero_count_and_mean(gene_bag, target_zero, target_mean)
+        calibration_zero = target_zero if final_zero_prop is None else float(final_zero_prop[gene_idx])
+        gene_bag = _match_zero_count_and_mean(gene_bag, calibration_zero, target_mean)
         if np.isfinite(gene_boundary):
             gene_bag = np.minimum(gene_bag, gene_boundary)
             gene_bag.sort()
@@ -472,6 +483,10 @@ def decode_counts_by_spatial_intensity(
             diagnostics['intensity_variance_ratio'].append(float(np.var(spatial_intensity)) / raw_var if raw_var > 0 else 1.0)
             diagnostics['clipped_positions'].append(clipped_positions)
             realized = np.rint(gene_bag)
+            requested_total = np.rint(max(target_mean, 0.0) * n_spots)
+            diagnostics['target_zero_prop'].append(calibration_zero)
+            diagnostics['requested_total'].append(float(requested_total))
+            diagnostics['total_adjustment'].append(float(realized.sum() - requested_total))
             diagnostics['generated_mean'].append(float(realized.mean()))
             diagnostics['generated_variance'].append(float(realized.var()))
             diagnostics['generated_zero_prop'].append(float(np.mean(realized == 0)))

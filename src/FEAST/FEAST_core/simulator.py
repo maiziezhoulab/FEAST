@@ -66,20 +66,20 @@ def _gene_stats_from_matrix(matrix, gene_names) -> pd.DataFrame:
         X_sq.data **= 2
         variances = np.asarray(X_sq.mean(axis=0)).ravel() - means ** 2
         n_obs = matrix.shape[0]
-        nz = matrix.getnnz(axis=0) if hasattr(matrix, 'getnnz') else np.diff(matrix.tocsc().indptr)
+        nz = np.asarray((matrix > 0).sum(axis=0)).ravel()
         zero_prop = 1.0 - nz / n_obs
         return pd.DataFrame({
             'mean': means,
             'variance': variances,
             'zero_prop': zero_prop,
-        }, index=pd.Index(gene_names, name='gene_id')).clip(lower=1e-10)
+        }, index=pd.Index(gene_names, name='gene_id')).clip(lower=[1e-10, 1e-10, 0.0], axis=1)
     mat = np.asarray(matrix, dtype=np.float64)
     n_obs = mat.shape[0]
     return pd.DataFrame({
         'mean': np.mean(mat, axis=0),
         'variance': np.var(mat, axis=0),
         'zero_prop': 1 - (np.count_nonzero(mat, axis=0) / n_obs),
-    }, index=pd.Index(gene_names, name='gene_id')).clip(lower=1e-10)
+    }, index=pd.Index(gene_names, name='gene_id')).clip(lower=[1e-10, 1e-10, 0.0], axis=1)
 
 
 def _model_selection_counts(model_params: dict) -> dict:
@@ -216,7 +216,7 @@ def simulate_batch_effect(
     adata_sim : AnnData   -- batch-affected slice with preserved spatial pattern
     """
     from scipy.sparse import issparse
-    from .theta_transform import stats_to_theta, theta_to_stats
+    from .theta_transform import affine_zero_probability, stats_to_theta, theta_to_stats
     from .parameter_cloud import apply_batch_deformation, convert_params_for_new_simulator
     from .count_decoding import decode_counts_by_spatial_intensity
 
@@ -230,6 +230,9 @@ def simulate_batch_effect(
     theta_ref = stats_to_theta(stats_ref)
     theta_batch = apply_batch_deformation(theta_ref, D, b, alpha)
     stats_batch = theta_to_stats(theta_batch).clip(lower=1e-10)
+    stats_batch["zero_prop"] = affine_zero_probability(
+        stats_ref["zero_prop"], (1.0 - alpha) + alpha * D[2], alpha * b[2]
+    )
 
     stats_for_conversion = stats_batch.copy()
     stats_for_conversion.index = gene_names
@@ -253,12 +256,14 @@ def simulate_batch_effect(
         }
     }
 
+    count_diagnostics = {}
     simulated_matrix = decode_counts_by_spatial_intensity(
         ref_matrix.astype(np.float64),
         model_params,
         boundary_multiplier=boundary_multiplier,
         reference_X=ref_matrix,
         random_seed=random_seed,
+        diagnostics=count_diagnostics,
     )
 
     sim_adata = ad.AnnData(
@@ -276,6 +281,7 @@ def simulate_batch_effect(
         "D": D.tolist(),
         "b": b.tolist(),
         "alpha": alpha,
+        "count_diagnostics": count_diagnostics,
     }
     sim_adata.var["theta_mu_ref"] = theta_ref[:, 0]
     sim_adata.var["theta_omega_ref"] = theta_ref[:, 1]
@@ -659,6 +665,10 @@ class SpatialSimulator:
             },
             'model_selection_counts': _model_selection_counts(model_params),
         }
+        if isinstance(target_stats, pd.DataFrame):
+            requested = np.rint(target_stats['mean'].clip(lower=0).to_numpy() * simulated_matrix.shape[0])
+            diagnostics['requested_total'] = requested
+            diagnostics['total_adjustment'] = np.asarray(simulated_matrix.sum(axis=0, dtype=np.float64)).ravel() - requested
         return diagnostics
     
     def simulate_by_annotation(self, annotation_key: str, **kwargs) -> ad.AnnData:

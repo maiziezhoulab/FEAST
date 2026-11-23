@@ -15,6 +15,7 @@ import pyvinecopulib as pv
 from ..modeling.StudentT_mixture_model import StudentTMixtureMarginalModeler
 from ..modeling.Beta_mixture_model import BetaMixtureMarginalModeler
 from ..modeling.marginal_alteration import alter_marginal_model, AlterationConfig
+from .theta_transform import affine_zero_probability
 
 STAT_COLUMNS = ['mean', 'variance', 'zero_prop']
 SIMULATION_MODES = ('generative', 'empirical')
@@ -134,8 +135,7 @@ def apply_alteration_to_stats(stats_df: pd.DataFrame, alteration_config=None) ->
     if config.apply_to_zero_prop:
         delta_z = float(config.sparsity_logit_shift)
         if delta_z != 0.0:
-            z = target['zero_prop'].clip(1e-8, 1.0 - 1e-8)
-            target['zero_prop'] = 1.0 / (1.0 + np.exp(-(np.log(z / (1.0 - z)) + delta_z)))
+            target['zero_prop'] = affine_zero_probability(target['zero_prop'], 1.0, delta_z)
     return target
 
 
@@ -145,7 +145,7 @@ def project_stats_to_feasible_domain(stats_df: pd.DataFrame) -> tuple[pd.DataFra
     projected = requested.copy()
     projected['mean'] = projected['mean'].clip(lower=0.0)
     projected['variance'] = projected['variance'].clip(lower=0.0)
-    projected['zero_prop'] = projected['zero_prop'].clip(lower=0.0, upper=0.99)
+    projected['zero_prop'] = projected['zero_prop'].clip(lower=0.0, upper=1.0)
 
     changed = (np.abs(projected - requested) > 1e-12).any(axis=1)
     zero_clipped = np.abs(projected['zero_prop'] - requested['zero_prop']) > 1e-12
@@ -174,7 +174,7 @@ def project_to_count_feasible(stats_df: pd.DataFrame,
         projected.loc[mask, 'variance'] = projected.loc[mask, 'mean'] * min_overdispersion
     projected['mean'] = projected['mean'].clip(lower=1e-10)
     projected['variance'] = projected['variance'].clip(lower=1e-10)
-    projected['zero_prop'] = projected['zero_prop'].clip(lower=0.0, upper=0.99)
+    projected['zero_prop'] = projected['zero_prop'].clip(lower=0.0, upper=1.0)
     return projected, {
         'variance_inflated_gene_count': n_inflated,
         'min_overdispersion': float(min_overdispersion),
@@ -329,20 +329,21 @@ class GeneParameterSimulator:
             X_sq = X.copy()
             X_sq.data **= 2
             variances = np.asarray(X_sq.mean(axis=0)).ravel() - means ** 2
-            nz = X.getnnz(axis=0) if hasattr(X, 'getnnz') else np.diff(X.tocsc().indptr)
+            nz = np.asarray((X > 0).sum(axis=0)).ravel()
             zero_prop = 1.0 - nz / self.n_obs
             self.original_stats = pd.DataFrame({
                 'mean': means,
                 'variance': variances,
                 'zero_prop': zero_prop,
-            }, index=adata.var_names).clip(lower=1e-10)
+            }, index=adata.var_names)
         else:
             Xd = np.asarray(X, dtype=np.float64)
             self.original_stats = pd.DataFrame({
                 'mean': np.mean(Xd, axis=0),
                 'variance': np.var(Xd, axis=0),
                 'zero_prop': 1 - (np.count_nonzero(Xd, axis=0) / self.n_obs),
-            }, index=adata.var_names).clip(lower=1e-10)
+            }, index=adata.var_names)
+        self.original_stats[['mean', 'variance']] = self.original_stats[['mean', 'variance']].clip(lower=1e-10)
         self.target_stats = self.original_stats.copy()
         print("✓ Statistics calculated.")
         return self
@@ -930,7 +931,7 @@ class GeneParameterSimulator:
             if old_global_zp > 1e-10:
                 zp_scale = new_global_zp / old_global_zp
                 self.target_stats['zero_prop'] = np.clip(
-                    self.target_stats['zero_prop'] * zp_scale, 1e-10, 0.99)
+                    self.target_stats['zero_prop'] * zp_scale, 0.0, 1.0)
             if verbose:
                 print(f"    Global sparsity: {old_global_zp:.4f} → {new_global_zp:.4f} "
                       f"(scale: {zp_scale:.4f})")

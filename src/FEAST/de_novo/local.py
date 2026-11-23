@@ -16,16 +16,17 @@ import numpy as np
 import pandas as pd
 from sklearn.neighbors import NearestNeighbors
 
+from .. import __version__
 from ..FEAST_core.parameter_cloud import (
     GeneParameterSimulator, apply_batch_deformation,
     convert_params_for_new_simulator,
 )
-from ..FEAST_core.theta_transform import stats_to_theta, theta_to_stats
+from ..FEAST_core.theta_transform import affine_zero_probability, stats_to_theta, theta_to_stats
 from .conditional import (
     ReferenceFitConfig, SimulationConfig, SimulationReference,
     _blueprint_labels, _boundary_scores, _coordinates, _load_target_blueprint,
     _apply_coordinate_scale, _geometry_distance, _weights_from_geometry_distances,
-    _reference_weights_for_label, fit_reference, simulate_from_reference,
+    _reference_weights_for_label, _weighted_label_stats, fit_reference, simulate_from_reference,
 )
 from .quantile_field import weighted_stats_log_space
 from .transport import normalize_coordinates
@@ -195,7 +196,7 @@ def _prepare_finite_geometry(references, blueprint, target_labels, label_key,
 
 def _generated_table(reference, members, label_key, genes, seed, cache_path):
     name = str(reference.uns['reference_name'])
-    key = json.dumps([name, members, list(genes), int(seed)], ensure_ascii=True)
+    key = json.dumps([__version__, name, label_key, members, list(genes), int(seed)], ensure_ascii=True)
     connection = None
     if cache_path is not None:
         Path(cache_path).parent.mkdir(parents=True, exist_ok=True)
@@ -238,7 +239,7 @@ def simulate_local_references(
     config=None, random_seed: int = 0, parameter_seed: int = 0,
     batch_seed: int | None = None, count_seed: int | None = None,
     cache_path=None, min_positions: int = 50, batch_sd: float = 0.005,
-    batch_deformation=None, fit_cache=None,
+    batch_deformation=None, fit_cache=None, zero_target_source: str = "modeled",
 ):
     """Generate one target with local labels, fixed reference tables and core counts.
 
@@ -253,6 +254,14 @@ def simulate_local_references(
     Thus ``n_references=2`` may select more than two distinct references across
     the target slice. Changing this count changes the modeling policy.
 
+    ``zero_target_source="modeled"`` uses the fused and batch-transformed
+    probability of zero. ``"observed"`` uses source count fractions within each
+    merged modeling group at final allocation. Multiple eligible sources use
+    the configured target parameter rule and the group's reference weights.
+    The default combines source log odds. A single source supplies its exact fraction.
+    Sampling and spatial ranking use the same model in both cases. The rounded
+    zero count takes priority if the rounded mean requires too few counts.
+
     Every active target position, all shared genes, and the complete source
     support of each selected group are retained; source points are not sampled.
     Set ``config=SimulationConfig(transport_dtype="float32")`` to opt into
@@ -260,6 +269,8 @@ def simulate_local_references(
     requirements and precision diagnostics are preserved.
     """
     started = time.perf_counter()
+    if zero_target_source not in {"modeled", "observed"}:
+        raise ValueError("zero_target_source must be 'modeled' or 'observed'")
     cfg = config or SimulationConfig()
     references = sorted(reference_slices, key=lambda ref: str(ref.uns['reference_name']))
     names = [str(ref.uns['reference_name']) for ref in references]
@@ -308,7 +319,7 @@ def simulate_local_references(
     for name in participating:
         source = by_name[name]
         mapping_key = tuple(sorted(mapping.items()))
-        key = (mapping_key, tuple(genes))
+        key = (__version__, label_key, mapping_key, tuple(genes))
         cached = None if fit_cache is None else fit_cache.get(name)
         fitted = cached[1] if cached is not None and cached[0] == key else None
         if fitted is None:
@@ -361,7 +372,7 @@ def simulate_local_references(
             before = time.perf_counter()
             members = merge_metadata['members'][group]
             seed = local_seed(parameter_seed, 'parameters', json.dumps([name, members]))
-            table_key = ('reference_table', name, tuple(members), tuple(genes), seed)
+            table_key = ('reference_table', __version__, name, label_key, tuple(members), tuple(genes), seed)
             cached_table = None if fit_cache is None else fit_cache.get(table_key)
             if cached_table is None:
                 table, diag, hit = _generated_table(by_name[name], members, label_key, genes, seed, cache_path)
@@ -376,12 +387,17 @@ def simulate_local_references(
         fused = weighted_stats_log_space(frames, list(weights.values()), genes)
         deformed = theta_to_stats(apply_batch_deformation(stats_to_theta(fused), D, b, alpha=1.0))
         deformed.index = genes
+        deformed['zero_prop'] = affine_zero_probability(fused['zero_prop'], D[2], b[2])
         before = time.perf_counter()
         params[group] = convert_params_for_new_simulator(deformed,
             n_spots=int(np.sum(modeling_labels == group)), boundary_multiplier=cfg.boundary_multiplier,
             random_seed=local_seed(random_seed, 'conversion', group), n_jobs=1)
         conversion_seconds += time.perf_counter() - before
         params[group]['target_stats'] = deformed
+        if zero_target_source == "observed":
+            eligible = [ref for ref in model_refs if weights.get(ref.reference_name, 0.0) > 0]
+            observed = _weighted_label_stats(group, genes, eligible, weights, cfg.target_parameter_mode)
+            params[group]['final_zero_prop'] = observed['zero_prop'].to_numpy(dtype=np.float64)
         params[group]['parameter_diagnostics'] = {'requested_config': {
             'apply_to_variance': True, 'apply_to_zero_prop': True},
             'preservation_policy': 'final_target_stats'}
@@ -405,7 +421,7 @@ def simulate_local_references(
         'parameter_seed': parameter_seed, 'random_seed': random_seed,
         'batch_seed': batch_seed, 'count_seed': count_seed,
         'genes': genes, 'reference_fits': diagnostics, 'target_statistics': tables,
-        'preservation_policy': 'final_target_stats',
+        'preservation_policy': 'final_target_stats', 'zero_target_source': zero_target_source,
         'timings': {'preprocessing': preprocessing_seconds, 'spatial_preparation': spatial_fit_seconds,
                     'parameter_fitting': fit_seconds, 'conversion': conversion_seconds,
                     'total': time.perf_counter() - started}}, sort_keys=True)
@@ -414,7 +430,7 @@ def simulate_local_references(
 
 def calibrate_local_references(reference_slices, *, label_key, n_references=5,
                                reference_z=None, config=None, random_seed=0,
-                               cache_path=None, min_positions=50, batch_sd=0.005):
+                               cache_path=None, min_positions=50, batch_sd=0.005, zero_target_source="modeled"):
     """Three deterministic whole-reference holdouts; fit all genes, score 20."""
     from .conditional import _counts_matrix, _per_gene_moran
     references = sorted(reference_slices, key=lambda ref: (
@@ -453,7 +469,7 @@ def calibrate_local_references(reference_slices, *, label_key, n_references=5,
                 config=replace(config or SimulationConfig(), assignment_randomness=float(ar)),
                 random_seed=fold_seed, parameter_seed=random_seed, batch_seed=fold_seed,
                 cache_path=cache_path, min_positions=min_positions, batch_sd=batch_sd,
-                fit_cache=fit_cache)
+                fit_cache=fit_cache, zero_target_source=zero_target_source)
             observed = _per_gene_moran(_counts_matrix(result[:, eval_genes]), neighbors)
             valid = np.isfinite(truth) & np.isfinite(observed)
             if valid.sum() < 2 or np.std(truth[valid]) == 0 or np.std(observed[valid]) == 0:
@@ -466,6 +482,7 @@ def calibrate_local_references(reference_slices, *, label_key, n_references=5,
                       'generation': json.loads(result.uns['local_generation_json'])})
     return {'mode': 'reference_only_representative_median', 'reference_only': True,
             'n_references': n_references, 'min_positions': min_positions, 'batch_sd': batch_sd,
+            'zero_target_source': zero_target_source,
             'simulation_config': asdict(replace(config or SimulationConfig(), assignment_randomness=0.0)),
             'weighting': 'actual_z_exponential' if reference_z is not None else 'region_geometry',
             'count_generation': 'fixed_generative_reference_tables_full_core_conversion',

@@ -27,6 +27,7 @@ def simulate_stack(
     cache_path=None,
     config: Optional[SimulationConfig] = None,
     random_seed: int = 0,
+    zero_target_source: str = "modeled",
 ) -> Dict[float, ad.AnnData]:
     gen_cfg = config or SimulationConfig()
     references = _coerce_reference_slices(reference_slices)
@@ -61,7 +62,8 @@ def simulate_stack(
         result = simulate_local_references(references_sorted, blueprint, label_key=label_key,
             n_references=n_references, reference_z=z_by_name, target_z=z,
             config=gen_cfg, random_seed=local_seed(random_seed, 'target', str(z)),
-            parameter_seed=random_seed, cache_path=cache_path, fit_cache=fit_cache)
+            parameter_seed=random_seed, cache_path=cache_path, fit_cache=fit_cache,
+            zero_target_source=zero_target_source)
         assign_generated_coordinates(result, blueprint.active_subset().coordinates, z_value=z)
         output[z] = result
 

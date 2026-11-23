@@ -57,7 +57,7 @@ def _coerce_stats_frame(frame: pd.DataFrame, gene_names: Sequence[str]) -> pd.Da
         raise ValueError("parameter cloud contains missing values.")
     aligned["mean"] = np.clip(aligned["mean"].astype(float), 1e-8, None)
     aligned["variance"] = np.clip(aligned["variance"].astype(float), 1e-8, None)
-    aligned["zero_prop"] = np.clip(aligned["zero_prop"].astype(float), 0.0, 0.99)
+    aligned["zero_prop"] = np.clip(aligned["zero_prop"].astype(float), 0.0, 1.0)
     return aligned
 
 
@@ -123,6 +123,7 @@ def _stats_frame_to_model_params(stats: pd.DataFrame) -> dict:
     for _, row in stats.iterrows():
         mean = max(float(row["mean"]), 1e-8)
         variance = max(float(row["variance"]), 1e-8)
+        # Bound the starting mixture weight independently of the final zero target.
         pi0 = float(np.clip(row["zero_prop"], 0.0, 0.99))
         active_mean = max(mean / max(1.0 - pi0, 1e-8), 1e-8)
         if variance > active_mean + 1e-8:
@@ -490,16 +491,19 @@ def simulate_from_design(
     labels = bp.obs[label_key].astype(str).to_numpy()
     counts = np.zeros((n_spots, n_genes), dtype=np.int32)
     label_cloud_summary: Dict[str, Dict[str, float]] = {}
+    count_diagnostics = {}
     for label in sorted(np.unique(labels)):
         mask = labels == label
         label_cloud = _resolve_parameter_cloud_for_label(parameter_cloud, gene_names, label=label)
         model_params = _stats_frame_to_model_params(label_cloud)
+        count_diagnostics[label] = {}
         decoded = decode_counts_by_spatial_intensity(
             quantiles_arr[mask, :],
             model_params,
             boundary_multiplier=float(gen_cfg.boundary_multiplier),
             random_seed=int(random_seed),
             show_progress=bool(gen_cfg.verbose),
+            diagnostics=count_diagnostics[label],
         )
         counts[mask, :] = np.asarray(decoded, dtype=np.int32)
         label_cloud_summary[label] = {
@@ -537,6 +541,7 @@ def simulate_from_design(
     result.uns["de_novo"] = encode_feast_h5ad_metadata({
         "conditional_generation": False,
         "designed_generation": True,
+        "count_diagnostics": count_diagnostics,
         "label_key": label_key,
         "decode_method": "rank",
         "quantile_calibration": "reference_rank",

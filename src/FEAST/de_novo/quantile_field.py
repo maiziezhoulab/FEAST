@@ -470,17 +470,21 @@ def weighted_stats_log_space(
     eps = 1e-8
     theta_mean = np.zeros(len(genes), dtype=np.float64)
     theta_var = np.zeros(len(genes), dtype=np.float64)
-    theta_zero = np.zeros(len(genes), dtype=np.float64)
+    zero_props = []
     for weight, frame in zip(weights_arr, frames):
         aligned = frame.copy()
         aligned.index = aligned.index.astype(str)
         aligned = aligned.loc[genes, ["mean", "variance", "zero_prop"]]
         theta_mean += float(weight) * np.log(np.clip(aligned["mean"].to_numpy(dtype=float), eps, None))
         theta_var += float(weight) * np.log(np.clip(aligned["variance"].to_numpy(dtype=float), eps, None))
-        zero = np.clip(aligned["zero_prop"].to_numpy(dtype=float), eps, 1.0 - eps)
-        theta_zero += float(weight) * logit(zero)
+        zero_props.append(np.clip(aligned["zero_prop"].to_numpy(dtype=float), 0.0, 1.0))
     out = pd.DataFrame(index=genes)
     out["mean"] = np.clip(np.exp(theta_mean), eps, None)
     out["variance"] = np.clip(np.exp(theta_var), eps, None)
-    out["zero_prop"] = np.clip(expit(theta_zero), 0.0, 0.99)
+    active = weights_arr > 0
+    zeros = np.stack(zero_props)[active]
+    logits = logit(np.clip(zeros, eps, 1.0 - eps))
+    fused = expit(np.sum(weights_arr[active, None] * logits, axis=0))
+    # One source, or agreement between sources, gives its exact probability.
+    out["zero_prop"] = np.where(np.all(zeros == zeros[0], axis=0), zeros[0], fused)
     return out

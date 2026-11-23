@@ -4,12 +4,12 @@ Installation
 Published package
 -----------------
 
-Use a Python 3.11 environment for FEAST-py 1.1.0. The distribution is named
+Use a Python 3.11 environment for FEAST-py 1.1.2. The distribution is named
 ``FEAST-py`` on PyPI and the import name is ``FEAST``.
 
 .. code-block:: bash
 
-    python -m pip install "FEAST-py==1.1.0"
+    python -m pip install "FEAST-py==1.1.2"
     python -c "from importlib.metadata import version; import FEAST; print(version('FEAST-py'), FEAST.__file__)"
 
 Editable Conda installation
