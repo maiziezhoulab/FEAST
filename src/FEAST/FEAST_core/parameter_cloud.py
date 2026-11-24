@@ -439,10 +439,11 @@ class GeneParameterSimulator:
         synthetic_subset = synthetic_df.reset_index(drop=True)
         eps = 1e-10
 
-        # Convert to contiguous numpy arrays once (avoid chained DataFrame ops).
-        # Full mode stays float64 to match the original main-branch solver path.
-        orig_arr64 = assignment_stats[['mean','variance','zero_prop']].to_numpy(dtype=np.float64)
-        synth_arr64 = synthetic_subset[['mean','variance','zero_prop']].to_numpy(dtype=np.float64)
+        orig_arr64 = assignment_stats[STAT_COLUMNS].to_numpy(dtype=np.float64)
+        synth_values = synthetic_subset[STAT_COLUMNS].to_numpy()
+        wide_candidates = synth_values.dtype.itemsize > np.dtype(np.float64).itemsize
+        if not wide_candidates:
+            synth_values = synth_values.astype(np.float64, copy=False)
 
         if not assignment_blocks:
             w = np.array([weights['mean'], weights['variance'], weights['zero_prop']], dtype=np.float64)
@@ -451,8 +452,9 @@ class GeneParameterSimulator:
             orig_log = _bounded_assignment_features(
                 scaler_log.fit_transform(np.log10(np.clip(orig_arr64, eps, None)))
             ) * w
+            synth_log_values = np.log10(np.clip(synth_values, eps, None)).astype(np.float64, copy=False)
             synth_log = _bounded_assignment_features(
-                scaler_log.transform(np.log10(np.clip(synth_arr64, eps, None)))
+                scaler_log.transform(synth_log_values)
             ) * w
             cost_log = _finite_assignment_cost(cdist(orig_log, synth_log, 'euclidean'))
 
@@ -460,9 +462,14 @@ class GeneParameterSimulator:
             orig_raw = _bounded_assignment_features(
                 scaler_raw.fit_transform(np.clip(orig_arr64, 0, None))
             ) * w
-            synth_raw = _bounded_assignment_features(
-                scaler_raw.transform(np.clip(synth_arr64, 0, None))
-            ) * w
+            raw_values = np.clip(synth_values, 0, None)
+            if wide_candidates:
+                # Apply the existing feature bound before narrowing to the solver dtype.
+                standardized = (raw_values - scaler_raw.mean_) / scaler_raw.scale_
+                standardized = np.clip(standardized, -ASSIGNMENT_FEATURE_CLIP, ASSIGNMENT_FEATURE_CLIP)
+            else:
+                standardized = scaler_raw.transform(raw_values)
+            synth_raw = _bounded_assignment_features(standardized) * w
             cost_raw = _finite_assignment_cost(cdist(orig_raw, synth_raw, 'euclidean'))
 
             norm = max(float(cost_log.mean()), float(cost_raw.mean()), eps)
@@ -483,7 +490,7 @@ class GeneParameterSimulator:
         w = np.array([weights['mean'], weights['variance'], weights['zero_prop']], dtype=np.float32)
         f32_max = np.finfo(np.float32).max
         orig_arr = np.clip(orig_arr64, -f32_max, f32_max).astype(np.float32, copy=False)
-        synth_arr = np.clip(synth_arr64, -f32_max, f32_max).astype(np.float32, copy=False)
+        synth_arr = np.clip(synth_values, -f32_max, f32_max).astype(np.float32, copy=False)
 
         scaler_log = StandardScaler()
         orig_log = _bounded_assignment_features(
@@ -723,6 +730,13 @@ class GeneParameterSimulator:
                                'assignment_block_size': assignment_block_size,
                                'assignment_block_multiplier': int(assignment_block_multiplier),
                                'weights': assignment_weights or {'mean': 3.0, 'variance': 1.0, 'zero_prop': 1.0}}
+        if assigned[STAT_COLUMNS].to_numpy().dtype.itemsize > np.dtype(np.float64).itemsize:
+            with np.errstate(over='ignore', invalid='ignore'):
+                assigned_stats = assigned[STAT_COLUMNS].astype(np.float64)
+            if not np.isfinite(assigned_stats.to_numpy()).all():
+                raise FloatingPointError("Selected gene parameters must be finite in float64")
+            assigned[STAT_COLUMNS] = assigned_stats
+
         diagnostics = {
             'simulation_mode': 'generative',
             'gene_parameter_engine': 'generative',

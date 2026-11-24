@@ -288,6 +288,17 @@ class StudentTMixtureMarginalModeler:
                     for quantile in q_clipped[upper_tail]
                 ])
                 tail_values = self._from_model_space(model_values)
+                overflow = np.isposinf(tail_values) & np.isfinite(model_values)
+                if self.log_transform and np.any(overflow):
+                    # Retain the sampled tail until the assignment features are bounded.
+                    out = out.astype(np.longdouble)
+                    tail_values = tail_values.astype(np.longdouble)
+                    with np.errstate(over='ignore', invalid='ignore'):
+                        tail_values[overflow] = np.maximum(
+                            np.power(np.longdouble(10), model_values[overflow].astype(np.longdouble))
+                            - np.longdouble(1e-10),
+                            0.0,
+                        )
                 if not np.all(np.isfinite(tail_values)):
                     raise FloatingPointError(
                         "Student-t upper-tail inverse CDF is not finite in parameter space"
@@ -303,7 +314,7 @@ class StudentTMixtureMarginalModeler:
             return out
 
         return self._ppf_exact(q)
-    
+
     def sample(self, n_samples):
         if not self._is_fitted:
             raise RuntimeError("Model must be fitted first")

@@ -1,5 +1,9 @@
 # Release notes
 
+## 1.1.3
+
+On platforms with extended NumPy precision, Student-t upper-tail candidates beyond the float64 range retain their sampled values until gene assignment. The assignment uses bounded features and the selected gene parameters must fit in float64 before count generation.
+
 ## 1.1.2
 
 Modeled and transformed gene zero fractions now span 0 to 1, including rare genes above 99% zeros. Local-reference generation accepts `zero_target_source="modeled"` (the default) or `"observed"`. The latter calibrates the sampled counts to measured fractions in the eligible source groups using the configured reference weights and combination rule.
